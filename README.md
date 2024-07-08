@@ -23,4 +23,6 @@ EEG sleep data is available upon request. I am in the process of figuring out wh
 ## Run
 
 1. Adjust paths in HBNParameters.m
-2. Run preprocessing scripts Prep1 to Prep
+2. Run preprocessing scripts Prep1 to Prep4
+3. Run the analysis scripts Analysis1 to Analysis2
+4. Run the plotting scripts Plot1 to Plot3
