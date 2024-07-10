@@ -20,7 +20,7 @@ Refresh = true;
 
 Spread = 0; % how many times more the main component has to be larger than the next largest component ("Spread" is a reference to the italian term "spread" referring to the difference between the yields of italian and german bonds)
 SlopeRange = [8 30];
-MuscleSlopeMin = -.5;
+MuscleSlopeMin = .5;
 ChopEdge = 2; % in seconds, cut off these many seconds at the beginning and end of recordings
 WindowLength = 3; % s, bad time windows
 RemoveComps = [2, 3, 4, 6]; % 1:Brain, 2:Muscle, 3:Eye, 4:Heart, 5:Line Noise, 6:Channel Noise, 7:Other
@@ -109,7 +109,7 @@ for Indx_T = 1:numel(Tasks)
         end
         load(Filepath_ICA, 'EEG')
 
-        try
+        % try
             %%% preprocess data
 
             % remove bad channels
@@ -128,11 +128,11 @@ for Indx_T = 1:numel(Tasks)
             Top = top_components_by_category(Components, Spread);
 
             % identify slope in beta-gamma range
-            Slopes = channel_slopes(EEG, SlopeRange, 'ICA', 'fooof');
+            Slopes = ica_slopes(EEG, SlopeRange);
 
             % if anything classified as noise or other that has a flat
             % slope, or tilts positive, then its muscle activity.
-            Top(ismember(Top, [5 6 7]) & Slopes>=MuscleSlopeMin) = 2;
+            Top(ismember(Top, [5 6 7]) & Slopes<=MuscleSlopeMin) = 2;
 
             % remove Muscle, Eye, and Heart components
             Rejects = ismember(Top, RemoveComps);
@@ -170,11 +170,11 @@ for Indx_T = 1:numel(Tasks)
             NewEEG = eeg_checkset(NewEEG);
 
 
-            % last cleaning of data
-            NewEEG = clean_windows(NewEEG,MinDataKeep,WindowCriteriaTolerances); % EEGLABs (veeery lax)
-
-            [NewEEG,removed_channels] = clean_channels_nolocs(NewEEG,...
-                MinCorrelation,NoLocsChannelCritExcluded,[],ChannelCriteriaMaxBadTime);
+            % % last cleaning of data
+            % NewEEG = clean_windows(NewEEG,MinDataKeep,WindowCriteriaTolerances); % EEGLABs (veeery lax)
+            % 
+            % [NewEEG,removed_channels] = clean_channels_nolocs(NewEEG,...
+            %     MinCorrelation,NoLocsChannelCritExcluded,[],ChannelCriteriaMaxBadTime);
 
 
             if size(NewEEG.data, 2) < NewEEG.srate*MinTime
@@ -196,9 +196,9 @@ for Indx_T = 1:numel(Tasks)
             save(fullfile(Destination, File), 'EEG')
 
             disp(['Finished ', File])
-        catch
-            warning('something didnt work')
-        end
+        % catch
+        %     warning('something didnt work')
+        % end
     end
 end
 

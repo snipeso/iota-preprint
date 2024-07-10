@@ -78,8 +78,8 @@ PreprocessingParameters.Power.hp = 0.5; % high pass filter
 PreprocessingParameters.Power.hp_stopband = 0.25; % high pass filter gradual roll-off
 
 % Unfiltered
-PreprocessingParameters.Unfiltered.fs = 250; % new sampling rate
-PreprocessingParameters.Unfiltered.lp = 100; % low pass filter (just because of downsampling
+PreprocessingParameters.Unfiltered.fs = 500; % new sampling rate
+PreprocessingParameters.Unfiltered.lp = []; % low pass filter
 PreprocessingParameters.Unfiltered.hp = []; % high pass filter
 PreprocessingParameters.Unfiltered.hp_stopband = []; % high pass filter gradual roll-off
 
