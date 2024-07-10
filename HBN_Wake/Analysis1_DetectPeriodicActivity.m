@@ -1,3 +1,6 @@
+% calculates power every which way, identifies oscillation peaks for every
+% channel and epoch
+
 clear
 close all
 clc

@@ -9,7 +9,7 @@ The code in this repository was used to generate the data from the Snipes 2024 p
 - the [chART](https://github.com/snipeso/chart) toolbox (just for plotting)
 - the [Matcycle](https://github.com/hubersleeplab/matcycle) toolbox (just for plotting for the burst detection)
 
-The Parallel MATLAB toolbox is probably a good idea.
+The Parallel Processing MATLAB toolbox is probably a good idea.
 
 ## Data
 ### Children wake
