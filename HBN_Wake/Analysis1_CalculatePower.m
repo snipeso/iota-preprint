@@ -18,16 +18,20 @@ WelchWindowLength = 4; % in seconds
 WelchOverlap = .5; % 50% of the welch windows will overlap
 SmoothSpan = 2;
 
-
-% plot parameters
-ScatterSizeScaling = 100;
-Alpha = .05;
-
-
+FooofFrequencyRange = [3 50];
+MaxError = .1;
+MinRSquared = .98;
+RangeSlopes = [0 3];
+RangeIntercepts = [0 5];
 % locations
-Source = fullfile(Paths.Preprocessed, 'Power', 'Clean', Task);
+% DestinationName = 'Clean';
+% Source = fullfile(Paths.Preprocessed, 'Power', 'Clean', Task);
 
-Destination = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', Task);
+DestinationName = 'Unfiltered';
+Source = fullfile(Paths.Preprocessed, 'Unfiltered', 'MAT', Task);
+
+
+Destination = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', DestinationName);
 if ~exist(Destination, 'dir')
     mkdir(Destination)
 end
@@ -57,7 +61,17 @@ for FileIdx = 1:numel(Files)
 
     SmoothPower = oscip.smooth_spectrum(Power, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
 
+
+    [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] = ...
+        oscip.fit_fooof_multidimentional(SmoothPower, Frequencies, FooofFrequencyRange, MaxError, MinRSquared);
+
+    Power = remove_bad_aperiodic(Power, Slopes, Intercepts, RangeSlopes, RangeIntercepts);
+    SmoothPower =  remove_bad_aperiodic(SmoothPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts);
+    PeriodicPower =  remove_bad_aperiodic(PeriodicPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts);
+
     save(fullfile(Destination, Files{FileIdx}), 'Power', 'Frequencies', ...
-        'SmoothPower', 'Chanlocs')
+        'SmoothPower', 'Slopes', 'Intercepts', 'FooofFrequencies', ...
+        'PeriodicPeaks', 'PeriodicPower', 'Errors', 'RSquared', 'Chanlocs')
+
     disp(['Finished ', num2str(FileIdx), '/', num2str(numel(Files))])
 end
