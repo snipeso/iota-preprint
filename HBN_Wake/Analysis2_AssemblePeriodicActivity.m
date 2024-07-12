@@ -16,6 +16,9 @@ Channels = Parameters.Channels;
 IotaBand = [25 35];
 BandwidthRange = [.5 4];
 AlphaBand = [8 13];
+
+ControlBand = [35 45];
+
 FittingFrequencyRange = [3 50];
 NoiseSmoothSpan = 5;
 NoiseFittingFrequencyRange = [5 150];
@@ -54,7 +57,8 @@ AllPeriodicSpectra = nan(nRecordings, 192);
 
 CustomTopographies = nan(nRecordings, 123);
 BandTopographies = CustomTopographies;
-PeriodicBandTopographies = CustomTopographies;
+PeriodicTopographies = CustomTopographies;
+ControlTopographies = CustomTopographies;
 
 Metadata.IotaFrequency = nan(nRecordings, 1); % this is to check that iota is not obviously a harmonic of alpha
 Metadata.AlphaFrequency = nan(nRecordings, 1);
@@ -104,11 +108,11 @@ for RecordingIdx = 1:nRecordings
     AllPeriodicSpectra(RecordingIdx, :) = squeeze(mean(mean(PeriodicPower, 1, 'omitnan'), 2, 'omitnan'))';
 
 
-    
+
     %%% get topographies
     IotaPeak = select_max_peak(Table, IotaBand, BandwidthRange);
 
-    
+
     % custom iota topography
     if ~isempty(IotaPeak)
         IotaCustomRange = dsearchn(FooofFrequencies', [IotaPeak(1)-IotaPeak(3)/2; IotaPeak(1)+IotaPeak(3)/2]);
@@ -118,15 +122,17 @@ for RecordingIdx = 1:nRecordings
     % standard iota range
     Range = dsearchn(FooofFrequencies', IotaBand');
     BandTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(log10(SmoothPower(:, :, Range(1):Range(2))), 3), 2));
-    PeriodicBandTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(PeriodicPower(:, :, Range(1):Range(2)), 3), 2));
-
+    PeriodicTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(PeriodicPower(:, :, Range(1):Range(2)), 3), 2));
+    ControlRange = dsearchn(FooofFrequencies', ControlBand');
+    
+    ControlTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(PeriodicPower(:, :, ControlRange(1):ControlRange(2)), 3), 2));
 
     %%% save peak frequency to check harmonic
     if ~isempty(IotaPeak)
         Metadata.IotaFrequency(RecordingIdx) = IotaPeak(1);
     end
 
-    
+
     AlphaPeak = select_max_peak(Table, AlphaBand, BandwidthRange);
     if ~isempty(AlphaPeak)
         Metadata.AlphaFrequency(RecordingIdx) = AlphaPeak(1);
