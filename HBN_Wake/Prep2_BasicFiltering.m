@@ -28,8 +28,8 @@ Participants(contains(Participants, '.')) = [];
 
 load('StandardChanlocs128.mat', 'StandardChanlocs')
 
-parfor ParticipantIdx = 1:numel(Participants) % loop through participants
-    % for ParticipantIdx = 1:numel(Participants)
+% parfor ParticipantIdx = 1070:numel(Participants) % loop through participants 
+    for ParticipantIdx = 3025:numel(Participants) % doesnt seem to need parfor if theres no filtering happening
 
     AllParams = PrepParameters;
     AllParticipants = Participants;

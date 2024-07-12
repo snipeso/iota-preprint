@@ -9,7 +9,7 @@ clc
 
 P = HBNParameters();
 Paths = P.Paths;
-Task = 'RestingState';
+Task = P.Tasks{1};
 Refresh = false;
 
 % power
@@ -21,8 +21,8 @@ SmoothSpan = 2;
 FooofFrequencyRange = [3 50];
 MaxError = .1;
 MinRSquared = .98;
-RangeSlopes = [0 3];
-RangeIntercepts = [0 5];
+
+
 % locations
 % DestinationName = 'Clean';
 % Source = fullfile(Paths.Preprocessed, 'Power', 'Clean', Task);
@@ -64,10 +64,6 @@ for FileIdx = 1:numel(Files)
 
     [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] = ...
         oscip.fit_fooof_multidimentional(SmoothPower, Frequencies, FooofFrequencyRange, MaxError, MinRSquared);
-
-    Power = remove_bad_aperiodic(Power, Slopes, Intercepts, RangeSlopes, RangeIntercepts);
-    SmoothPower =  remove_bad_aperiodic(SmoothPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts);
-    PeriodicPower =  remove_bad_aperiodic(PeriodicPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts);
 
     save(fullfile(Destination, Files{FileIdx}), 'Power', 'Frequencies', ...
         'SmoothPower', 'Slopes', 'Intercepts', 'FooofFrequencies', ...

@@ -82,6 +82,7 @@ PreprocessingParameters.Unfiltered.fs = 500; % new sampling rate
 PreprocessingParameters.Unfiltered.lp = []; % low pass filter
 PreprocessingParameters.Unfiltered.hp = []; % high pass filter
 PreprocessingParameters.Unfiltered.hp_stopband = []; % high pass filter gradual roll-off
+Parameters.LineNoise = [];
 
 % ICA: heavily filtered data for getting ICA components
 PreprocessingParameters.ICA.fs = 500; % new sampling rate

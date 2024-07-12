@@ -13,20 +13,24 @@ Parameters = HBNParameters();
 Paths = Parameters.Paths;
 Channels = Parameters.Channels;
 
-PeakDetectionSettings = oscip.default_settings();
-PeakDetectionSettings.PeakBandwidthMax = 4; % broader peaks are not oscillations
-PeakDetectionSettings.PeakBandwidthMin = .5; % Hz; narrow peaks are more often than not noise
 IotaBand = [25 35];
+BandwidthRange = [.5 4];
 AlphaBand = [8 13];
 FittingFrequencyRange = [3 50];
-SmoothSpan = 2;
+NoiseSmoothSpan = 5;
+NoiseFittingFrequencyRange = [5 150];
+MaxBadChannels = 50;
 
+RangeSlopes = [0 3.5];
+RangeIntercepts = [0 4];
 
-SourcePower =  fullfile(Paths.Final, 'EEG', 'Specparam');
+% SourceName = 'Clean';
+SourceName = 'Unfiltered';
+SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', SourceName);
 Folder = 'window4s_allt';
 
 CacheDir = Paths.Cache;
-CacheName = 'PeriodicParameters.mat';
+CacheName = ['PeriodicParameters_', SourceName, '.mat'];
 
 if ~exist(CacheDir, 'dir')
     mkdir(CacheDir)
@@ -42,18 +46,21 @@ Metadata = one_row_each(Metadata, 'EID');
 
 nRecordings = size(Metadata, 1); % this does not consider tasks
 
-% % average information per recording; for quick statistics
-% Metadata.Iota = nan(nRecordings, 1); % -1: harmonic; 0 no peak; 1 iota peak
-% Metadata.IotaFrequency = nan(nRecordings, 1);
-% Metadata.IotaPower = nan(nRecordings, 1);
-% Metadata.IotaBandwidth = nan(nRecordings, 1);
-
 PeakParams = table();
-Topographies = nan(nRecordings, 123);
-StrawmanTopographies = Topographies;
+NoisePeakParams = table();
+
+AllSpectra = nan(nRecordings, 1025);
+AllPeriodicSpectra = nan(nRecordings, 192);
+
+CustomTopographies = nan(nRecordings, 123);
+BandTopographies = CustomTopographies;
+PeriodicBandTopographies = CustomTopographies;
+
+Metadata.IotaFrequency = nan(nRecordings, 1); % this is to check that iota is not obviously a harmonic of alpha
+Metadata.AlphaFrequency = nan(nRecordings, 1);
 
 ColumnNames = Metadata.Properties.VariableNames;
-DSMIDs = [find(contains(ColumnNames, 'DSM_')), find(contains(ColumnNames, '_isCurrent')), find(strcmp(ColumnNames, 'Diagnosis'))];
+DSM_IDs = [find(contains(ColumnNames, 'DSM_')), find(contains(ColumnNames, '_isCurrent')), find(strcmp(ColumnNames, 'Diagnosis'))];
 
 for RecordingIdx = 1:nRecordings
 
@@ -62,95 +69,90 @@ for RecordingIdx = 1:nRecordings
 
     % load in data
     DataOut = load_datafile(SourcePower, Participant, '', '', ...
-        {'Power', 'Frequencies', 'Chanlocs', 'PeriodicPeaks', 'WhitenedPower', 'FooofFrequencies'}, '.mat');
+        {'SmoothPower', 'Frequencies', 'Chanlocs', 'PeriodicPower', 'FooofFrequencies', 'Slopes', 'Intercepts'}, '.mat');
     if isempty(DataOut); continue; end
-    Power = DataOut{1};
+    SmoothPower = DataOut{1};
     Frequencies = DataOut{2};
     Chanlocs = DataOut{3};
-    PeriodicPeaks = DataOut{4};
-    WhitenedPower = DataOut{5};
-    FooofFrequencies = DataOut{6};
+    PeriodicPower = DataOut{4};
+    FooofFrequencies = DataOut{5};
+    Slopes = DataOut{6};
+    Intercepts = DataOut{7};
 
-    % smooth power
+    %%% Get periodic peaks
 
     % remove edge channels
-    Power(labels2indexes(Channels.Edge, Chanlocs), :) = nan;
+    SmoothPower(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
+    PeriodicPower(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
 
+    % remove data based on aperiodic activity
+    SmoothPower = remove_bad_aperiodic(SmoothPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels);
+    PeriodicPower = remove_bad_aperiodic(PeriodicPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels);
 
-    % find iota
-    [isIota, MaxPeak] = oscip.check_peak_in_band(PeriodicPeaks, IotaBand, 1, PeakDetectionSettings);
-
-    % load in variables that apply to whole recording
-    Metadata.Iota(RecordingIdx) = isIota;
-    Metadata.IotaFrequency(RecordingIdx) = MaxPeak(1);
-    Metadata.IotaPower(RecordingIdx) =  MaxPeak(2);
-    Metadata.IotaBandwidth(RecordingIdx) = MaxPeak(3);
-
-    % save topography
-       Range = dsearchn(FooofFrequencies', IotaBand');
-    StrawmanTopographies(RecordingIdx, :) = squeeze(mean(mean(WhitenedPower(:, :, Range(1):Range(2)), 3), 2));
- 
-    % Range = dsearchn(Freqs', IotaBand');
-    % StrawmanTopographies(RecordingIdx, :) = squeeze(mean(mean(log(Power(:, :, Range(1):Range(2))), 3), 2));
-    if isIota
-        IotaRange = dsearchn(FooofFrequencies', [MaxPeak(1)-MaxPeak(3)/2; MaxPeak(1)+MaxPeak(3)/2]);
-        Topographies(RecordingIdx, :) = squeeze(mean(mean(WhitenedPower(:, :, IotaRange(1):IotaRange(2)), 3, 'omitnan'), 2, 'omitnan'));
-    end
-
-    % same for alpha
-    [isAlpha, MaxPeak] = oscip.check_peak_in_band(PeriodicPeaks, AlphaBand, 1, PeakDetectionSettings);
-
-    Metadata.Alpha(RecordingIdx) = isAlpha;
-    Metadata.AlphaFrequency(RecordingIdx) = MaxPeak(1);
-    Metadata.AlphaPower(RecordingIdx) =  MaxPeak(2);
-    Metadata.AlphaBandwidth(RecordingIdx) = MaxPeak(3);
-
-
-    % find all peaks in average spectrum,
-    MeanPower = squeeze(mean(mean(Power, 1, 'omitnan'), 2, 'omitnan'))';
-    SmoothPower = oscip.smooth_spectrum(MeanPower, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
-
-
-    Table = all_peak_parameters(Frequencies, SmoothPower, FittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSMIDs]), RecordingIdx);
-   
-    if isempty(Table)
-        continue
-    end
+    % find all peaks in average power spectrum
+    MeanPower = squeeze(mean(mean(SmoothPower, 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
+    Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx);
     PeakParams = cat(1, PeakParams, Table);
 
-    % Iota = Table(Table.Frequency>=IotaBand(1) & Table.Frequency<= IotaBand(2), :);
-    % if size(Iota, 1) == 1
-    %     Metadata.AverageIotaFrequency(RecordingIdx) = Iota.Frequency;
-    % elseif size(Iota, 1) > 1
-    %     Iota = sortrows(Iota, 'Power', 'descend');
-    %     Metadata.AverageIotaFrequency(RecordingIdx) = Iota.Frequency(1);
-    % else
-    %     Metadata.AverageIotaFrequency(RecordingIdx) = nan;
-    % end
-    % 
-    % Alpha = Table(Table.Frequency>=AlphaBand(1) & Table.Frequency<= AlphaBand(2), :);
-    % if size(Alpha, 1) == 1
-    %     Metadata.AverageAlphaFrequency(RecordingIdx) = Alpha.Frequency;
-    % elseif size(Alpha, 1) > 1
-    %     Alpha = sortrows(Alpha, 'Power', 'descend');
-    %       Metadata.AverageAlphaFrequency(RecordingIdx) = Alpha.Frequency(1);
-    % else
-    %     Metadata.AverageAlphaFrequency(RecordingIdx) = nan;
-    % end
+    % repeat for full spectrum
+    MeanSmoothPower = oscip.smooth_spectrum(MeanPower, Frequencies, NoiseSmoothSpan);
+    NoiseTable = all_peak_parameters(Frequencies, MeanSmoothPower, NoiseFittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx);
+    NoisePeakParams = cat(1, NoisePeakParams, NoiseTable);
+
+    %%% get mean spectra
+    AllSpectra(RecordingIdx, :) = MeanPower;
+    AllPeriodicSpectra(RecordingIdx, :) = squeeze(mean(mean(PeriodicPower, 1, 'omitnan'), 2, 'omitnan'))';
+
+
+    
+    %%% get topographies
+    IotaPeak = select_max_peak(Table, IotaBand, BandwidthRange);
+
+    
+    % custom iota topography
+    if ~isempty(IotaPeak)
+        IotaCustomRange = dsearchn(FooofFrequencies', [IotaPeak(1)-IotaPeak(3)/2; IotaPeak(1)+IotaPeak(3)/2]);
+        CustomTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(PeriodicPower(:, :, IotaCustomRange(1):IotaCustomRange(2)), 3, 'omitnan'), 2, 'omitnan'));
+    end
+
+    % standard iota range
+    Range = dsearchn(FooofFrequencies', IotaBand');
+    BandTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(log10(SmoothPower(:, :, Range(1):Range(2))), 3), 2));
+    PeriodicBandTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(PeriodicPower(:, :, Range(1):Range(2)), 3), 2));
+
+
+    %%% save peak frequency to check harmonic
+    if ~isempty(IotaPeak)
+        Metadata.IotaFrequency(RecordingIdx) = IotaPeak(1);
+    end
+
+    
+    AlphaPeak = select_max_peak(Table, AlphaBand, BandwidthRange);
+    if ~isempty(AlphaPeak)
+        Metadata.AlphaFrequency(RecordingIdx) = AlphaPeak(1);
+    end
+
 
     disp([num2str(RecordingIdx), '/', num2str(nRecordings)])
 end
 
-save(fullfile(CacheDir, CacheName), 'Metadata', 'PeakParams', 'Chanlocs', 'Topographies', 'StrawmanTopographies')
+save(fullfile(CacheDir, CacheName), 'Metadata', 'PeakParams', 'NoisePeakParams', ...
+    'Chanlocs', 'CustomTopographies', 'BandTopographies', ...
+    'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies')
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% functions
 
 function Table = all_peak_parameters(Freqs, MeanPower, FittingFrequencyRange, MetadataRow, TaskIdx)
 
+% set up new row
 MetadataRow.Frequency = nan;
 MetadataRow.BandWidth = nan;
 MetadataRow.Power = nan;
 MetadataRow.TaskIdx = TaskIdx;
 
+% fit fooof
 [~, ~, ~, PeriodicPeaks, ~, ~, ~] = oscip.fit_fooof(MeanPower, Freqs, FittingFrequencyRange, .1, .98);
 
 if isempty(PeriodicPeaks)
@@ -162,4 +164,28 @@ Table = repmat(MetadataRow, size(PeriodicPeaks, 1), 1);
 Table.Frequency = PeriodicPeaks(:, 1);
 Table.Power = PeriodicPeaks(:, 2);
 Table.BandWidth = PeriodicPeaks(:, 3);
+end
+
+
+
+function MaxPeak = select_max_peak(Table, FrequencyRange, BandwidthRange)
+
+if isempty(Table)
+    MaxPeak = [];
+    return
+end
+
+PeakIdx = Table.Frequency>=FrequencyRange(1) & Table.Frequency<=FrequencyRange(2) & ...
+    Table.BandWidth>=BandwidthRange(1) & Table.BandWidth <= BandwidthRange(2);
+
+if nnz(PeakIdx)>1 % if multiple iota peaks
+    RangeIndexes = find(PeakIdx); % turn to numbers instead of boolean indexes
+    [~, MaxIdx] = max(Table.Power(RangeIndexes)); % find the one corresponding to the highest amplitude peak
+    PeakIdx = RangeIndexes(MaxIdx); % make that the iota for the next analyses
+elseif nnz(PeakIdx) == 0
+    MaxPeak = [];
+    return
+end
+
+MaxPeak = Table{PeakIdx, {'Frequency', 'Power', 'BandWidth'}};
 end
