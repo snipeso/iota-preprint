@@ -49,7 +49,7 @@ chART.set_axis_properties(PlotProps)
 xlabel('Frequency (Hz)')
 ylabel('Bandwidth (Hz)')
 ylim([.5 12.5])
-xlim([3 40])
+xlim([3 50])
 axis square
 Bar = colorbar;
 Axes = gca;
@@ -93,7 +93,7 @@ yyaxis right
 Red = chART.color_picker(1, '', 'red');
 Axes2 = gca;
 Axes2.YAxis(2).Color = Red;
-plot(Frequencies(1:end-1), 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, 'HandleVisibility', 'off')
+plot(Frequencies(1:end-2), 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, 'HandleVisibility', 'off')
 ylabel('%')
 xlim([4 22])
 box off

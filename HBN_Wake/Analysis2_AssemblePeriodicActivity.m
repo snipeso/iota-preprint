@@ -17,7 +17,7 @@ IotaBand = [25 35];
 BandwidthRange = [.5 4];
 AlphaBand = [8 13];
 
-ControlBand = [35 45];
+ControlBand = [40 50];
 
 FittingFrequencyRange = [3 50];
 NoiseSmoothSpan = 5;
@@ -143,7 +143,7 @@ for RecordingIdx = 1:nRecordings
 end
 
 save(fullfile(CacheDir, CacheName), 'Metadata', 'PeakParams', 'NoisePeakParams', ...
-    'Chanlocs', 'CustomTopographies', 'BandTopographies', ...
+    'Chanlocs', 'CustomTopographies', 'BandTopographies',  'ControlTopographies', ...
     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies')
 
 
