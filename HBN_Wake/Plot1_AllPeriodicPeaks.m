@@ -3,11 +3,12 @@ clear
 clc
 close all
 
-Parameters = prepParameters();
+Parameters = HBNParameters();
 Paths = Parameters.Paths;
 
 CacheDir = Paths.Cache;
-CacheName = 'PeriodicParameters.mat';
+SourceName = 'Unfiltered';
+CacheName = ['PeriodicParameters_', SourceName, '.mat'];
 
 load(fullfile(CacheDir, CacheName), 'PeakParams', 'Metadata')
 
@@ -48,7 +49,8 @@ scatter(PeakParams.Frequency, PeakParams.BandWidth, PeakParams.Power*100, PeakPa
 chART.set_axis_properties(PlotProps)
 xlabel('Frequency (Hz)')
 ylabel('Bandwidth (Hz)')
-ylim([.5 12.5])
+% ylim([.5 12.5])
+ylim([.5 12.1])
 xlim([3 50])
 axis square
 Bar = colorbar;
@@ -63,8 +65,12 @@ chART.plot.pretty_colorbar('Rainbow', CLims, 'Age', PlotProps)
 clim(CLims)
 title('Periodic peaks',  'FontSize', PlotProps.Text.TitleSize)
 
+yyaxis right
+histogram(PeakParams.Frequency, 3:1:50, 'FaceColor', [.8 .8 .8], 'EdgeColor','none')
+ylim([0 8000])
+set(gca, 'YTick', [], 'YColor', 'none', 'YDir', 'reverse')
 
-
+%%
 % correlation iota amplitude and age
 Frequencies = 1:22;
 IotaPeakParams = PeakParams(PeakParams.Frequency>25 & PeakParams.Frequency<=35 & PeakParams.BandWidth < 4, :);

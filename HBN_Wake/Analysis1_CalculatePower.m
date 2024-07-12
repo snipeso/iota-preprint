@@ -24,11 +24,11 @@ MinRSquared = .98;
 
 
 % locations
-% DestinationName = 'Clean';
-% Source = fullfile(Paths.Preprocessed, 'Power', 'Clean', Task);
+DestinationName = 'Clean';
+Source = fullfile(Paths.Preprocessed, 'Power', 'Clean', Task);
 
-DestinationName = 'Unfiltered';
-Source = fullfile(Paths.Preprocessed, 'Unfiltered', 'MAT', Task);
+% DestinationName = 'Unfiltered';
+% Source = fullfile(Paths.Preprocessed, 'Unfiltered', 'MAT', Task);
 
 
 Destination = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', DestinationName);
