@@ -27,8 +27,8 @@ MaxBadChannels = 50;
 RangeSlopes = [0 3.5];
 RangeIntercepts = [0 4];
 
-% SourceName = 'Clean';
-SourceName = 'Unfiltered';
+% SourceName = 'Clean'; nFrequencies = 513;
+SourceName = 'Unfiltered'; nFrequencies = 1025;
 SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', SourceName);
 Folder = 'window4s_allt';
 
@@ -49,10 +49,10 @@ Metadata = one_row_each(Metadata, 'EID');
 
 nRecordings = size(Metadata, 1); % this does not consider tasks
 
-PeakParams = table();
-NoisePeakParams = table();
+PeriodicPeaks = table();
+NoisePeriodicPeaks = table();
 
-AllSpectra = nan(nRecordings, 1025);
+AllSpectra = nan(nRecordings, nFrequencies);
 AllPeriodicSpectra = nan(nRecordings, 192);
 
 CustomTopographies = nan(nRecordings, 123);
@@ -96,12 +96,12 @@ for RecordingIdx = 1:nRecordings
     % find all peaks in average power spectrum
     MeanPower = squeeze(mean(mean(SmoothPower, 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
     Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx);
-    PeakParams = cat(1, PeakParams, Table);
+    PeriodicPeaks = cat(1, PeriodicPeaks, Table);
 
     % repeat for full spectrum
     MeanSmoothPower = oscip.smooth_spectrum(MeanPower, Frequencies, NoiseSmoothSpan);
     NoiseTable = all_peak_parameters(Frequencies, MeanSmoothPower, NoiseFittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx);
-    NoisePeakParams = cat(1, NoisePeakParams, NoiseTable);
+    NoisePeriodicPeaks = cat(1, NoisePeriodicPeaks, NoiseTable);
 
     %%% get mean spectra
     AllSpectra(RecordingIdx, :) = MeanPower;
@@ -142,7 +142,7 @@ for RecordingIdx = 1:nRecordings
     disp([num2str(RecordingIdx), '/', num2str(nRecordings)])
 end
 
-save(fullfile(CacheDir, CacheName), 'Metadata', 'PeakParams', 'NoisePeakParams', ...
+save(fullfile(CacheDir, CacheName), 'Metadata', 'PeriodicPeaks', 'NoisePeriodicPeaks', ...
     'Chanlocs', 'CustomTopographies', 'BandTopographies',  'ControlTopographies', ...
     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies')
 
