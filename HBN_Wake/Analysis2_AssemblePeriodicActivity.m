@@ -30,8 +30,8 @@ RangeSlopes = [0 3.5];
 RangeIntercepts = [0 4];
 
 
-% SourceName = 'Clean'; nFrequencies = 513;
-SourceName = 'Unfiltered'; nFrequencies = 1025;
+SourceName = 'Clean'; nFrequencies = 513;
+% SourceName = 'Unfiltered'; nFrequencies = 1025;
 SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', SourceName);
 Folder = 'window4s_allt';
 
@@ -64,6 +64,7 @@ PeriodicTopographies = CustomTopographies;
 ControlTopographies = CustomTopographies;
 
 Metadata.IotaFrequency = nan(nRecordings, 1); % this is to check that iota is not obviously a harmonic of alpha
+Metadata.IotaPower = nan(nRecordings, 1);
 Metadata.AlphaFrequency = nan(nRecordings, 1);
 
 ColumnNames = Metadata.Properties.VariableNames;
@@ -117,7 +118,6 @@ for RecordingIdx = 1:nRecordings
 
     %%% get topographies
 
-
     % custom iota topography
     if ~isempty(IotaPeak)
         IotaCustomRange = dsearchn(FooofFrequencies', [IotaPeak(1)-IotaPeak(3)/2; IotaPeak(1)+IotaPeak(3)/2]);
@@ -135,6 +135,7 @@ for RecordingIdx = 1:nRecordings
     %%% save peak frequency to check harmonic
     if ~isempty(IotaPeak)
         Metadata.IotaFrequency(RecordingIdx) = IotaPeak(1);
+        Metadata.IotaPower(RecordingIdx) = IotaPeak(2);
     end
 
 

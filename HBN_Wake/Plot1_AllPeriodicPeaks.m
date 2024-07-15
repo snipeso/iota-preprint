@@ -10,12 +10,6 @@ Parameters = HBNParameters();
 Paths = Parameters.Paths;
 CacheDir = Paths.Cache;
 
-
-% load in analyses on preprocessed data
-CacheName = 'PeriodicParameters_Clean.mat';
-load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata')
-
-
 %%% paths
 ResultsFolder = fullfile(Paths.Results, 'AllPeaks');
 if ~exist(ResultsFolder,'dir')
@@ -29,9 +23,16 @@ end
 
 %% Figure 2
 
+
+% load in analyses on preprocessed data
+CacheName = 'PeriodicParameters_Clean.mat';
+load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata')
+
+
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.xPadding = 30;
 PlotProps.Axes.yPadding = 5;
+PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
 XLims = [3 50];
 YLims = [.5 12.1];
@@ -102,30 +103,40 @@ load(fullfile(CacheDir, CacheName), 'NoisePeriodicPeaks', 'PeriodicPeaks')
 UnfilteredPeriodicPeaks = PeriodicPeaks;
 
 UnfilteredPeriodicPeaks = sortrows(UnfilteredPeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
+NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 
 
-figure('Units','centimeters', 'Position', [0 0 25 20])
-
-chART.sub_plot([], Grid, [1, 2], [], true, 'A', PlotProps);
+figure('Units','centimeters', 'Position', [0 0 35 20])
+chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
 scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 50, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2)
 hold on
+chART.set_axis_properties(PlotProps)
 plot([8 13], [8 13]*3, 'Color', [.4 .4 .4], 'LineWidth', 2)
 xlabel('Alpha peak frequency (Hz)')
 ylabel('Iota peak frequency (Hz)')
-axis square
+xlim([8 13])
+ylim([25 35])
+clim(CLims)
+axis normal
 
+PlotProps.Scatter.Alpha = .07;
 chART.sub_plot([], Grid, [1, 2], [], true, 'B', PlotProps);
 plot_periodicpeaks(UnfilteredPeriodicPeaks, XLims, YLims, CLims, PlotProps);
 title('Periodic peaks, unprocessed data',  'FontSize', PlotProps.Text.TitleSize)
+axis normal
+colorbar off
 
+PlotProps.Scatter.Alpha = .3;
 chART.sub_plot([], Grid, [1, 3], [], true, 'C', PlotProps);
-plot_periodicpeaks(UnfilteredPeriodicPeaks, [20 100], YLims, CLims, PlotProps);
+plot_periodicpeaks(NoisePeriodicPeaks, [20 100], YLims, CLims, PlotProps);
 title('Gamma periodic peaks',  'FontSize', PlotProps.Text.TitleSize)
+axis normal
+colorbar off
 
+PlotProps.Axes.yPadding = 50;
 
-%%
-ExampleParticipants = {'NDARMH180XE5', 'NDARJR579FW7', 'NDARTZ926NMZ', 'NDARKL327YDQ'};
-Letters = {'B', '', '', ''};
+ExampleParticipants = {'NDARMH180XE5', 'NDARJR579FW7', 'NDARTZ926NMZ'};
+Letters = {'D', '', ''};
 
 for ParticipantIdx = 1:numel(ExampleParticipants)
     Participant = ExampleParticipants{ParticipantIdx};
@@ -134,7 +145,7 @@ for ParticipantIdx = 1:numel(ExampleParticipants)
     load(fullfile('E:\Raw\EEG\', Participant, 'EEG', 'raw', 'mat_format', 'RestingState.mat'), 'EEG')
     [RawPower, Frequencies] = oscip.compute_power(EEG.data, EEG.srate, 8, .9);
 
-    chART.sub_plot([], Grid, [1, ParticipantIdx+1], [], true, Letters{ParticipantIdx}, PlotProps);
+    chART.sub_plot([], Grid, [2, ParticipantIdx], [], true, Letters{ParticipantIdx}, PlotProps);
 
     plot(Frequencies, RawPower, 'Color',  [.5 .5 .5 .1])
     chART.set_axis_properties(PlotProps)
@@ -153,6 +164,7 @@ chART.save_figure(['Example_', Participant, '_Raw'], ResultsFolder, PlotProps)
 
 
 %% iota and alpha correlation
+clc
 
 [Rho, p] = corr(Metadata.AlphaFrequency, Metadata.IotaFrequency, 'rows', 'complete');
 disp(['Alpha x iota: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
@@ -162,6 +174,9 @@ disp(['Alpha x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
 
 [Rho, p] = corr(Metadata.IotaFrequency, Metadata.Age, 'rows', 'complete');
 disp(['Iota x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
+
+[Rho, p] = corr(Metadata.IotaPower, Metadata.Age, 'rows', 'complete');
+disp(['Iota power x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
 
 %% demographics
 

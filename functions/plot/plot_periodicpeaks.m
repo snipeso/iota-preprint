@@ -5,7 +5,7 @@ function Axes = plot_periodicpeaks(PeriodicPeaks, XLims, YLims, CLims, PlotProps
 
 % main  scatterplot
 scatter(PeriodicPeaks.Frequency, PeriodicPeaks.BandWidth, PeriodicPeaks.Power*100, PeriodicPeaks.Age, ...
-    'filled', 'MarkerFaceAlpha', .1)
+    'filled', 'MarkerFaceAlpha', PlotProps.Scatter.Alpha)
 chART.set_axis_properties(PlotProps)
 xlabel('Frequency (Hz)')
 ylabel('Bandwidth (Hz)')
@@ -23,6 +23,6 @@ Axes = gca;
 
 % histogram on top
 yyaxis right
-Histogram = histogram(PeriodicPeaks.Frequency, XLims(1):1:YLims(2), 'FaceColor', [.5 .5 .5], 'EdgeColor','none');
+Histogram = histogram(PeriodicPeaks.Frequency, XLims(1):1:XLims(2), 'FaceColor', [.5 .5 .5], 'EdgeColor','none');
 ylim([0 max(max(Histogram.Values))*8])
 set(gca, 'YTick', [], 'YColor', 'none', 'YDir', 'reverse')
