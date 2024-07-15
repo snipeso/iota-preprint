@@ -21,11 +21,14 @@ ControlBand = [40 50];
 
 FittingFrequencyRange = [3 50];
 NoiseSmoothSpan = 5;
-NoiseFittingFrequencyRange = [5 150];
+NoiseFittingFrequencyRange = [20 100];
+MaxError = .1;
+MinRSquared = .98;
 MaxBadChannels = 50;
 
 RangeSlopes = [0 3.5];
 RangeIntercepts = [0 4];
+
 
 % SourceName = 'Clean'; nFrequencies = 513;
 SourceName = 'Unfiltered'; nFrequencies = 1025;
@@ -95,12 +98,15 @@ for RecordingIdx = 1:nRecordings
 
     % find all peaks in average power spectrum
     MeanPower = squeeze(mean(mean(SmoothPower, 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
-    Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx);
+    Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx, MinRSquared, MaxError);
     PeriodicPeaks = cat(1, PeriodicPeaks, Table);
 
     % repeat for full spectrum
     MeanSmoothPower = oscip.smooth_spectrum(MeanPower, Frequencies, NoiseSmoothSpan);
-    NoiseTable = all_peak_parameters(Frequencies, MeanSmoothPower, NoiseFittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx);
+
+    IotaPeak = select_max_peak(Table, IotaBand, BandwidthRange);
+
+    NoiseTable = all_peak_parameters(Frequencies, MeanSmoothPower, NoiseFittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx, .9, .2);
     NoisePeriodicPeaks = cat(1, NoisePeriodicPeaks, NoiseTable);
 
     %%% get mean spectra
@@ -110,7 +116,6 @@ for RecordingIdx = 1:nRecordings
 
 
     %%% get topographies
-    IotaPeak = select_max_peak(Table, IotaBand, BandwidthRange);
 
 
     % custom iota topography
@@ -124,7 +129,7 @@ for RecordingIdx = 1:nRecordings
     BandTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(log10(SmoothPower(:, :, Range(1):Range(2))), 3), 2));
     PeriodicTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(PeriodicPower(:, :, Range(1):Range(2)), 3), 2));
     ControlRange = dsearchn(FooofFrequencies', ControlBand');
-    
+
     ControlTopographies(RecordingIdx, 1:numel(Chanlocs)) = squeeze(mean(mean(PeriodicPower(:, :, ControlRange(1):ControlRange(2)), 3), 2));
 
     %%% save peak frequency to check harmonic
@@ -150,7 +155,7 @@ save(fullfile(CacheDir, CacheName), 'Metadata', 'PeriodicPeaks', 'NoisePeriodicP
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% functions
 
-function Table = all_peak_parameters(Freqs, MeanPower, FittingFrequencyRange, MetadataRow, TaskIdx)
+function Table = all_peak_parameters(Freqs, MeanPower, FittingFrequencyRange, MetadataRow, TaskIdx, MinRSquared, MaxError)
 
 % set up new row
 MetadataRow.Frequency = nan;
@@ -159,7 +164,7 @@ MetadataRow.Power = nan;
 MetadataRow.TaskIdx = TaskIdx;
 
 % fit fooof
-[~, ~, ~, PeriodicPeaks, ~, ~, ~] = oscip.fit_fooof(MeanPower, Freqs, FittingFrequencyRange, .1, .98);
+[~, ~, ~, PeriodicPeaks, ~, ~, ~] = oscip.fit_fooof(MeanPower, Freqs, FittingFrequencyRange, MaxError, MinRSquared);
 
 if isempty(PeriodicPeaks)
     Table = table();
