@@ -48,7 +48,10 @@ set(gca, 'TickDir', 'in')
 % axis square
 
 % correlation iota amplitude and age
-Frequencies = 1:22;
+% Frequencies = 1:2:22;
+Frequencies = [0:2:18, 22];
+Labels = Frequencies(1:end-1)+diff(Frequencies)/2;
+Labels(end) = 19;
 IotaPeakParams = PeriodicPeaks(PeriodicPeaks.Frequency>25 & PeriodicPeaks.Frequency<=35 & PeriodicPeaks.BandWidth < 4, :);
 IotaPeakParams = one_row_each(IotaPeakParams, 'EID');
 IotaByAge = tabulate(discretize(IotaPeakParams.Age, Frequencies));
@@ -61,21 +64,24 @@ ParticipantsByAge = ParticipantsByAge(:, 2);
 
 
 chART.sub_plot([], Grid, [1, 2], [], 1.5, 'B', PlotProps);
-chART.plot.stacked_bars([IotaByAge, ParticipantsByAge-IotaByAge], [], [], {'Iota', 'No iota'}, PlotProps, [0.4 0.4 0.4; .8 .8 .8])
+chART.plot.stacked_bars([IotaByAge, ParticipantsByAge-IotaByAge], Labels, [], {'Iota', 'No iota'}, PlotProps, [0.4 0.4 0.4; .8 .8 .8])
 ylabel('# participants')
 % axis square
 xlabel('Age')
 legend('Location', 'northeast')
-ylim([0 450])
+ylim([0 700])
 
 
 yyaxis right
 Red = chART.color_picker(1, '', 'red');
 Axes2 = gca;
 Axes2.YAxis(2).Color = Red;
-plot(Frequencies(1:end-1), 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, 'HandleVisibility', 'off')
+plot(Labels, 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, 'HandleVisibility', 'off')
 ylabel('%')
-xlim([4 22])
+xlim([4 20])
+StringLabels = string(Labels);
+StringLabels(end) = "+18";
+xticklabels(StringLabels)
 box off
 chART.set_axis_properties(PlotProps)
 title('Participants with iota', 'FontSize', PlotProps.Text.TitleSize)
@@ -185,7 +191,7 @@ for ParticipantIdx = 1:numel(ExampleParticipants)
     xlim([1 250])
 end
 
-chART.save_figure(['Example_', Participant, '_Raw'], ResultsFolder, PlotProps)
+chART.save_figure('Unprocessed', ResultsFolder, PlotProps)
 
 
 %% iota and alpha correlation
