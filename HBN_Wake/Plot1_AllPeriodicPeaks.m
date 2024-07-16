@@ -29,9 +29,7 @@ CacheName = 'PeriodicParameters_Clean.mat';
 load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata')
 
 PlotProps = Parameters.PlotProps.Manuscript;
-% PlotProps.Debug= true;
 PlotProps.Axes.yPadding = 5;
-% PlotProps.Axes.yPadding = 30;
 PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
 XLims = [3 50];
@@ -114,20 +112,22 @@ NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by ag
 
 figure('Units','centimeters', 'Position', [0 0 30 17])
 chART.sub_plot([], Grid, [1, 1], [], LabelSpace, 'A', PlotProps);
-scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 50, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2)
 hold on
-chART.set_axis_properties(PlotProps)
 plot([8 13], [8 13]*3, 'Color', [.4 .4 .4], 'LineWidth', 2)
+scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 50, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2)
+
+chART.set_axis_properties(PlotProps)
 xlabel('Alpha peak frequency (Hz)')
 ylabel('Iota peak frequency (Hz)')
 xlim([8 13])
 ylim([25 35])
 clim(CLims)
+title('Alpha vs iota')
 
 PlotProps.Scatter.Alpha = .07;
 chART.sub_plot([], Grid, [1, 2], [], LabelSpace, 'B', PlotProps);
 plot_periodicpeaks(UnfilteredPeriodicPeaks, XLims, YLims, CLims, false, PlotProps);
-% title('Periodic peaks, unprocessed data',  'FontSize', PlotProps.Text.TitleSize)
+title('Periodic peaks, unprocessed data',  'FontSize', PlotProps.Text.TitleSize)
 
 
 
@@ -143,7 +143,7 @@ scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.5 .5 .5], ...
      'MarkerEdgeAlpha', .1, 'Marker', '.')
 plot_periodicpeaks(Gamma, [20 100], YLims, CLims, false, PlotProps);
 
-% title('Gamma, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
+title('Gamma, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
 
 % PlotProps.Axes.yPadding = 60;
 
@@ -151,7 +151,6 @@ chART.sub_plot([], Grid, [2, 1], [], true, 'D', PlotProps);
 axis off % just a black spot for the D letter
 
 ExampleParticipants = {'NDARHF854JX7', 'NDARMH180XE5', 'NDARJR579FW7', 'NDARXN719LXU'};
-% ExampleParticipants = {'NDARXY337ZH9', 'NDARXW933TUJ', 'NDARXU679ZE8', 'NDARXN719LXU'};
 
 MiniGrid = [1 4];
 PlotPropsTemp = PlotProps;
@@ -177,7 +176,8 @@ for ParticipantIdx = 1:numel(ExampleParticipants)
     title([string(Participant); [' (\iota=', num2str(round(Info.IotaFrequency, 1)),  ' Hz; \alpha=',num2str(round(Info.AlphaFrequency, 1)) ' Hz)']], ...
         'FontWeight','normal', 'FontSize',PlotProps.Text.AxisSize)
     axis tight
-    ylim(quantile(RawPower(:), [.02 .999]))
+        % yticks([0, 1, 10, 100, 1000])
+    ylim(quantile(RawPower(:), [.02, .999]))
     xlabel('Frequency (Hz)')
     if ParticipantIdx ==1
     ylabel('Power')
