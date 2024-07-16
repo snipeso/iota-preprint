@@ -167,6 +167,8 @@ MetadataRow.TaskIdx = TaskIdx;
 % fit fooof
 [~, ~, ~, PeriodicPeaks, ~, ~, ~] = oscip.fit_fooof(MeanPower, Freqs, FittingFrequencyRange, MaxError, MinRSquared);
 
+ PeriodicPeaks = oscip.exclude_edge_peaks(PeriodicPeaks, FittingFrequencyRange); % exclude any bursts that extend beyond the edges of the investigated range
+
 if isempty(PeriodicPeaks)
     Table = table();
     return
