@@ -1,4 +1,4 @@
-function Axes = plot_periodicpeaks(PeriodicPeaks, XLims, YLims, CLims, PlotProps)
+function Axes = plot_periodicpeaks(PeriodicPeaks, XLims, YLims, CLims, plotColorbar, PlotProps)
 % plots periodic peaks in a cute way. Includes a histogram on top of all
 % the peaks
 
@@ -11,15 +11,23 @@ xlabel('Frequency (Hz)')
 ylabel('Bandwidth (Hz)')
 ylim(YLims)
 xlim(XLims)
-
+clim(CLims)
 
 
 % colorbar
+if plotColorbar
 PlotProps.Colorbar.Location = 'eastoutside';
-PlotProps.Color.Steps.Rainbow = numel(5:1:22);
-chART.plot.pretty_colorbar('Rainbow', CLims, 'Age', PlotProps)
-clim(CLims)
+PlotProps.Color.Steps.Rainbow = numel(CLims(1):1:CLims(2));
+
 Axes = gca;
+Axes.Units = 'pixels';
+Axes.Position(3) = Axes.Position(3)+PlotProps.Axes.xPadding*2;
+chART.plot.pretty_colorbar('Rainbow', CLims, 'Age', PlotProps)
+Axes = gca;
+else
+   colormap(chART.utils.resize_colormap(PlotProps.Color.Maps.Rainbow, ...
+    PlotProps.Color.Steps.Rainbow))
+end
 
 % histogram on top
 yyaxis right

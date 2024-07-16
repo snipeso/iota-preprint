@@ -28,23 +28,26 @@ end
 CacheName = 'PeriodicParameters_Clean.mat';
 load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata')
 
-
 PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.Axes.xPadding = 30;
-PlotProps.Axes.yPadding = 30;
+% PlotProps.Debug= true;
+PlotProps.Axes.yPadding = 5;
+% PlotProps.Axes.yPadding = 30;
 PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
 XLims = [3 50];
 YLims = [.5 12.1];
 Grid = [1, 2];
 
+
 PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 
 figure('Units','centimeters', 'Position', [0 0 22 10])
-chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
-Axes = plot_periodicpeaks(PeriodicPeaks, XLims, YLims, CLims, PlotProps);
+chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);
+Axes = plot_periodicpeaks(PeriodicPeaks, XLims, YLims, CLims, true, PlotProps);
+Axes.Position(1) = Axes.Position(1)- .015;
 title('Wake periodic peaks',  'FontSize', PlotProps.Text.TitleSize)
-
+set(gca, 'TickDir', 'in')
+% axis square
 
 % correlation iota amplitude and age
 Frequencies = 1:22;
@@ -59,15 +62,14 @@ ParticipantsByAge = tabulate(discretize(AllParticipants.Age,Frequencies));
 ParticipantsByAge = ParticipantsByAge(:, 2);
 
 
-chART.sub_plot([], Grid, [1, 2], [], true, 'B', PlotProps);
+chART.sub_plot([], Grid, [1, 2], [], 1.5, 'B', PlotProps);
 chART.plot.stacked_bars([IotaByAge, ParticipantsByAge-IotaByAge], [], [], {'Iota', 'No iota'}, PlotProps, [0.4 0.4 0.4; .8 .8 .8])
 ylabel('# participants')
-axis square
+% axis square
 xlabel('Age')
 legend('Location', 'northeast')
 ylim([0 450])
 
-% Axes2.Position(3) = Axes.Position(3);
 
 yyaxis right
 Red = chART.color_picker(1, '', 'red');
@@ -79,22 +81,26 @@ xlim([4 22])
 box off
 chART.set_axis_properties(PlotProps)
 title('Participants with iota', 'FontSize', PlotProps.Text.TitleSize)
-% set(gca, 'Position', [0.6123 0.0926 0.3108 0.8544])
-% Axes2 = gca; % for some inexplicable reason, these lines of code are not working right
-% Axes2.Position(3:4) = Axes.Position(3:4);
-% Axes2.Position(1) = Axes2.Position(1)+ .04;
+Axes2 = gca; 
+Axes2.Units = 'pixels';
+Axes2.Position(3) = Axes2.Position(3)-PlotProps.Axes.xPadding*2;
+Axes2.Position(1) = Axes2.Position(1)+ PlotProps.Axes.xPadding;
+Axes2.Units = 'normalized';
+
+set(gca, 'TickDir', 'in')
 chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
 
 
 %% Periodic peaks detected in un processed data
 
 PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.Axes.xPadding = 30;
-PlotProps.Axes.yPadding = 20;
+
+% PlotProps.Debug = true;
 CLims = [5 21];
 XLims = [3 50];
 YLims = [.5 12.1];
 Grid = [2, 3];
+LabelSpace = .5;
 
 % load in analyses on unfiltered data
 CacheName = 'PeriodicParameters_Unfiltered.mat';
@@ -106,8 +112,8 @@ UnfilteredPeriodicPeaks = sortrows(UnfilteredPeriodicPeaks, 'Age', 'ascend'); % 
 NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 
 
-figure('Units','centimeters', 'Position', [0 0 30 15])
-chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
+figure('Units','centimeters', 'Position', [0 0 30 17])
+chART.sub_plot([], Grid, [1, 1], [], LabelSpace, 'A', PlotProps);
 scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 50, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2)
 hold on
 chART.set_axis_properties(PlotProps)
@@ -117,29 +123,43 @@ ylabel('Iota peak frequency (Hz)')
 xlim([8 13])
 ylim([25 35])
 clim(CLims)
-axis normal
 
 PlotProps.Scatter.Alpha = .07;
-chART.sub_plot([], Grid, [1, 2], [], true, 'B', PlotProps);
-plot_periodicpeaks(UnfilteredPeriodicPeaks, XLims, YLims, CLims, PlotProps);
-title('Periodic peaks, unprocessed data',  'FontSize', PlotProps.Text.TitleSize)
-axis normal
-colorbar off
+chART.sub_plot([], Grid, [1, 2], [], LabelSpace, 'B', PlotProps);
+plot_periodicpeaks(UnfilteredPeriodicPeaks, XLims, YLims, CLims, false, PlotProps);
+% title('Periodic peaks, unprocessed data',  'FontSize', PlotProps.Text.TitleSize)
+
+
+
+NoiseIdx = NoisePeriodicPeaks.Frequency >58 & NoisePeriodicPeaks.Frequency<62;
+LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
+Gamma = NoisePeriodicPeaks(~NoiseIdx, :);
 
 PlotProps.Scatter.Alpha = .3;
 chART.sub_plot([], Grid, [1, 3], [], true, 'C', PlotProps);
-plot_periodicpeaks(NoisePeriodicPeaks, [20 100], YLims, CLims, PlotProps);
-title('Gamma periodic peaks',  'FontSize', PlotProps.Text.TitleSize)
-axis normal
-colorbar off
 
-PlotProps.Axes.yPadding = 60;
+hold on
+scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.5 .5 .5], ...
+     'MarkerEdgeAlpha', .1, 'Marker', '.')
+plot_periodicpeaks(Gamma, [20 100], YLims, CLims, false, PlotProps);
 
-ExampleParticipants = {'NDARMH180XE5', 'NDARJR579FW7', 'NDARTZ926NMZ'};
-Letters = {'D', '', ''};
+% title('Gamma, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
 
+% PlotProps.Axes.yPadding = 60;
 
+chART.sub_plot([], Grid, [2, 1], [], true, 'D', PlotProps);
+axis off % just a black spot for the D letter
 
+ExampleParticipants = {'NDARHF854JX7', 'NDARMH180XE5', 'NDARJR579FW7', 'NDARXN719LXU'};
+% ExampleParticipants = {'NDARXY337ZH9', 'NDARXW933TUJ', 'NDARXU679ZE8', 'NDARXN719LXU'};
+
+MiniGrid = [1 4];
+PlotPropsTemp = PlotProps;
+PlotPropsTemp.Figure.Padding = 0;
+PlotPropsTemp.yPadding = 0;
+PlotPropsTemp.xPadding = 0;
+Space = chART.sub_figure(Grid, [2 1], [1 3], '', PlotPropsTemp, [], 1);
+PlotProps.Axes.xPadding = 2;
 for ParticipantIdx = 1:numel(ExampleParticipants)
     Participant = ExampleParticipants{ParticipantIdx};
     Info = Metadata(find(strcmp(Metadata.EID, Participant), 1, 'first'), :);
@@ -147,14 +167,15 @@ for ParticipantIdx = 1:numel(ExampleParticipants)
     load(fullfile('E:\Raw\EEG\', Participant, 'EEG', 'raw', 'mat_format', 'RestingState.mat'), 'EEG')
     [RawPower, Frequencies] = oscip.compute_power(EEG.data, EEG.srate, 8, .9);
 
-    chART.sub_plot([], Grid, [2, ParticipantIdx], [], true, Letters{ParticipantIdx}, PlotProps);
+    chART.sub_plot(Space, MiniGrid, [1, ParticipantIdx], [], 0.05, '', PlotProps);
 
     plot(Frequencies, RawPower, 'Color',  [.5 .5 .5 .1])
     chART.set_axis_properties(PlotProps)
     box off
     set(gca, 'YScale', 'log', 'XScale', 'log');
     xticks([0 1 10 30 60 120])
-    title([Participant,' (\iota=', num2str(round(Info.IotaFrequency, 1)),  ' Hz; \alpha=',num2str(round(Info.AlphaFrequency, 1)) ' Hz)'], 'FontWeight','normal')
+    title([string(Participant); [' (\iota=', num2str(round(Info.IotaFrequency, 1)),  ' Hz; \alpha=',num2str(round(Info.AlphaFrequency, 1)) ' Hz)']], ...
+        'FontWeight','normal', 'FontSize',PlotProps.Text.AxisSize)
     axis tight
     ylim(quantile(RawPower(:), [.02 .999]))
     xlabel('Frequency (Hz)')

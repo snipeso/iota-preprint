@@ -27,6 +27,9 @@ MinRSquared = .98;
 DestinationName = 'Clean';
 Source = fullfile(Paths.Preprocessed, 'Power', 'Clean', Task);
 
+DestinationName = 'NotchFiltered';
+Source = fullfile(Paths.Preprocessed, 'Power', 'NotchFiltered', Task);
+
 % DestinationName = 'Unfiltered';
 % Source = fullfile(Paths.Preprocessed, 'Unfiltered', 'MAT', Task);
 
