@@ -76,7 +76,8 @@ yyaxis right
 Red = chART.color_picker(1, '', 'red');
 Axes2 = gca;
 Axes2.YAxis(2).Color = Red;
-plot(Labels, 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, 'HandleVisibility', 'off')
+plot(Labels, 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, ...
+    'HandleVisibility', 'off', 'LineWidth',2, 'MarkerSize',8)
 ylabel('%')
 xlim([4 20])
 StringLabels = string(Labels);
@@ -98,6 +99,7 @@ chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
 %% Periodic peaks detected in un processed data
 
 PlotProps = Parameters.PlotProps.Manuscript;
+PlotProps.Figure.Padding = 10;
 
 % PlotProps.Debug = true;
 CLims = [5 21];
