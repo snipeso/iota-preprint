@@ -31,7 +31,7 @@ load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata')
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.xPadding = 30;
-PlotProps.Axes.yPadding = 5;
+PlotProps.Axes.yPadding = 30;
 PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
 XLims = [3 50];
@@ -79,7 +79,7 @@ xlim([4 22])
 box off
 chART.set_axis_properties(PlotProps)
 title('Participants with iota', 'FontSize', PlotProps.Text.TitleSize)
-set(gca, 'Position', [0.6123 0.0926 0.3108 0.8544])
+% set(gca, 'Position', [0.6123 0.0926 0.3108 0.8544])
 % Axes2 = gca; % for some inexplicable reason, these lines of code are not working right
 % Axes2.Position(3:4) = Axes.Position(3:4);
 % Axes2.Position(1) = Axes2.Position(1)+ .04;
@@ -90,7 +90,7 @@ chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.xPadding = 30;
-PlotProps.Axes.yPadding = 30;
+PlotProps.Axes.yPadding = 20;
 CLims = [5 21];
 XLims = [3 50];
 YLims = [.5 12.1];
@@ -106,7 +106,7 @@ UnfilteredPeriodicPeaks = sortrows(UnfilteredPeriodicPeaks, 'Age', 'ascend'); % 
 NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 
 
-figure('Units','centimeters', 'Position', [0 0 35 20])
+figure('Units','centimeters', 'Position', [0 0 30 15])
 chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
 scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 50, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2)
 hold on
@@ -133,10 +133,12 @@ title('Gamma periodic peaks',  'FontSize', PlotProps.Text.TitleSize)
 axis normal
 colorbar off
 
-PlotProps.Axes.yPadding = 50;
+PlotProps.Axes.yPadding = 60;
 
 ExampleParticipants = {'NDARMH180XE5', 'NDARJR579FW7', 'NDARTZ926NMZ'};
 Letters = {'D', '', ''};
+
+
 
 for ParticipantIdx = 1:numel(ExampleParticipants)
     Participant = ExampleParticipants{ParticipantIdx};
@@ -152,11 +154,13 @@ for ParticipantIdx = 1:numel(ExampleParticipants)
     box off
     set(gca, 'YScale', 'log', 'XScale', 'log');
     xticks([0 1 10 30 60 120])
-    title([Participant,' (iota=', num2str(round(Info.IotaFrequency, 1)),  ' Hz; alpha=',num2str(round(Info.AlphaFrequency, 1)) ' Hz)'], 'FontWeight','normal')
+    title([Participant,' (\iota=', num2str(round(Info.IotaFrequency, 1)),  ' Hz; \alpha=',num2str(round(Info.AlphaFrequency, 1)) ' Hz)'], 'FontWeight','normal')
     axis tight
     ylim(quantile(RawPower(:), [.02 .999]))
     xlabel('Frequency (Hz)')
+    if ParticipantIdx ==1
     ylabel('Power')
+    end
     xlim([1 250])
 end
 

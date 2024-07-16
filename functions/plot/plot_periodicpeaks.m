@@ -11,7 +11,7 @@ xlabel('Frequency (Hz)')
 ylabel('Bandwidth (Hz)')
 ylim(YLims)
 xlim(XLims)
-axis square
+
 
 
 % colorbar
