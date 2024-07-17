@@ -26,8 +26,11 @@ end
 
 % load in analyses on preprocessed data
 CacheName = 'PeriodicParameters_Clean.mat';
-load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata')
+load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata', 'AllSpectra')
 
+% remove blank recordings (files didn't survive preprocessing)
+Blanks = any(isnan(AllSpectra), 2);
+Metadata(Blanks, :) = [];
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.yPadding = 5;
@@ -36,7 +39,6 @@ CLims = [5 21];
 XLims = [3 50];
 YLims = [.5 12.1];
 Grid = [1, 2];
-
 
 PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 
@@ -49,18 +51,16 @@ set(gca, 'TickDir', 'in')
 % axis square
 
 % correlation iota amplitude and age
-% Frequencies = 1:2:22;
-Frequencies = [0:2:18, 22];
-Labels = Frequencies(1:end-1)+diff(Frequencies)/2;
+AgeBins = [0:2:18, 22];
+Labels = AgeBins(1:end-1)+diff(AgeBins)/2;
 Labels(end) = 19;
-IotaPeakParams = PeriodicPeaks(PeriodicPeaks.Frequency>25 & PeriodicPeaks.Frequency<=35 & PeriodicPeaks.BandWidth < 4, :);
-IotaPeakParams = one_row_each(IotaPeakParams, 'EID');
-IotaByAge = tabulate(discretize(IotaPeakParams.Age, Frequencies));
+IotaPeriodicPeaks = PeriodicPeaks(PeriodicPeaks.Frequency>25 & PeriodicPeaks.Frequency<=35 & PeriodicPeaks.BandWidth < 4, :);
+IotaPeriodicPeaks = one_row_each(IotaPeriodicPeaks, 'EID'); % in case multiple peaks were detected in the same participant
+IotaByAge = tabulate(discretize(IotaPeriodicPeaks.Age, AgeBins));
 IotaByAge = IotaByAge(:, 2);
 
 
-AllParticipants = one_row_each(PeriodicPeaks, 'EID');
-ParticipantsByAge = tabulate(discretize(AllParticipants.Age,Frequencies));
+ParticipantsByAge = tabulate(discretize(Metadata.Age, AgeBins));
 ParticipantsByAge = ParticipantsByAge(:, 2);
 
 
@@ -80,6 +80,7 @@ Axes2.YAxis(2).Color = Red;
 plot(Labels, 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, ...
     'HandleVisibility', 'off', 'LineWidth',2, 'MarkerSize',8)
 ylabel('%')
+ylim([0 40])
 xlim([4 20])
 StringLabels = string(Labels);
 StringLabels(end) = "+18";
@@ -95,6 +96,26 @@ Axes2.Units = 'normalized';
 
 set(gca, 'TickDir', 'in')
 chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
+
+%% Total recording percentage
+
+clc
+
+nTot = size(Metadata, 1);
+nIota = size(IotaPeriodicPeaks, 1);
+disp(['recordings with iota: ', num2str(round(100*nIota/nTot)), '%, (', num2str(nIota), '/', num2str(nTot), ')'])
+
+nTot = nnz(Metadata.Age<14);
+nIota = nnz(IotaPeriodicPeaks.Age<14);
+disp(['recordings <14 with iota: ', num2str(round(100*nIota/nTot)), '%, (', num2str(nIota), '/', num2str(nTot), ')'])
+
+nTot = nnz(Metadata.Age>=14 & Metadata.Age<18);
+nIota = nnz(IotaPeriodicPeaks.Age>=14 & IotaPeriodicPeaks.Age<18);
+disp(['recordings 14-18 with iota: ', num2str(round(100*nIota/nTot)), '%, (', num2str(nIota), '/', num2str(nTot), ')'])
+
+nTot = nnz(Metadata.Age>=18);
+nIota = nnz(IotaPeriodicPeaks.Age>=18);
+disp(['recordings >18 with iota: ', num2str(round(100*nIota/nTot)), '%, (', num2str(nIota), '/', num2str(nTot), ')'])
 
 
 %% Periodic peaks detected in un processed data
@@ -209,6 +230,22 @@ chART.save_figure('Unprocessed', ResultsFolder, PlotProps)
 
 %% iota and alpha correlation
 clc
+
+nTot = size(Metadata, 1);
+nAlpha = nnz(~isnan(Metadata.AlphaFrequency));
+disp(['#alpha: ', num2str(nAlpha), ' (', num2str(round(100*nAlpha/nTot)), '%)'])
+
+nTot = size(Metadata, 1);
+nIota = nnz(~isnan(Metadata.IotaFrequency));
+disp(['#iota: ', num2str(nIota), ' (', num2str(round(100*nIota/nTot)), '%)'])
+
+nTot = size(Metadata, 1);
+nBoth = nnz(~isnan(Metadata.IotaFrequency) & ~isnan(Metadata.AlphaFrequency));
+disp(['#iota & alpha: ', num2str(nBoth), ' (', num2str(round(100*nBoth/nTot)), '%)'])
+
+
+disp('_____________')
+
 
 [Rho, p] = corr(Metadata.AlphaFrequency, Metadata.IotaFrequency, 'rows', 'complete');
 disp(['Alpha x iota: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])

@@ -1,5 +1,3 @@
-% goes through each partcipipant finds their peaks in average channels
-
 % runs fooof on all wake recordings, and gets basic numbers that allow
 % comparisons. updates metadata table, and creates big table of all
 % detected peaks.
@@ -8,6 +6,8 @@ clear
 clc
 close all
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Parameters
 
 Parameters = HBNParameters();
 Paths = Parameters.Paths;
@@ -42,7 +42,6 @@ if ~exist(CacheDir, 'dir')
     mkdir(CacheDir)
 end
 
-% Metadata = readtable(fullfile(Paths.Metadata, 'MetadataHBM.csv'));
 load(fullfile(Paths.Metadata, 'MetadataHBN.mat'), 'Metadata')
 Files = list_filenames(SourcePower);
 Files(~contains(Files, '.mat')) = [];
@@ -50,6 +49,9 @@ Participants = extractBefore(Files, '_RestingState');
 Metadata(~ismember(Metadata.EID, Participants), :) = [];
 Metadata = one_row_each(Metadata, 'EID');
 
+
+%%%%%%%%%%%%%
+%%% Set up blanks
 nRecordings = size(Metadata, 1); % this does not consider tasks
 
 PeriodicPeaks = table();
@@ -70,22 +72,21 @@ Metadata.AlphaFrequency = nan(nRecordings, 1);
 ColumnNames = Metadata.Properties.VariableNames;
 DSM_IDs = [find(contains(ColumnNames, 'DSM_')), find(contains(ColumnNames, '_isCurrent')), find(strcmp(ColumnNames, 'Diagnosis'))];
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Run
+
 for RecordingIdx = 1:nRecordings
 
     Participant = Metadata.EID{RecordingIdx};
-
+    Filepath = fullfile(SourcePower, [Partipant, '_', Task, '.mat']);
+    
+    if ~exist(Filepath, 'file')
+        continue
+    end
 
     % load in data
-    DataOut = load_datafile(SourcePower, Participant, '', '', ...
-        {'SmoothPower', 'Frequencies', 'Chanlocs', 'PeriodicPower', 'FooofFrequencies', 'Slopes', 'Intercepts'}, '.mat');
-    if isempty(DataOut); continue; end
-    SmoothPower = DataOut{1};
-    Frequencies = DataOut{2};
-    Chanlocs = DataOut{3};
-    PeriodicPower = DataOut{4};
-    FooofFrequencies = DataOut{5};
-    Slopes = DataOut{6};
-    Intercepts = DataOut{7};
+    load(Filepath,  'SmoothPower', 'Frequencies', 'Chanlocs', 'PeriodicPower', 'FooofFrequencies', 'Slopes', 'Intercepts')
 
     %%% Get periodic peaks
 
@@ -126,7 +127,6 @@ for RecordingIdx = 1:nRecordings
 
 
     %%% get topographies
-
     % custom iota topography
     if ~isempty(IotaPeak)
         IotaCustomRange = dsearchn(FooofFrequencies', [IotaPeak(1)-IotaPeak(3)/2; IotaPeak(1)+IotaPeak(3)/2]);
