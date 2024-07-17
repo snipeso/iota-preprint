@@ -24,7 +24,7 @@ MinTime = P.MinTime; % ninimum file duration in seconds
 CorrelationFrequencyRange = [4 40];
 MaxPorportionUniqueCorr = .02; % the minimum number of unique correlation values across channels when rounding correlations to 3 decimal points
 
-Refresh = false;
+Refresh = true;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -46,8 +46,8 @@ for Indx_T = 1:numel(Tasks)
     Files = list_filenames(Source);
     Files(~contains(Files, '.mat'))=  [];
 
-    % for Indx_F = 1:numel(Files)
-    parfor Indx_F = 1:numel(Files)
+    for Indx_F = 1:numel(Files)
+    % parfor Indx_F = 1:numel(Files)
         File = Files{Indx_F};
 
         % skip if file already exists
