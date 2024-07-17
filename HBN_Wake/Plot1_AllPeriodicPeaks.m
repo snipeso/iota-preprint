@@ -23,7 +23,6 @@ end
 
 %% Figure 2
 
-
 % load in analyses on preprocessed data
 CacheName = 'PeriodicParameters_Clean.mat';
 load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata', 'AllSpectra')
@@ -32,23 +31,28 @@ load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata', 'AllSpectra')
 Blanks = any(isnan(AllSpectra), 2);
 Metadata(Blanks, :) = [];
 
+% sort rows by age so that the rarer adults come out on top
+PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
+
+%%% plot
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.yPadding = 5;
+Grid = [1, 2];
+
+figure('Units','centimeters', 'Position', [0 0 22 10])
+
+% plot scatter plot of all periodic peaks
 PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
 XLims = [3 50];
 YLims = [.5 12.1];
-Grid = [1, 2];
 
-PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
-
-figure('Units','centimeters', 'Position', [0 0 22 10])
 chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);
 Axes = plot_periodicpeaks(PeriodicPeaks, XLims, YLims, CLims, true, PlotProps);
-Axes.Position(1) = Axes.Position(1)- .015;
-title('Wake periodic peaks',  'FontSize', PlotProps.Text.TitleSize)
-set(gca, 'TickDir', 'in')
-% axis square
+
+Axes.Position(1) = Axes.Position(1)-.015; % move it a little bit
+title('Wake periodic peaks', 'FontSize', PlotProps.Text.TitleSize)
+set(gca, 'TickDir', 'in') % switch inward because otherwise t
 
 % correlation iota amplitude and age
 AgeBins = [0:2:18, 22];
