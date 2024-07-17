@@ -30,8 +30,8 @@ RangeSlopes = [0 3.5];
 RangeIntercepts = [0 4];
 
 
-SourceName = 'Clean'; nFrequencies = 513;
-% SourceName = 'Unfiltered'; nFrequencies = 1025;
+SourceName = 'Clean'; nFrequencies = 513; ReferenceIdx = 513; PowerThreshold = 10^-10;
+% SourceName = 'Unfiltered'; nFrequencies = 1025; ReferenceIdx = 600; PowerThreshold = 10^-5;
 SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', SourceName);
 Folder = 'window4s_allt';
 
@@ -97,8 +97,17 @@ for RecordingIdx = 1:nRecordings
     SmoothPower = remove_bad_aperiodic(SmoothPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels);
     PeriodicPower = remove_bad_aperiodic(PeriodicPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels);
 
-    % find all peaks in average power spectrum
+    %  average power
     MeanPower = squeeze(mean(mean(SmoothPower, 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
+    
+    % check if the data is too low after 100 Hz (means that its from the
+    % few recordings that weren't sampled at 500 Hz, so remove)
+    if MeanPower(ReferenceIdx) < PowerThreshold
+        warning(['Skipping ', Participant, ' because wrong sampling rate'])
+        continue
+    end
+    
+    % find all peaks in average power spectrum
     Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, Metadata(RecordingIdx, [1:4, DSM_IDs]), RecordingIdx, MinRSquared, MaxError);
     PeriodicPeaks = cat(1, PeriodicPeaks, Table);
 

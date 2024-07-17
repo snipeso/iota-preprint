@@ -28,6 +28,7 @@ end
 CacheName = 'PeriodicParameters_Clean.mat';
 load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata')
 
+
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.yPadding = 5;
 PlotProps.Scatter.Alpha = .1;
@@ -121,8 +122,18 @@ NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by ag
 figure('Units','centimeters', 'Position', [0 0 30 17])
 chART.sub_plot([], Grid, [1, 1], [], LabelSpace, 'A', PlotProps);
 hold on
-plot([8 13], [8 13]*3, 'Color', [.4 .4 .4], 'LineWidth', 2)
-scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 50, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2)
+plot([8 13], [8 13]*3, ':', 'Color', [.6 .6 .6], 'LineWidth', 2, 'DisplayName',  ['Expected', newline, 'harmonic fit'])
+Scatter = scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 50, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2);
+
+Lines = lsline;
+Lines(1).Visible = 'off';
+Lines(1).HandleVisibility = 'off';
+Lines(2).Color = [0 0 0];
+Lines(2).DisplayName = 'Linear fit';
+Lines(2).LineWidth = 2;
+Scatter.HandleVisibility = 'off';
+legend
+set(legend, 'location', 'southeast', 'ItemTokenSize', [10 10])
 
 chART.set_axis_properties(PlotProps)
 xlabel('Alpha peak frequency (Hz)')
