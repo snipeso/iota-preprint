@@ -24,9 +24,9 @@ MuscleSlopeMin = .5;
 ChopEdge = 2; % in seconds, cut off these many seconds at the beginning and end of recordings
 WindowLength = 3; % s, bad time windows
 RemoveComps = [2, 3, 4, 6]; % 1:Brain, 2:Muscle, 3:Eye, 4:Heart, 5:Line Noise, 6:Channel Noise, 7:Other
-MinTime = 60; % minimum time to keep data in seconds
+MinTime = P.MinTime; % minimum time to keep data in seconds
 MinNeighborCorrelation = .3;
-MinChannels = 25; % maximum number of channels that can be removed
+MinChannels = P.MinChannels; % maximum number of channels that can be removed
 CorrelationFrequencyRange = [1 40];
 MaxPorportionUniqueCorr = .02; % the minimum number of unique correlation values across channels when rounding correlations to 3 decimal points
 
