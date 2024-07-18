@@ -17,9 +17,10 @@ Task = Parameters.Tasks{1};
 Bands = struct();
 Bands.Theta = [4 7];
 Bands.Alpha = [8 13];
-Bands.Beta = [14 25];
+Bands.LowBeta = [14 17];
+Bands.HighBeta = [17 25];
+Bands.Gamma = [38 48];
 Bands.Iota = [25 35];
-Bands.Gamma = [40 50];
 BandLabels = fieldnames(Bands);
 nBands = numel(BandLabels);
 
@@ -165,7 +166,7 @@ end
 
 save(fullfile(CacheDir, CacheName), 'Metadata', 'PeriodicPeaks', 'NoisePeriodicPeaks', ...
     'Chanlocs', 'CustomTopographies', 'LogTopographies', 'PeriodicTopographies', ...
-    'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies')
+    'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies', 'Bands')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
