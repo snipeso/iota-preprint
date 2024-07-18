@@ -3,6 +3,7 @@ clc
 figure
 plot([1 2], [1 2], 'Color', [0 1 0])
 axis off
+title('hello')
 
 chART.save_figure('Test', cd, PlotProps)
 
