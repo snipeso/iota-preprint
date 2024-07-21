@@ -11,8 +11,8 @@ PeakDetectionSettings.PeakAmplitudeMin = .5;
 
 IotaRange = [MaxIotaPeak(1)-MaxIotaPeak(3)/2, MaxIotaPeak(1)+MaxIotaPeak(3)/2];
 PlotProps.Figure.Padding= 30;
-PlotProps.Axes.yPadding = 30;
-PlotProps.Axes.xPadding = 30;
+% PlotProps.Axes.yPadding = 30;
+% PlotProps.Axes.xPadding = 30;
 PlotProps.Colorbar.Location = 'eastoutside';
 
 WindowLength = 2;

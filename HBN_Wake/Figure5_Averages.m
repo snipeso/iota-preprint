@@ -83,6 +83,7 @@ title('25-35 Hz', 'FontWeight','normal', 'FontSize', PlotProps.Text.AxisSize)
 
 % plot custom peak
 chART.sub_plot([], Grid, [1, 5], [], -1, 'C', PlotProps); % little hack to put C in the right spot
+set(gca, 'Visible', 'off')
 chART.sub_plot([], Grid, [1, 5], [], false, '', PlotProps);
 
 % Axes.Position(1) = Axes.Position(1)+.03;
@@ -94,7 +95,7 @@ title('Custom iota', 'FontSize', PlotProps.Text.TitleSize)
 
 % plot all bands periodic topographies
 chART.sub_plot([], Grid, [2, 1], [], 1, 'D', PlotProps); % little hack to put C in the right spot
-
+set(gca, 'Visible', 'off')
 
 BandLabels = fieldnames(Bands);
 for BandIdx = 1:numel(BandLabels)-1
