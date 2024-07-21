@@ -41,12 +41,12 @@ hold on
 chART.set_axis_properties(PlotProps)
 plot(Frequencies, mean(AllSpectra, 'omitnan'), 'Color', Red, 'LineWidth', 2)
 xlim([3 50])
-xticks([1 10 20 30 40])
+xticks([1 10 20 40])
 xlabel('Frequency (Hz)')
 ylabel('Power')
 box off
 title('Spectral power')
-set(gca, 'YScale', 'log', 'XScale', 'log');
+set(gca, 'YScale', 'log', 'XScale', 'linear');
 
 
 % log topo
