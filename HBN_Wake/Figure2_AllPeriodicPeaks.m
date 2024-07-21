@@ -25,7 +25,7 @@ end
 
 % load in analyses on preprocessed data
 CacheName = 'PeriodicParameters_Clean.mat';
-load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata', 'AllSpectra')
+load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata', 'AllSpectra', 'AllPeriodicSpectra', 'FooofFrequencies', 'Frequencies')
 
 % remove blank recordings (files didn't survive preprocessing)
 Blanks = any(isnan(AllSpectra), 2);
@@ -34,69 +34,117 @@ Metadata(Blanks, :) = [];
 % sort rows by age so that the rarer adults come out on top
 PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 
+%%%%%%%%%%%%%%%%%%%
 %%% plot
+
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.yPadding = 5;
-Grid = [1, 2];
+Grid = [1, 3];
+XLim = [3 50];
+Red = chART.color_picker(1, '', 'red');
 
-figure('Units','centimeters', 'Position', [0 0 22 10])
+figure('Units','centimeters', 'Position', [0 0 28 9])
 
-% plot scatter plot of all periodic peaks
+%%% Power spectra
+chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);
+plot(Frequencies, log10(AllSpectra), 'Color', [.3 .3 .3 .05])
+hold on
+chART.set_axis_properties(PlotProps)
+plot(Frequencies, mean(log10(AllSpectra), 'omitnan'), 'Color', Red, 'LineWidth', 4)
+% set(gca, 'XScale', 'log', 'YScale', 'log')
+xlim(XLim)
+xticks([1 10 20 30 40 50])
+ylim([-2 2])
+xlabel('Frequency (Hz)')
+ylabel('Log power')
+box off
+title('Wake periodic power')
+set(gca, 'TickDir', 'in')
+
+
+%%% Scatter plot of all periodic peaks
 PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
-XLims = [3 50];
 YLims = [.5 12.1];
 
-chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);
-Axes = plot_periodicpeaks(PeriodicPeaks, XLims, YLims, CLims, true, PlotProps);
-
+chART.sub_plot([], Grid, [1, 2], [], .2, 'B', PlotProps);
+Axes = plot_periodicpeaks(PeriodicPeaks, XLim, YLims, CLims, true, PlotProps);
+Axes.Units = 'normalized';
 Axes.Position(1) = Axes.Position(1)-.015; % move it a little bit
-title('Wake periodic peaks', 'FontSize', PlotProps.Text.TitleSize)
+Axes.Position(3) = Axes.Position(3)+0.0629;
+title('Periodic peaks', 'FontSize', PlotProps.Text.TitleSize)
 set(gca, 'TickDir', 'in') % switch inward because otherwise t
 
-% correlation iota amplitude and age
+% % put box around iota
+% x_values = [25 35];
+% y_values = [0.5 4];
+% 
+% % Calculate the width and height of the rectangle
+% width = x_values(2) - x_values(1);
+% height = y_values(2) - y_values(1);
+% 
+% % Create the figure
+% figure;
+% 
+% % Use the rectangle function to draw the dashed-edged box
+% rectangle('Position', [x_values(1), y_values(1), width, height], ...
+%           'EdgeColor', [0.5 0.5 0.5], ... % Gray color
+%           'LineStyle', '--', ...           % Dashed line
+%           'LineWidth', 1.5);               % Line width
+% 
+
+
+%%% Correlation iota amplitude and age
+
+% set up age resolution
 AgeBins = [0:2:18, 22];
 Labels = AgeBins(1:end-1)+diff(AgeBins)/2;
 Labels(end) = 19;
+
+% gather participants with iota
 IotaPeriodicPeaks = PeriodicPeaks(PeriodicPeaks.Frequency>25 & PeriodicPeaks.Frequency<=35 & PeriodicPeaks.BandWidth < 4, :);
 IotaPeriodicPeaks = one_row_each(IotaPeriodicPeaks, 'EID'); % in case multiple peaks were detected in the same participant
 IotaByAge = tabulate(discretize(IotaPeriodicPeaks.Age, AgeBins));
 IotaByAge = IotaByAge(:, 2);
 
-
+% all participants
 ParticipantsByAge = tabulate(discretize(Metadata.Age, AgeBins));
 ParticipantsByAge = ParticipantsByAge(:, 2);
 
-
-chART.sub_plot([], Grid, [1, 2], [], 1.5, 'B', PlotProps);
+% plot stacked bar plot of distribution of participants
+chART.sub_plot([], Grid, [1, 3], [], 4.5, 'C', PlotProps);
 chART.plot.stacked_bars([IotaByAge, ParticipantsByAge-IotaByAge], Labels, [], {'Iota', 'No iota'}, PlotProps, [0.4 0.4 0.4; .8 .8 .8])
 ylabel('# participants')
-% axis square
 xlabel('Age')
-legend('Location', 'northeast')
-ylim([0 700])
+legend('Location', 'northwest')
+ylim([0 800])
 
-
+% plot simple line plot of percentage with iota
 yyaxis right
-Red = chART.color_picker(1, '', 'red');
 Axes2 = gca;
 Axes2.YAxis(2).Color = Red;
 plot(Labels, 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, ...
-    'HandleVisibility', 'off', 'LineWidth',2, 'MarkerSize',8)
+    'HandleVisibility', 'off', 'LineWidth',2, 'MarkerSize',6)
 ylabel('%')
-ylim([0 40])
+ylim([0 100])
 xlim([4 20])
 StringLabels = string(Labels);
 StringLabels(end) = "+18";
 xticklabels(StringLabels)
 box off
 chART.set_axis_properties(PlotProps)
-title('Participants with iota', 'FontSize', PlotProps.Text.TitleSize)
-Axes2 = gca; 
-Axes2.Units = 'pixels';
-Axes2.Position(3) = Axes2.Position(3)-PlotProps.Axes.xPadding*2;
-Axes2.Position(1) = Axes2.Position(1)+ PlotProps.Axes.xPadding;
+title('Iota', 'FontSize', PlotProps.Text.TitleSize)
+
+% shift a bit
 Axes2.Units = 'normalized';
+Axes2.Position(1) = Axes2.Position(1) + .06;
+Axes2.Position(3) = Axes2.Position(3) - .095;
+
+% Axes2 = gca; 
+% Axes2.Units = 'pixels';
+% Axes2.Position(3) = Axes2.Position(3)-PlotProps.Axes.xPadding*2;
+% Axes2.Position(1) = Axes2.Position(1)+ PlotProps.Axes.xPadding;
+% Axes2.Units = 'normalized';
 
 set(gca, 'TickDir', 'in')
 chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
@@ -129,7 +177,7 @@ PlotProps.Figure.Padding = 10;
 
 % PlotProps.Debug = true;
 CLims = [5 21];
-XLims = [3 50];
+XLim = [3 50];
 YLims = [.5 12.1];
 Grid = [2, 3];
 LabelSpace = .5;
@@ -170,7 +218,7 @@ title('Alpha vs iota')
 
 PlotProps.Scatter.Alpha = .07;
 chART.sub_plot([], Grid, [1, 2], [], LabelSpace, 'B', PlotProps);
-plot_periodicpeaks(UnfilteredPeriodicPeaks, XLims, YLims, CLims, false, PlotProps);
+plot_periodicpeaks(UnfilteredPeriodicPeaks, XLim, YLims, CLims, false, PlotProps);
 title('Periodic peaks, unprocessed data',  'FontSize', PlotProps.Text.TitleSize)
 
 
