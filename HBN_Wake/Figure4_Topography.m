@@ -28,7 +28,7 @@ ClusterMetadata = ClusterMetadata(Order, :);
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.External.EEGLAB.TopoRes = 100;
 
-%%
+%% Everyone's topographies (used to choose which ones are representative)
 figure('Units','normalized', 'OuterPosition',[0 0 1 1])
 IndexPlot = 1;
 for Index =1:size(CleanTopo, 1)
@@ -45,20 +45,20 @@ for Index =1:size(CleanTopo, 1)
 end
 
 
-%%
-% subplot:
+%% Average Topography
+
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.External.EEGLAB.TopoRes = 300;
 PlotProps.Axes.xPadding = 20;
 
-PlotTopos = {
-'NDARGN148MK2','NDARKG859AGN','NDAREV848HWX','NDARHW808VDT','NDARHX252NVH';
-'NDARKP815KPZ','NDARFN452VPC','NDARGY464EYL','NDAREF150LNT','NDARFR108JNB'};
+PlotTopos = {'NDAREF150LNT', 'NDARLE849LCR', 'NDARKE358TFU',  'NDARGT022BEW', 'NDARCW497XW2';
+   'NDAREV848HWX', 'NDARFJ803JF7', 'NDARJH441HJD', 'NDARFN452VPC', 'NDARFA737TG6'};
+
 
 Grid = [2, size(PlotTopos, 2)+2];
 
-figure('Units','normalized', 'OuterPosition',[0 0 .5 .35])
+figure('Units','normalized', 'OuterPosition',[0 0 .5 .33])
 chART.sub_plot([], Grid, [2, 1], [2, 2], false, '', PlotProps);
 chART.plot.eeglab_topoplot(mean(CleanTopo, 1), Chanlocs, [], ...
     '', 'log power', 'Linear', PlotProps)
@@ -72,15 +72,11 @@ for IndexR = 1:size(PlotTopos, 1)
         chART.sub_plot([], Grid, [IndexR, IndexC+2], [], false, '', PlotProps);
         chART.plot.eeglab_topoplot(Data, Chanlocs, [], quantile(Data, [.01, 1]), '', 'Linear', PlotProps)
 
-        %  Band = [ClusterMetadata.IotaFrequency(Index)-ClusterMetadata.IotaBandwidth(Index)/2, ...
-        %      ClusterMetadata.IotaFrequency(Index)+ClusterMetadata.IotaBandwidth(Index)/2];
-        % Title = [ClusterMetadata.Participant(Index); ['(', num2str(ClusterMetadata.IotaFrequency), '']];
         title(ClusterMetadata.Participant(Index), 'FontWeight','normal', 'FontSize', PlotProps.Text.AxisSize)
     end
 end
-% colormap(PlotProps.Color.Maps.Linear)
 
-% chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
+chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
 
 
 %% identify peak locations
