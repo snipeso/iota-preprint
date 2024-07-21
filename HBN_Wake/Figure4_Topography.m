@@ -79,7 +79,7 @@ chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
 
 %% identify peak locations
 
-MeanTopo = mean(CleanTopo, 1);
+MeanTopo = mean(CleanTopo, 1, 'omitnan');
 
 Topography = table();
 Topography.Labels = {Chanlocs.labels}';
