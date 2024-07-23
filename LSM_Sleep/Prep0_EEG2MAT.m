@@ -7,13 +7,17 @@ clc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-P = prepParameters();
-Paths = P.RawFolders;
+P = LSMParameters();
+Paths = P.Paths;
+Folders = P.RawFolders;
 Refresh = false;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 load('StandardChanlocs128.mat', 'StandardChanlocs') % has channel locations in StandardChanlocs
+Folders.Subfolders(~contains(Folders.Subfolders, 'EEG')) = [];
+Folders.Subfolders(~contains(Folders.Subfolders, 'Sleep')) = [];
+
 
 %%% loop through all EEG folders, and convert whatever files possible
 for Indx_D = 1:size(Folders.Datasets, 1) % loop through participants
@@ -68,6 +72,6 @@ for Indx_D = 1:size(Folders.Datasets, 1) % loop through participants
         EEG.info.oldpath = Path;
 
         % save
-        save(fullfile(Path, Filename.MAT), 'EEG', 'v7.3')
+        save(fullfile(Path, Filename.MAT), 'EEG', '-v7.3')
     end
 end

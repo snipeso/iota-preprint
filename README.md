@@ -8,6 +8,7 @@ The code in this repository was used to generate the data from the Snipes 2024 p
 - the [eeg-oscillations](https://github.com/snipeso/eeg-oscillations) toolbox
 - the [chART](https://github.com/snipeso/chart) toolbox (just for plotting)
 - the [Matcycle](https://github.com/hubersleeplab/matcycle) toolbox (just for plotting for the burst detection)
+- the [EEGLAB](https://sccn.ucsd.edu/eeglab/download.php) toolbox, with the "bva-io" plugin to import raw brainvision data (can be easily installed through the EEGLAB gui. File>import data > From Brain. Vis. rec...)
 
 The Parallel Processing MATLAB toolbox is probably a good idea.
 

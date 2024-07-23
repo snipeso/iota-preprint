@@ -9,7 +9,7 @@ function P = LSMParameters()
 Paths = struct();
 
 % raw data (really big hard disk)
-RawCore = 'D:\LSM\Data\';
+RawCore = 'E:\LSM\Data';
 Paths.Datasets = fullfile(RawCore, 'Raw');
 
 % where to put preprocessed data (much smaller hard disk)
@@ -20,7 +20,7 @@ Paths.Core = PrepCore;
 
 % where current functions are
 Paths.Analysis = mfilename('fullpath');
-Paths.Analysis = fullfile(extractBefore(Paths.Analysis, '\Preprocessing\'));
+Paths.Analysis = fullfile(extractBefore(Paths.Analysis, '\LSM_Sleep\'));
 
 % add to path all folders in functions
 Content = deblank(string(ls(fullfile(Paths.Analysis, 'functions'))));
@@ -44,6 +44,11 @@ RawFolders.Ignore = {'CSVs', 'other', 'Lazy', 'P00', 'Applicants'};
 
 P.RawFolders = RawFolders;
 
+% eeglab functions
+if ~exist('topoplot', 'file')
+    eeglab
+    close all
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Preprocessing filter parameters
