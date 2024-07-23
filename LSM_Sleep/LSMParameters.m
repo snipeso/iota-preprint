@@ -42,6 +42,9 @@ RawFolders.Ignore = {'CSVs', 'other', 'Lazy', 'P00', 'Applicants'};
 [RawFolders.Subfolders, RawFolders.Datasets] = AllFolderPaths(Paths.Datasets, ...
     RawFolders.Template, false, RawFolders.Ignore);
 
+RawFolders.Subfolders(~contains(RawFolders.Subfolders, 'EEG')) = [];
+RawFolders.Subfolders(~contains(RawFolders.Subfolders, 'Sleep')) = [];
+
 P.RawFolders = RawFolders;
 
 % eeglab functions
@@ -57,18 +60,20 @@ FilterParameters = struct();
 
 % this is what I use to calculate power with minimal filtering for removing
 % drift and antialiasing to allow downsampling.
-FilterParameters.Wake.Format = 'Minimal'; % reference name
-FilterParameters.Wake.fs = 250; % new sampling rate
-FilterParameters.Wake.lp = 100; % low pass filter
-FilterParameters.Wake.hp = 0.2; % high pass filter
-FilterParameters.Wake.hp_stopband = 0.1; % high pass filter
+FilterParameters.Minimal.Format = 'Minimal'; % reference name
+FilterParameters.Minimal.fs = 250; % new sampling rate
+FilterParameters.Minimal.lp = 100; % low pass filter
+FilterParameters.Minimal.hp = 0.2; % high pass filter
+FilterParameters.Minimal.hp_stopband = 0.1; % high pass filter
+FilterParameters.Minimal.line = 50;
 
 % this is what I used to use to calculate power
-FilterParameters.Wake.Format = 'Power'; % reference name
-FilterParameters.Wake.fs = 250; % new sampling rate
-FilterParameters.Wake.lp = 40; % low pass filter
-FilterParameters.Wake.hp = 0.5; % high pass filter
-FilterParameters.Wake.hp_stopband = 0.25; % high pass filter
+FilterParameters.Power.Format = 'Power'; % reference name
+FilterParameters.Power.fs = 250; % new sampling rate
+FilterParameters.Power.lp = 40; % low pass filter
+FilterParameters.Power.hp = 0.5; % high pass filter
+FilterParameters.Power.hp_stopband = 0.25; % high pass filter
+FilterParameters.Power.line = 50;
 
 % ICA: heavily filtered data for getting ICA components (I don't use it,
 % but in case I ever want to...)
@@ -77,8 +82,7 @@ FilterParameters.ICA.fs = 250; % new sampling rate
 FilterParameters.ICA.lp = 80; % low pass filter
 FilterParameters.ICA.hp = 2.5; % high pass filter
 FilterParameters.ICA.hp_stopband = .5; % high pass filter
-
+FilterParameters.ICA.line = 50;
 
 P.FilterParameters = FilterParameters;
 
-P.LineNoise = 50; % Hz

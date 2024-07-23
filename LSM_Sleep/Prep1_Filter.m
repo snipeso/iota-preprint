@@ -1,5 +1,8 @@
 % filters sleep data for analysis. Saves all together in one folder.
 % from iota-preprint, Snipes, 2024.
+clear
+clc
+close all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% parameters
@@ -7,8 +10,8 @@ P = LSMParameters();
 
 Paths  = P.Paths;
 RawPaths = P.RawFolders;
-LineNoise = P.LineNoise;
 FilterParameters = P.FilterParameters;
+Refresh = false;
 
 Destination_Formats = {'Minimal'}; % chooses which filtering to do
 
@@ -26,8 +29,8 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
     hp_stopband = FilterParameters.(Destination_Format).hp_stopband;
 
 
-    for Indx_D = 1:size(Folders.Datasets,1) % loop through participants
-        for Indx_F = 1:size(Folders.Subfolders, 1) % loop through all subfolders
+    for Indx_D = 1:size(RawPaths.Datasets,1) % loop through participants
+        for Indx_F = 1:size(RawPaths.Subfolders, 1) % loop through all subfolders
 
             %%%%%%%%%%%%%%%%%%%%%%%
             %%% Check if data exists
@@ -41,7 +44,7 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
             end
 
             % identify meaningful folders traversed
-            Levels = split(Folders.Subfolders{Indx_F}, '\');
+            Levels = split(RawPaths.Subfolders{Indx_F}, '\');
             Levels(cellfun('isempty',Levels)) = []; % remove blanks
             Levels(strcmpi(Levels, 'EEG')) = []; % remove uninformative level that its an EEG
 
@@ -49,23 +52,23 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
 
             % if does not contain EEG, then skip
             Content = ls(Path);
-            SET = contains(string(Content), '.set');
-            if ~any(SET)
+            MAT = contains(string(Content), '.mat');
+            if ~any(MAT)
                 if any(strcmpi(Levels, 'EEG')) % if there should have been an EEG file, be warned
-                    warning([Path, ' is missing SET file'])
+                    warning([Path, ' is missing MAT file'])
                 end
                 continue
-            elseif nnz(SET) > 1 % if there's more than one set file, you'll need to fix that
-                warning([Path, ' has more than one SET file'])
+            elseif nnz(MAT) > 1 % if there's more than one set file, you'll need to fix that
+                warning([Path, ' has more than one MAT file'])
                 continue
             end
 
-            Filename_MAT = Content(SET, :);
+            Filename_MAT = Content(MAT, :);
 
             % set up destination location
-            Destination = fullfile(Paths.Preprocessed, Destination_Format, 'SET', Task);
+            Destination = fullfile(Paths.Preprocessed, Destination_Format, 'MAT', Task);
 
-            Filename_Core = join([Folders.Datasets{Indx_D}, Levels(:)', Destination_Format], '_');
+            Filename_Core = join([RawPaths.Datasets{Indx_D}, Levels(:)', Destination_Format], '_');
             Filename_Destination = [Filename_Core{1}, '.mat'];
 
             % create destination folder
@@ -82,21 +85,10 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
 
             %%%%%%%%%%%%%%%%%%%
             %%% process the data
-
+            disp(['Loading ', Filename_MAT])
             load(fullfile(Path, Filename_MAT), 'EEG')
 
-            % low-pass filter
-            EEG = pop_eegfiltnew(EEG, [], lowpass);
-
-            % notch filter for line noise and harmonics
-            EEG = line_filter(EEG, LineNoise, false);
-
-            % resample
-            EEG = pop_resample(EEG, new_fs);
-
-            % high-pass filter
-            % NOTE: this is after resampling, otherwise crazy slow.
-            EEG = highpass_eeg(EEG, highpass, hp_stopband);
+            EEG = filter_and_downsample_eeg(EEG, FilterParameters.(Destination_Format));
 
             EEG = eeg_checkset(EEG); % makes sure all fields are present
 
@@ -109,7 +101,7 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
             EEG.filtering = FilterParameters.(Destination_Format);
 
             % save EEG
-            save(fullfile(Destination, Filename_Destination), 'EEG', 'v7.3')
+            save(fullfile(Destination, Filename_Destination), 'EEG', '-v7.3')
         end
     end
 end

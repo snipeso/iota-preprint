@@ -21,27 +21,38 @@ n = n + rem(n,2);
 hh = fir1(n,Wn,ftype,kaiser(n+1,beta),'noscale'); % Filter realisation
 
 %%% filter the data
-EEG_filt.data = filtfilt(hh, 1, double(EEG.data)')';
+if size(EEG.data, 2)>10^7 % if enormous
+    warning('Massive file, notch filtering one channel at a time')
+    Data = EEG_filt.data;
+    nChannels = size(Data, 1);
+    parfor ChannelIdx = 1:nChannels
+        Data(ChannelIdx, :) = filtfilt(hh, 1, double(Data(ChannelIdx, :))')';
+        disp(['Finished ch', num2str(ChannelIdx)])
+    end
+    EEG_filt.data = Data;
+else
+    EEG_filt.data = filtfilt(hh, 1, double(EEG.data)')';
+end
 
 %%% plot filter if requested
 if exist('showFiltPlots', 'var') && showFiltPlots
-    
+
     % plot filter
     figure
     freqz(hh,1,2^14,fs)
     set(subplot(2,1,1), 'XLim',[0 200]); % Zoom Frequency Axis
     set(subplot(2,1,2), 'XLim',[0 200]);
-    
+
     % plot power spectrum of a filtered channel
     x = EEG.data(1, :);
     [pxx,f] = pwelch(x,length(x),[],length(x),fs);
     figure
     plot(f, log(pxx))
     hold on
-     x = EEG_filt.data(1, :);
+    x = EEG_filt.data(1, :);
     [pxx,f] = pwelch(x,length(x),[],length(x),fs);
-     plot(f, log(pxx))
-    
+    plot(f, log(pxx))
+
     % plot filtered and unfiltered data for comparison
     figure
     hold on
@@ -49,6 +60,6 @@ if exist('showFiltPlots', 'var') && showFiltPlots
     plot(t, EEG.data(1, :))
     plot(t, x)
     legend({'unfilt', 'filt'})
-    
+
 end
 

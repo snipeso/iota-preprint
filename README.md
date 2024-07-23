@@ -21,9 +21,16 @@ EEG wake data was downloaded from [The Child Mind Institute](https://fcon_1000.p
 EEG sleep data is available upon request. I am in the process of figuring out where to put it online, and so eventually it will also be freely available. In general though, any young adult sleep EEG should yield the same results.
 
 
-## Run
+## Run wake
 
 1. Adjust paths in HBNParameters.m
 2. Run preprocessing scripts Prep1 to Prep4
 3. Run the analysis scripts Analysis1 to Analysis2
 4. Run the plotting scripts Plot1 to Plot3
+
+## Run sleep
+
+1. Adjust paths in LSMParameters.m
+2. Run Prep0-Prep1.
+3. Conduct sleep scoring
+4. Using [Hd-SleepCleaner](https://github.com/HuberSleepLab/Hd-SleepCleaner/blob/sophia-actuallyuses/) identify artefact epochs. This saves a file with artndx and visnum with the artefacts and scoring respectively.

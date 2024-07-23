@@ -30,8 +30,6 @@ Parameters.hp_stopband = .2; % high pass filter gradual roll-off
 
 % Consider only relevant subfolders
 Folders.Subfolders(~contains(Folders.Subfolders, Tasks)) = [];
-Folders.Subfolders(~contains(Folders.Subfolders, 'EEG')) = [];
-
 
 for Indx_D = 1:size(Folders.Datasets,1) % loop through participants
     for Indx_F = 1:size(Folders.Subfolders, 1) % loop through all subfolders

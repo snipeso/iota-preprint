@@ -15,8 +15,6 @@ Refresh = false;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 load('StandardChanlocs128.mat', 'StandardChanlocs') % has channel locations in StandardChanlocs
-Folders.Subfolders(~contains(Folders.Subfolders, 'EEG')) = [];
-Folders.Subfolders(~contains(Folders.Subfolders, 'Sleep')) = [];
 
 
 %%% loop through all EEG folders, and convert whatever files possible
