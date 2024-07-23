@@ -1,5 +1,6 @@
 function EEG = FilterScoring(EEG)
 % takes an EEGLAB structure, and filters the EEG and EMG data separately.
+% from iota-preprint, Snipes 2024.
 
 %%% General filter parameters
 fs = EEG.srate;
@@ -58,8 +59,6 @@ lpFilt = designfilt('lowpassfir', ...
     'DesignMethod', 'equiripple');
 EEG = firfilt(EEG, lpFilt.Coefficients, [], 1:12);
 
-% EEG.data = eegfilt(EEG.data, fs_new, 0, 40);
-
 % low pass filter EMG
 lpFilt = designfilt('lowpassfir', ...
     'PassbandFrequency', lp_Frq_EMG, ...
@@ -82,8 +81,6 @@ hpFilt = designfilt('highpassfir', ...
     'SampleRate', fs_new, ...
     'DesignMethod', 'equiripple');
 EEG = firfilt(EEG, hpFilt.Coefficients, [], 1:12);
-
-% EEG.data = eegfilt(EEG.data, fs_new, .5, 0);
 
 % high pass filter EMG
 hpFilt = designfilt('highpassfir', ...

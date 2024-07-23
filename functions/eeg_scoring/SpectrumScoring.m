@@ -2,6 +2,7 @@ function [Delta, VI30] = SpectrumScoring(Data, srate)
 %%% Code taken from Sven Leach and Elena Krugliakova. Calculates delta
 %%% power across the night, and also this magic Vigilence Index that is
 %%% helpful. 
+%%% from iota-preprint, Snipes, 2024.
 
 % number of 4s epochs in the data
 pnts = size(Data, 2);

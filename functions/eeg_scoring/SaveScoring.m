@@ -6,7 +6,8 @@ function SaveScoring(Destination, FolderName, FileName, ScoringData, sp1, sp2)
 % row 4&5: F3,4
 % row 6&7: C3,4
 % row 8&9: O1,2
-% if you have different inputs, you'll need to change the header template
+% if you have different inputs, you'll need to change the header template.
+% from iota-preprint, Snipes, 2024.
 
 % limit filename size
 if length(FileName) > 15 % there is a limit to the size of the filename, I'm just guessing that 15 characters is ok
@@ -39,8 +40,3 @@ fid = fopen(fullfile(Destination, [FileName, '.sp2']), 'w');
 fwrite(fid, sp2, 'float')
 fclose(fid);
 
-
-% TODO:
-% - make second sp optional
-% - make flexible to make a .r04 file when running on SleepLoop data if
-% that's what gets inputted

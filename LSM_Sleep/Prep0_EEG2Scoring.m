@@ -1,7 +1,7 @@
-% goes through folder structure, gets set file, saves sleep scoring data
-
-% has to be very careful not to overwrite what's already there; always
-% creates a different file name
+% goes through folder structure, gets set/mat file, saves sleep scoring data.
+% This is saving data in the legacy format for "zurich sleep scoring"
+% software. Now, I recommend to use Sven Leach's "scoringhero".
+% from iota-preprint, Snipes, 2024 (originally much older).
 
 clear
 clc
@@ -59,11 +59,11 @@ for Indx_D = 1:size(Folders.Datasets,1) % loop through participants
         MAT = contains(string(Content), '.mat');
         if ~any(MAT)
             if any(strcmpi(Levels, 'EEG')) % if there should have been an EEG file, be warned
-                warning([Path, ' is missing SET file'])
+                warning([Path, ' is missing MAT file'])
             end
             continue
         elseif nnz(MAT) > 1 % if there's more than one set file, you'll need to fix that
-            warning([Path, ' has more than one SET file'])
+            warning([Path, ' has more than one MAT file'])
             continue
         end
         
