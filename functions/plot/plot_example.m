@@ -77,10 +77,10 @@ plot(Freqs, squeeze(mean(Power, 2, 'omitnan')), 'Color', [.5 .5 .5 .1])
 plot(Freqs, squeeze(mean(mean(Power, 2, 'omitnan'), 1)), 'Color', Blue, 'LineWidth',3)
 chART.set_axis_properties(PlotProps)
 
-set(gca, 'YScale', 'log', 'XScale', 'log');
+set(gca, 'YScale', 'log');
 xlim([2 40])
 % xticks([2 4 8 12 25 35])
-xticks([5 10 20 30 40])
+xticks([ 10 20 30 40])
 xlabel('Frequency (Hz)')
 ylabel('Power')
 

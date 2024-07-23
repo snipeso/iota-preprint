@@ -94,8 +94,6 @@ set(gca, 'TickDir', 'in') % switch inward because otherwise t
 % 
 
 
-%%% Correlation iota amplitude and age
-
 % set up age resolution
 AgeBins = [0:2:18, 22];
 Labels = AgeBins(1:end-1)+diff(AgeBins)/2;

@@ -27,9 +27,9 @@ load(fullfile(CacheDir, CacheName), 'Metadata')
 
 
 % left handed 8.9 year old
-% Participant = 'NDARMH180XE5'; TimeRange = [39 49]; % the bestest
+Participant = 'NDARMH180XE5'; TimeRange = [39 49]; % the bestest
 % Participant = 'NDARUL694GYN'; TimeRange = [150 160];
-Participant = 'NDARDR804MFE'; TimeRange = [10 20];
+% Participant = 'NDARDR804MFE'; TimeRange = [10 20];
 % Participant = 'NDARTZ926NMZ';TimeRange = [54 64];
 % Participant = 'NDARKL327YDQ'; TimeRange = [39 49]; % Works with same time interval
 % Participant = 'NDARKL327YDQ'; TimeRange = [39 49]; % 16 year old
