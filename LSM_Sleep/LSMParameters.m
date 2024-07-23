@@ -43,3 +43,37 @@ RawFolders.Ignore = {'CSVs', 'other', 'Lazy', 'P00', 'Applicants'};
     RawFolders.Template, false, RawFolders.Ignore);
 
 P.RawFolders = RawFolders;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Preprocessing filter parameters
+
+FilterParameters = struct();
+
+% this is what I use to calculate power with minimal filtering for removing
+% drift and antialiasing to allow downsampling.
+FilterParameters.Wake.Format = 'Minimal'; % reference name
+FilterParameters.Wake.fs = 250; % new sampling rate
+FilterParameters.Wake.lp = 100; % low pass filter
+FilterParameters.Wake.hp = 0.2; % high pass filter
+FilterParameters.Wake.hp_stopband = 0.1; % high pass filter
+
+% this is what I used to use to calculate power
+FilterParameters.Wake.Format = 'Power'; % reference name
+FilterParameters.Wake.fs = 250; % new sampling rate
+FilterParameters.Wake.lp = 40; % low pass filter
+FilterParameters.Wake.hp = 0.5; % high pass filter
+FilterParameters.Wake.hp_stopband = 0.25; % high pass filter
+
+% ICA: heavily filtered data for getting ICA components (I don't use it,
+% but in case I ever want to...)
+FilterParameters.ICA.Format = 'ICA'; % reference name
+FilterParameters.ICA.fs = 250; % new sampling rate
+FilterParameters.ICA.lp = 80; % low pass filter
+FilterParameters.ICA.hp = 2.5; % high pass filter
+FilterParameters.ICA.hp_stopband = .5; % high pass filter
+
+
+P.FilterParameters = FilterParameters;
+
+P.LineNoise = 50; % Hz

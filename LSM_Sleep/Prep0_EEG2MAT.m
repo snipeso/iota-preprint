@@ -13,8 +13,6 @@ Refresh = false;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Paths.SubFolders(~contains(Paths.SubFolders, 'Baseline')) = []; % to save time, only process baseline recordings (sub-optimal)
-
 load('StandardChanlocs128.mat', 'StandardChanlocs') % has channel locations in StandardChanlocs
 
 %%% loop through all EEG folders, and convert whatever files possible
