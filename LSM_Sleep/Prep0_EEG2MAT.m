@@ -1,0 +1,75 @@
+% first script is for converting eeg files so there's a .mat with the data.
+% from iota-preprint, Snipes, 2024.
+
+close all
+clear
+clc
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+P = prepParameters();
+Paths = P.RawFolders;
+Refresh = false;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Paths.SubFolders(~contains(Paths.SubFolders, 'Baseline')) = []; % to save time, only process baseline recordings (sub-optimal)
+
+load('StandardChanlocs128.mat', 'StandardChanlocs') % has channel locations in StandardChanlocs
+
+%%% loop through all EEG folders, and convert whatever files possible
+for Indx_D = 1:size(Folders.Datasets, 1) % loop through participants
+    for Indx_F = 1:size(Folders.Subfolders, 1) % loop through all subfolders
+
+        % get path
+        Path = fullfile(Paths.Datasets, Folders.Datasets{Indx_D}, Folders.Subfolders{Indx_F});
+
+        % skip rest if path not found
+        if ~exist(Path, 'dir')
+            warning([deblank(Path), ' does not exist'])
+            continue
+        end
+
+        % identify menaingful folders traversed
+        Levels = split(Folders.Subfolders{Indx_F}, '\');
+        Levels(cellfun('isempty',Levels)) = []; % remove blanks
+
+
+        % if does not contain EEG, then skip
+        Content = ls(Path);
+        VHDR = contains(string(Content), '.vhdr');
+        if ~any(VHDR)
+            if any(strcmpi(Levels, 'EEG'))
+                warning([Path, ' is missing EEG files'])
+            end
+            continue
+        elseif nnz(VHDR) > 1 % or if there's more than 1 file
+            warning([Path, ' has more than one eeg file'])
+            continue
+        end
+
+        % load EEG file
+        Filename.VHDR = Content(VHDR, :);
+        Filename.Core = extractBefore(Filename.VHDR, '.');
+        Filename.MAT = [Filename.Core, '.mat'];
+        disp(['***********', 'Loading ', Filename.Core, '***********'])
+
+        % if file exists, and don't want to refresh, then skip rest of code
+        if ~Refresh &&  any(contains(cellstr(Content), Filename.MAT))
+            disp(['***********', 'Already did ', Filename.Core, '***********'])
+            continue
+        end
+
+        % load EEG
+        EEG = pop_loadbv(Path, Filename.VHDR);
+
+        % update EEG structure
+        EEG.ref = 'CZ';
+        EEG.chanlocs = StandardChanlocs;
+        EEG.info.oldname = Filename.VHDR;
+        EEG.info.oldpath = Path;
+
+        % save
+        save(fullfile(Path, Filename.MAT), 'EEG', 'v7.3')
+    end
+end
