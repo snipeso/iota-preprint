@@ -33,4 +33,8 @@ EEG sleep data is available upon request. I am in the process of figuring out wh
 1. Adjust paths in LSMParameters.m
 2. Run Prep0-Prep1.
 3. Conduct sleep scoring
-4. Using [Hd-SleepCleaner](https://github.com/HuberSleepLab/Hd-SleepCleaner/blob/sophia-actuallyuses/) identify artefact epochs. This saves a file with artndx and visnum with the artefacts and scoring respectively.
+4. Using [Hd-SleepCleaner](https://github.com/snipeso/Hd-SleepCleaner/) identify artefact epochs. This saves a file with artndx and visnum with the artefacts and scoring respectively. 
+5. Run Analysis1-2
+6. Run Figure6-7
+
+

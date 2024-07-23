@@ -57,17 +57,25 @@ for FileIdx = 1:numel(Files)
     end
 
     % load in file
-    load(fullfile(Path, File), 'EEG');
-    
-    if isfield(Output, 'visnum')
- Scoring = reorder_scoring(Scoring);
-    else
-        Scoring = zeros(1, nEpochs);
-    end
-    Chanlocs = Output.Chanlocs;
-    Artefacts = [];
+    load(fullfile(Path, File), 'EEG')
+    SampleRate = EEG.srate;
+    Data = EEG.data;
+    Chanlocs = EEG.chanlocs;
+
+    % load in scoring
+    Filename_Cuts = replace(Filename_Source, '.mat', 'Cutting_artndxn.mat');
+
+    load(fullfile(SourceScoring, Filename_Cuts), 'artndxn', 'visnum', 'scoringlen')
+
+    % calculate power
+    [Power, Frequencies] = oscip.compute_power_on_epochs(Data, ...
+        SampleRate, EpochLength, WelchWindowLength, WelchOverlap);
 
     SmoothPower = oscip.smooth_spectrum(Power, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
+
+    % adjust scoring size (can be off by one)
+    ScoringOriginal = reorder_scoring(visnum, size(Power, 2));
+
 
     % run FOOOF
     [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, WhitenedPower, Errors, RSquared] ...
@@ -89,8 +97,19 @@ for FileIdx = 1:numel(Files)
 end
 
 
-function Scoring = reorder_scoring(Scoring)
-        Scoring(Scoring==0) = 2;
-        Scoring(Scoring==1) = 0;
-        Scoring(Scoring==2) = 1;
+function Scoring = reorder_scoring(ScoringOriginal, nEpochs)
+
+% adjust size
+Scoring = [1, nEpochs];
+if numel(Scoring)<numel(ScoringOriginal)
+    Scoring = ScoringOriginal(1:nEpochs);
+else
+    Scoring(1:numel(ScoringOriginal)) = ScoringOriginal;
+end
+
+% reorder wake and REM, whichwas saved as 1 and 0, but should be
+% switched
+Scoring(Scoring==0) = 2;
+Scoring(Scoring==1) = 0;
+Scoring(Scoring==2) = 1;
 end

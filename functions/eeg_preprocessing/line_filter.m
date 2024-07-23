@@ -23,13 +23,12 @@ hh = fir1(n,Wn,ftype,kaiser(n+1,beta),'noscale'); % Filter realisation
 %%% filter the data
 if size(EEG.data, 2)>10^7 % if enormous
     warning('Massive file, notch filtering one channel at a time')
-    Data = EEG_filt.data;
-    nChannels = size(Data, 1);
-    parfor ChannelIdx = 1:nChannels
-        Data(ChannelIdx, :) = filtfilt(hh, 1, double(Data(ChannelIdx, :))')';
+    nChannels = size(EEG_filt.data, 1);
+
+    for ChannelIdx = 1:nChannels
+        EEG_filt.data(ChannelIdx, :) = filtfilt(hh, 1, double(EEG_filt.data(ChannelIdx, :))')';
         disp(['Finished ch', num2str(ChannelIdx)])
     end
-    EEG_filt.data = Data;
 else
     EEG_filt.data = filtfilt(hh, 1, double(EEG.data)')';
 end

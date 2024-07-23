@@ -68,7 +68,7 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
             % set up destination location
             Destination = fullfile(Paths.Preprocessed, Destination_Format, 'MAT', Task);
 
-            Filename_Core = join([RawPaths.Datasets{Indx_D}, Levels(:)', Destination_Format], '_');
+            Filename_Core = join([RawPaths.Datasets{Indx_D}, Levels(:)'], '_');
             Filename_Destination = [Filename_Core{1}, '.mat'];
 
             % create destination folder
