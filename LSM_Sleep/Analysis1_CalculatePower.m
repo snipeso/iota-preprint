@@ -3,19 +3,22 @@
 % epochs/channels.
 % from iota-preprint, Snipes, 2024.
 
+clear
+clc
+close all
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Parameters
 
 P = LSMParameters();
 Paths = P.Paths;
-Dataset = 'Sleep';
+Task = P.Task;
 Format = 'Minimal';
-Nights = {'Baseline'};
+Session = P.Session;
 Channels = P.Channels;
 
 % power of epochs
-EpochLength = 20;
-WelchWindow = 4;
+    WelchWindowLength = 4;
 WelchWindowOverlap = .5;
 
 % fooof
@@ -33,12 +36,12 @@ NotEdge = Channels.NotEdge;
 
 % locations
 SourceEEG =  fullfile(Paths.Preprocessed, Format, 'MAT');
-SourceScoring =  fullfile(Paths.Core, 'Outliers', Dataset);
-Path = fullfile(SourceEEG, Dataset);
+SourceScoring =  fullfile(Paths.Core, 'Outliers', Task);
+Path = fullfile(SourceEEG, Task);
 Files = list_filenames(Path);
-Files(~contains(Files, Nights)) = []; % to save time, only do basleine nights
+Files(~contains(Files, Session)) = []; % to save time, only do basleine nights
 
-Destination = fullfile(Paths.Sleep.Final, 'EEG', 'Power',  '20sEpochs', Dataset, Format);
+Destination = fullfile(Paths.Final, 'EEG', 'Power',  '20sEpochs', Task, Format);
 
 if ~exist(Destination, 'dir')
     mkdir(Destination)
@@ -63,34 +66,36 @@ for FileIdx = 1:numel(Files)
     Chanlocs = EEG.chanlocs;
 
     % load in scoring
-    Filename_Cuts = replace(Filename_Source, '.mat', 'Cutting_artndxn.mat');
+    Filename_Cuts = replace(File, '.mat', '_Cutting_artndxn.mat');
 
     load(fullfile(SourceScoring, Filename_Cuts), 'artndxn', 'visnum', 'scoringlen')
+    Artefacts = artndxn;
 
     % calculate power
     [Power, Frequencies] = oscip.compute_power_on_epochs(Data, ...
-        SampleRate, EpochLength, WelchWindowLength, WelchOverlap);
+        SampleRate, scoringlen, WelchWindowLength, WelchWindowOverlap);
 
     SmoothPower = oscip.smooth_spectrum(Power, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
 
+    
     % adjust scoring size (can be off by one)
-    ScoringOriginal = reorder_scoring(visnum, size(Power, 2));
+    Scoring = reorder_scoring(visnum, size(Power, 2));
 
 
     % run FOOOF
-    [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, WhitenedPower, Errors, RSquared] ...
+    [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] ...
         = oscip.fit_fooof_multidimentional(SmoothPower, Frequencies, FittingFrequencyRange, MaxError, MinRSquared);
 
-    save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring', 'Time', 'Chanlocs', ...
-        'SmoothPower', 'WhitenedPower', 'FooofFrequencies', 'PeriodicPeaks', ...
+    
+    save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'Artefacts', 'Time', 'Chanlocs', ...
+        'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...
         'Intercepts', 'Slopes', 'Errors', 'RSquared')
 
 
-    oscip.plot.frequency_overview(WhitenedPower, FooofFrequencies, PeriodicPeaks, ...
+    oscip.plot.frequency_overview(PeriodicPower, FooofFrequencies, PeriodicPeaks, ...
         Scoring, -3:1:1, {'N3', 'N2', 'N1', 'W', 'R'}, ScatterSizeScaling, Alpha, false, false)
     set(gcf, 'InvertHardcopy', 'off', 'Color', 'W')
-    print(fullfile(Destination, extractBefore(File, '.mat')), '-dtiff', '-r1000')
-
+    chART.save_figure(replace(File, '.mat', 'png'), Destination)
 
     close all
     disp(['Finished ', File])
@@ -100,7 +105,7 @@ end
 function Scoring = reorder_scoring(ScoringOriginal, nEpochs)
 
 % adjust size
-Scoring = [1, nEpochs];
+Scoring = nan([1, nEpochs]);
 if numel(Scoring)<numel(ScoringOriginal)
     Scoring = ScoringOriginal(1:nEpochs);
 else

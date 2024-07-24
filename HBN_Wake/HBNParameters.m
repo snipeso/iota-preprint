@@ -18,7 +18,6 @@ Paths = struct(); % I make structs of variables so they don't flood the workspac
 Paths.Analysis = mfilename('fullpath');
 Paths.Analysis = extractBefore(Paths.Analysis, 'HBN_Wake');
 
-% Core ='D:\Data\AllWake';
 Core ='E:\';
 
 if ~exist(Core, "dir")
@@ -30,8 +29,8 @@ Paths.Preprocessed = fullfile(Core, 'Preprocessed');
 Paths.Final = fullfile(Core, 'Final'); % where data gets saved once its been turned into something else
 Paths.Core = Core;
 Paths.Metadata = fullfile(Core, 'Metadata');
-Paths.Cache = fullfile(Core, 'Cache');
-Paths.Results = fullfile(Core, 'Results');
+Paths.Cache = fullfile(Core, 'Cache', 'iota-preprint');
+Paths.Results = fullfile(Core, 'Results', 'iota-preprint');
 
 if ~exist(Paths.Cache, 'dir')
     mkdir(Paths.Cache)

@@ -22,13 +22,6 @@ Destination_Formats = {'Minimal'}; % chooses which filtering to do
 for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case I want to filter in multiple ways.
     Destination_Format = Destination_Formats{Indx_DF};
 
-    % set selected parameters
-    new_fs = FilterParameters.(Destination_Format).fs;
-    lowpass = FilterParameters.(Destination_Format).lp;
-    highpass = FilterParameters.(Destination_Format).hp;
-    hp_stopband = FilterParameters.(Destination_Format).hp_stopband;
-
-
     for Indx_D = 1:size(RawPaths.Datasets,1) % loop through participants
         for Indx_F = 1:size(RawPaths.Subfolders, 1) % loop through all subfolders
 
@@ -78,7 +71,7 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
 
             % skip filtering if file already exists
             if ~Refresh && exist(fullfile(Destination, Filename_Destination), 'file')
-                disp(['***********', 'Already did ', Filename_Core, '***********'])
+                disp(['***********', 'Already did ', Filename_Core{1}, '***********'])
                 continue
             end
 
@@ -89,7 +82,6 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
             load(fullfile(Path, Filename_MAT), 'EEG')
 
             EEG = filter_and_downsample_eeg(EEG, FilterParameters.(Destination_Format));
-
             EEG = eeg_checkset(EEG); % makes sure all fields are present
 
 
