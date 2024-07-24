@@ -16,42 +16,41 @@ Parameters = P.Parameters;
 EEG_Channels = P.Channels;
 Tasks = P.Tasks(1);
 
-Refresh = true;
+% Filetype to clean
+CleanType = 'Power';
+% CleanType = 'Unfiltered';
 
-Spread = 0; % how many times more the main component has to be larger than the next largest component ("Spread" is a reference to the italian term "spread" referring to the difference between the yields of italian and german bonds)
-SlopeRange = [8 30];
-MuscleSlopeMin = .5;
-ChopEdge = 2; % in seconds, cut off these many seconds at the beginning and end of recordings
-WindowLength = 3; % s, bad time windows
+Refresh = false;
+
+Spread = 0; % how many times more the main component classification score has to be larger than the next largest component ("Spread" is a reference to the italian term "spread" referring to the difference between the yields of italian and german bonds)
+SlopeRange = [8 30]; % to exclude uncertain components based on this range, most likely to be reflect muscle artefacts if present
+MuscleSlopeMin = .5; % an aperiodic slope in the above range less than or equal to this value reflects muscle activity
+ChopEdge = 2; % in seconds, cut off these many seconds at the beginning and end of recordings (removed edge artefacts from starting the recording)
+WindowLength = 3; % s, segment length in which to remove an artefact, needs to be a reasonable length because artefacts are determined by how well correlated this segment is across channels
 RemoveComps = [2, 3, 4, 6]; % 1:Brain, 2:Muscle, 3:Eye, 4:Heart, 5:Line Noise, 6:Channel Noise, 7:Other
 MinTime = P.MinTime; % minimum time to keep data in seconds
-MinNeighborCorrelation = .3;
-MinChannels = P.MinChannels; % maximum number of channels that can be removed
+MinNeighborCorrelation = .3; % if a channel correlates less than this with it's neighbors, it's excluded. The process starts from the channels with the overall lowest correlations
+MinChannels = P.MinChannels; % maximum number of channels that can be removed TODO: rename to 'MaxBadChannels'
 CorrelationFrequencyRange = [1 40];
 MaxPorportionUniqueCorr = .02; % the minimum number of unique correlation values across channels when rounding correlations to 3 decimal points
 
-% EEGLAB preprocessing
-MinCorrelation =    0.500; % their defaults. Somehow, the function for finding bad channels without using channel locations worked a lot better
-NoLocsChannelCritExcluded =    0.1000; % their defaults
-MinDataKeep =  0.3000; %  this should be between .1 or .3, with smaller being stricter cleaning
+% EEGLAB preprocessing (I'm not too happy with these, but it's easier to use the same pipeline twice)
+MinCorrelation = 0.500; % their defaults. Somehow, the function for finding bad channels without using channel locations worked a lot better
+NoLocsChannelCritExcluded = 0.1000; % their defaults
+MinDataKeep =  0.3000; % this should be between .1 or .3, with smaller being stricter cleaning
 WindowCriteriaTolerances = [-Inf, 12]; % their defaults
 ChannelCriteriaMaxBadTime = 0.5000;
 MaxAmplitude = 150;
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Filetype to clean
-% CleanType = 'Power';
-CleanType = 'Unfiltered';
-
-
-% get paths
+%%% paths
 Source_Power = fullfile(Paths.Preprocessed, CleanType, 'MAT');
 Source_Components = fullfile(Paths.Preprocessed, 'ICA', 'Components');
 
 Destination_All = fullfile(Paths.Preprocessed, CleanType, 'Clean');
 Destination_All_Rejects = fullfile(Paths.Preprocessed, 'ICA', 'Cleanable');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Run
 
 % prepare final chanlocs, without the external channels
 load('StandardChanlocs128.mat', 'StandardChanlocs')
@@ -109,7 +108,7 @@ for Indx_T = 1:numel(Tasks)
         end
         load(Filepath_ICA, 'EEG')
 
-        % try
+        try
             %%% preprocess data
 
             % remove bad channels
@@ -156,7 +155,6 @@ for Indx_T = 1:numel(Tasks)
             badcomps = find(EEG.reject.gcompreject); % get indexes of selected components
             NewEEG = pop_subcomp(NewEEG, badcomps);
 
-
             [~, BadCh, BadWindows_t] = ...
                 find_bad_segments(NewEEG, WindowLength, -inf, MaxPorportionUniqueCorr, EEG_Channels.notEEG, false, MinDataKeep, CorrelationFrequencyRange, MaxAmplitude); % mine; just a quick check
 
@@ -169,12 +167,11 @@ for Indx_T = 1:numel(Tasks)
             disp(['Removing ', num2str(numel(BadCh)), ' channels'])
             NewEEG = eeg_checkset(NewEEG);
 
-
-            % % last cleaning of data
-            % NewEEG = clean_windows(NewEEG,MinDataKeep,WindowCriteriaTolerances); % EEGLABs (veeery lax)
-            % 
-            % [NewEEG,removed_channels] = clean_channels_nolocs(NewEEG,...
-            %     MinCorrelation,NoLocsChannelCritExcluded,[],ChannelCriteriaMaxBadTime);
+            % last cleaning of data (In future, I'd remove, but again it was the original pipeline)
+            NewEEG = clean_windows(NewEEG,MinDataKeep,WindowCriteriaTolerances); % EEGLABs (veeery lax)
+            
+            [NewEEG,removed_channels] = clean_channels_nolocs(NewEEG,...
+                MinCorrelation,NoLocsChannelCritExcluded,[],ChannelCriteriaMaxBadTime);
 
 
             if size(NewEEG.data, 2) < NewEEG.srate*MinTime
@@ -190,15 +187,14 @@ for Indx_T = 1:numel(Tasks)
             % interpolate bad channels
             NewEEG = pop_interp(NewEEG, FinalChanlocs);
 
-
             % save
             EEG = NewEEG;
             save(fullfile(Destination, File), 'EEG')
 
             disp(['Finished ', File])
-        % catch
-        %     warning('something didnt work')
-        % end
+        catch
+            warning('something didnt work with ICA removal')
+        end
     end
 end
 

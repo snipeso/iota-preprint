@@ -2,7 +2,7 @@
 %
 % From iota-preprocessing by Sophia Snipes, 2024
 
-% close all
+close all
 clc
 clear
 
@@ -11,7 +11,7 @@ clear
 
 P = HBNParameters();
 Paths = P.Paths;
-Tasks = P.Tasks(1);
+Tasks = P.Tasks;
 Parameters = P.Parameters;
 EEG_Channels = P.Channels;
 

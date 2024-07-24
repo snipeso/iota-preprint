@@ -4,10 +4,7 @@ function Parameters = HBNParameters()
 %
 % From iota-preprocessing by Sophia Snipes, 2024
 
-Parameters.LineNoise = 60; % Hz
-Parameters.Tasks = {'RestingState'}; 
-Parameters.MinTime = 60; % minimum file duration in seconds required after preprocessing
-Parameters.MinChannels = 25; % minimum number of channels after preprocessing
+Parameters.Tasks = {'RestingState'}; % the dataset has other tasks, so I left the option open to do more than one
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Locations
@@ -54,9 +51,9 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Variables
+%%% Analysis variables
 
-% EEG channels
+%%% EEG channels
 EEG_Channels = struct();
 EEG_Channels.notEEG = [49, 56, 107, 113, 126, 127];
 EEG_Channels.notSourceLoc = [EEG_Channels.notEEG, 48, 119, 17];
@@ -67,8 +64,9 @@ EEG_Channels.Standard_10_20 = [11 22 9 24 124 33 122 129 36 104 45 108 62 52 92 
 
 Parameters.Channels = EEG_Channels;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Parameters
+%%% Filtering & downsampling
+
+Parameters.LineNoise = 60; % Hz
 
 % Power: starting data for properly cleaned wake data
 PreprocessingParameters.Power.fs = 250; % new sampling rate
@@ -90,6 +88,14 @@ PreprocessingParameters.ICA.hp = 2.5; % high pass filter
 PreprocessingParameters.ICA.hp_stopband = 1.5; % high pass filter gradual roll-off
 
 Parameters.Parameters = PreprocessingParameters;
+
+
+%%% Thresholds
+Parameters.MinTime = 60; % minimum file duration in seconds required after preprocessing
+Parameters.MinChannels = 25; % minimum number of channels after preprocessing
+
+
+%%% Plotting parameters
 
 Parameters.PlotProps.Manuscript = chART.load_plot_properties({'Iota', 'Manuscript'});
 Parameters.PlotProps.Manuscript.Figure.Width = 22;

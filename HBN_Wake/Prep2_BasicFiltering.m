@@ -11,7 +11,7 @@ clc
 %%% Parameters
 
 P = HBNParameters();
-PrepParameters = P.Parameters;
+PrepParameters = P.Parameters; % parameters for filtering and downsampling. There are multiple, because different for ICA
 LineNoise = P.LineNoise;
 Task = P.Tasks{1};
 MinTime = P.MinTime;
@@ -28,10 +28,10 @@ Participants(contains(Participants, '.')) = [];
 
 load('StandardChanlocs128.mat', 'StandardChanlocs')
 
-% parfor ParticipantIdx = 1070:numel(Participants) % loop through participants 
-    for ParticipantIdx = 3025:numel(Participants) % doesnt seem to need parfor if theres no filtering happening
+% parfor ParticipantIdx = 1:numel(Participants) % loop through participants 
+    for ParticipantIdx = 1:numel(Participants) % doesnt seem to need parfor if theres no filtering happening
 
-    AllParams = PrepParameters;
+    AllParams = PrepParameters; % in here to reduce overhead when running parallel loop
     AllParticipants = Participants;
     Participant = AllParticipants{ParticipantIdx};
 
@@ -40,7 +40,7 @@ load('StandardChanlocs128.mat', 'StandardChanlocs')
         continue
     end
 
-    try % its bad practice, but since it can crash for whatever reason, this lets code keep runing regardless
+    try % its bad practice, but since it can crash for whatever reason, this lets code keep runing regardless. Undo if running for first time
         Output = load(FilePath);
 
         % set up correct EEGLAB structure
@@ -52,18 +52,18 @@ load('StandardChanlocs128.mat', 'StandardChanlocs')
         end
 
         EEG.data(129, :) = []; % its nice that they put CZ in there, but I add it in later
-        EEG.chanlocs = StandardChanlocs;
+        EEG.chanlocs = StandardChanlocs; % 128 channel locations
         EEG.nbchan = 128;
         EEG.ref = 'Cz';
-        if size(EEG.data, 2) < 100
+        if size(EEG.data, 2) < 100 % seperate from below, because it's hypothetically possible that there's something wrong with srate
             warning([Participant 'doesnt have enough data'])
         elseif  size(EEG.data, 2) < MinTime*EEG.srate
             warning([Participant 'doesnt have enough data'])
             continue
         end
 
-        EEG = eeg_checkset(EEG);
-        RawEEG = EEG;
+        EEG = eeg_checkset(EEG); % checks that the structure has everything
+        RawEEG = EEG; % set aside, so that each destination format can be saved as "EEG"
 
         for Indx_DF = 1:numel(Destination_Formats)
             Destination_Format = Destination_Formats{Indx_DF};

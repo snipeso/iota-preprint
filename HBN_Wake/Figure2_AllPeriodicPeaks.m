@@ -311,7 +311,7 @@ disp(['Iota power x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3
 
 %% demographics
 
-% clean up mistakes with diagnoses
+% clean up mistakes with diagnoses (when left empty, matlab freaks out)
 Bad = cellfun(@numel, Metadata.Diagnosis)==0;
 Metadata.Diagnosis(Bad) = repmat({'.'}, nnz(Bad), 1);
 

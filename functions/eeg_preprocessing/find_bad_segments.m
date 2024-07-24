@@ -1,7 +1,9 @@
 function [BadSegments, BadCh, BadWindows_t, Starts, Ends] = ...
     find_bad_segments(EEG, Window, MinNeighborCorrelation, MaxProportionUniqueCorr, ...
     NotEEGChannels, CorrectCz, MinDataKeep, CorrelationFrequencyRange, AmplitudeThreshold)
-% based on correlations with neighboring channels, identifies bad channels
+% [BadSegments, BadCh, BadWindows_t, Starts, Ends] =  find_bad_segments(EEG, Window, MinNeighborCorrelation, MaxProportionUniqueCorr, NotEEGChannels, CorrectCz, MinDataKeep, CorrelationFrequencyRange, AmplitudeThreshold)
+%
+% Based on correlations with neighboring channels, identifies bad channels
 % and timewindows with artefacts. EEG is an EEGLAB structure. Window is in
 % seconds the duration of windows to check for bad segments (~4 s),
 % MinNeighborCorrelation is how much each channel should correlate to its
@@ -59,22 +61,25 @@ for Indx_S = 1:numel(Starts)
     % get segment of data
     Data = EEG.data(:, Starts(Indx_S):Ends(Indx_S));
 
-    % correlate all channels
-    Correlations = corr_channels(Data, Chanlocs, '');
-
-    % identify how many unique correlations there are (rounding to 3 decimal points)
+    % Later, I realzied the following would be good to do. It's not used in the data for the preprint, but I will use it later
+    
+    %%% identify how many unique correlations there are (rounding to 3 decimal points)
     % The logic: when the data is physiological, there shouldn't be
     % channels correlating excessively with a subset of other channels;
     % they should all have different correlations with each other. But when
     % there's a lot of bridging, or the EEG data was completly detatched,
     % then there will be only a small pool of unique correlations.
-    NonNanCorr = Correlations(~isnan(Correlations));
-    Unique = numel(unique(round(NonNanCorr, 3)))/numel(NonNanCorr);
-    Uniques(Indx_S) = Unique;
-    if Unique < MaxProportionUniqueCorr
-        BadSegments(:, Indx_S) = 1;
-        continue
-    end
+    %
+    % % correlate all channels
+    % Correlations = corr_channels(Data, Chanlocs, '');
+
+    % NonNanCorr = Correlations(~isnan(Correlations));
+    % Unique = numel(unique(round(NonNanCorr, 3)))/numel(NonNanCorr);
+    % Uniques(Indx_S) = Unique;
+    % if Unique < MaxProportionUniqueCorr
+    %     BadSegments(:, Indx_S) = 1;
+    %     continue
+    % end
 
     % correlate to neighbors
     Correlations = corr_channels(Data, Chanlocs, 'Neighbor');
