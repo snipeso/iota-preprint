@@ -39,7 +39,7 @@ Participant = 'NDARMH180XE5'; TimeRange = [39 49]; % the bestest
 % Participant = 'NDARDR804MFE';TimeRange = [39 49];
 
 
-load(fullfile(['E:\Preprocessed\Power\Clean\RestingState\', Participant, '_RestingState.mat']), 'EEG')
+load(fullfile(['G:\Preprocessed\Power\Clean\RestingState\', Participant, '_RestingState.mat']), 'EEG')
 
 Info = Metadata(find(strcmp(Metadata.EID, Participant), 1, 'first'), :);
 

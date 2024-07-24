@@ -4,17 +4,29 @@ The code in this repository was used to generate the data from the Snipes 2024 p
 
 ## Requirements
 
-- the [FOOOF](https://github.com/fooof-tools/fooof_mat) MATLAB code
+- the [FOOOF](https://github.com/fooof-tools/fooof_mat) MATLAB wrapper
 - the [eeg-oscillations](https://github.com/snipeso/eeg-oscillations) toolbox
 - the [chART](https://github.com/snipeso/chart) toolbox (just for plotting)
 - the [Matcycle](https://github.com/hubersleeplab/matcycle) toolbox (just for plotting for the burst detection)
-- the [EEGLAB](https://sccn.ucsd.edu/eeglab/download.php) toolbox, with the "bva-io" plugin to import raw brainvision data (can be easily installed through the EEGLAB gui. File>import data > From Brain. Vis. rec...)
+- the [EEGLAB](https://sccn.ucsd.edu/eeglab/download.php) toolbox, with the "bva-io" plugin to import raw brainvision data  
+    - can be easily installed through the EEGLAB gui. File>import data > From Brain. Vis. rec...
 
-The Parallel Processing MATLAB toolbox is probably a good idea.
+The Parallel Processing MATLAB toolbox is a good idea, but in theory it should work without it.
 
 ## Data
+EEG data is saved with EEGLAB's standarard structure:
+
+```matlab
+EEG = struct();
+EEG.data = []; % matrix of channels x timepoints
+EEG.srate = 1000; % in Hz
+EEG.chanlocs; % structure with information on channel locations, labels, etc. important for plotting topographies
+% there are more, but these are the important ones
+
+```
+
 ### Children wake
-EEG wake data was downloaded from [The Child Mind Institute](https://fcon_1000.projects.nitrc.org/indi/cmi_healthy_brain_network/index.html). EEG data could be downloaded immediately, whereas phenotypic data needed to be requested with a data sharing agreement. 
+EEG wake data was downloaded from [The Child Mind Institute](https://fcon_1000.projects.nitrc.org/indi/cmi_healthy_brain_network/index.html). EEG data could be downloaded immediately, whereas phenotypic data needs to be requested with a data sharing agreement. 
 
 
 ### Zurich adults
@@ -23,17 +35,20 @@ EEG sleep data is available upon request. I am in the process of figuring out wh
 
 ## Run wake
 
+Wake scripts are in ./HBN_Wake/
+
 1. Adjust paths in HBNParameters.m
 2. Run preprocessing scripts Prep1 to Prep4
 3. Run the analysis scripts Analysis1 to Analysis2
 4. Run the plotting scripts Plot1 to Plot3
 
 ## Run sleep
+Sleep scripts are in ./LSM_Sleep/
 
 1. Adjust paths in LSMParameters.m
 2. Run Prep0-Prep1.
-3. Conduct sleep scoring
-4. Using [Hd-SleepCleaner](https://github.com/snipeso/Hd-SleepCleaner/) identify artefact epochs. This saves a file with artndx and visnum with the artefacts and scoring respectively. 
+3. Conduct sleep scoring (manually)
+4. Using [Hd-SleepCleaner](https://github.com/snipeso/Hd-SleepCleaner/), identify artefact epochs. This saves a file with artndx (ch x epochs) and visnum (1 x epochs) with the artefacts and scoring respectively. 
 5. Run Analysis1-2
 6. Run Figure6-7
 

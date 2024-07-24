@@ -18,7 +18,7 @@ Paths = struct(); % I make structs of variables so they don't flood the workspac
 Paths.Analysis = mfilename('fullpath');
 Paths.Analysis = extractBefore(Paths.Analysis, 'HBN_Wake');
 
-Core ='E:\';
+Core ='G:\';
 
 if ~exist(Core, "dir")
     error('Missing external hard disk')
