@@ -16,7 +16,6 @@ Refresh = false;
 
 load('StandardChanlocs128.mat', 'StandardChanlocs') % has channel locations in StandardChanlocs
 
-
 %%% loop through all EEG folders, and convert whatever files possible
 for Indx_D = 1:size(Folders.Datasets, 1) % loop through participants
     for Indx_F = 1:size(Folders.Subfolders, 1) % loop through all subfolders

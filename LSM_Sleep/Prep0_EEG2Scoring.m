@@ -13,7 +13,7 @@ Tasks = {'Sleep'};
 
 Refresh = false;
 
-P = prepParameters();
+P = LSMParameters();
 
 Paths = P.Paths;
 Folders = P.RawFolders;
