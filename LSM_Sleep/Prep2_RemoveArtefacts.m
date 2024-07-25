@@ -47,7 +47,6 @@ for FileIdx = 1:numel(Files)
     % load in EEG
     load(fullfile(SourceEEG, File), 'EEG')
     EEG = eeg_checkset(EEG);
-    pop_eegplot(EEG)
 
     % load in artefacts
     Filename_Cuts = replace(File, '.mat', '_Cutting_artndxn.mat');
@@ -71,9 +70,8 @@ for FileIdx = 1:numel(Files)
     EEG = pop_interp(EEG, find(BadChannels));
 
     % average-reference data
+    EEG = add_cz(EEG);
     EEG = pop_reref(EEG, []);
-
-    pop_eegplot(EEG)
 
     % save
     save(fullfile(Destination, File), 'EEG', 'BadSegments', 'Scoring', 'ScoringLabels', 'ScoringIndexes')
