@@ -222,9 +222,7 @@ chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
     
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
 
-% TimeRange = [14604 14614];
 TimeRange = [14680 14690]; % pretty good!
-% TimeRange = [14890 14900];
 Channels10_20 = labels2indexes([125 32, Parameters.Channels.Standard_10_20], EEG.chanlocs);
 TimeRange = round(TimeRange*EEG.srate);
 Snippet = EEG.data(Channels10_20, TimeRange(1):TimeRange(2)); % TODO: select 10:20 system
@@ -238,9 +236,12 @@ figure('Units','centimeters', 'Position',[0 0 30 15])
 chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
 
 EEGSnippet = EEG;
-EEGSnippet = highpass_eeg(EEGSnippet, .5, .3);
 EEGSnippet.data = Snippet;
-plot_eeg(Snippet, EEG.srate, YGap, PlotProps)
+EEGSnippet.chanlocs = [EEG.chanlocs(8), EEG.chanlocs(Channels10_20)];
+
+EEGSnippet = eeg_checkset(EEGSnippet);
+EEGSnippet = pop_eegfiltnew(EEGSnippet, .5);
+plot_eeg(EEGSnippet.data, EEG.srate, YGap, PlotProps)
 
 FrequencyRange = Bands.Iota;
 plot_burst_mask(EEGSnippet, FrequencyRange, YGap, PlotProps)
