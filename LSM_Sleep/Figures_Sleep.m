@@ -118,7 +118,7 @@ PlotTopoProps.Axes.yPadding = 10;
 PlotTopoProps.Axes.xPadding = 5;
 PlotTopoProps.Text.TitleSize = 9;
 
-CLims = [0.05, .6;
+CLims = [0.05, .65;
     0.1 1];
 
 Titles = {'Wake \iota', 'Wake \alpha', 'REM \iota', 'REM \alpha', 'NREM \iota', 'NREM \alpha'};
@@ -219,9 +219,7 @@ chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
 
 %% Example REM sleep
-
-load('D:\Data\LSM\Preprocessed\Power\MAT\Sleep\P09_Sleep_Baseline_Power.mat')
-
+    
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
 
 % TimeRange = [14604 14614];
@@ -234,16 +232,17 @@ Snippet = [Snippet(1, :)-Snippet(2, :); nan(2, size(Snippet, 2)); Snippet(3:end,
 
 
 
-PlotProps.Figure.Padding = 25;
+PlotProps.Figure.Padding = 5;
 YGap = 20;
 figure('Units','centimeters', 'Position',[0 0 30 15])
 chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
 
 EEGSnippet = EEG;
+EEGSnippet = highpass_eeg(EEGSnippet, .5, .3);
 EEGSnippet.data = Snippet;
 plot_eeg(Snippet, EEG.srate, YGap, PlotProps)
 
-FrequencyRange = Bands.REMIota;
+FrequencyRange = Bands.Iota;
 plot_burst_mask(EEGSnippet, FrequencyRange, YGap, PlotProps)
 
-chART.save_figure(['P09_REM_Example'], ResultsFolder, PlotProps)
+chART.save_figure([ExampleParticipant, '_REM_Example'], ResultsFolder, PlotProps)

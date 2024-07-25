@@ -51,19 +51,19 @@ end
 
 for FileIdx = 1:numel(Files)
 
-        File = Files{FileIdx};
+    File = Files{FileIdx};
     if ~Refresh && exist(fullfile(Destination, File), 'file')
         disp(['Already did ', char(File)])
         continue
     end
 
     %%% load in data
-    
-   load(fullfile(SourcePath, File), 'EEG', 'BadSegments', 'Scoring', 'ScoringLabels', 'ScoringIndexes', 'Artefacts')
 
-   Data =EEG.data;
-   Chanlocs = EEG.chanlocs;
-   SampleRate = EEG.srate;
+    load(fullfile(SourcePath, File), 'EEG', 'BadSegments', 'Scoring', 'ScoringLabels', 'ScoringIndexes', 'Artefacts')
+
+    Data =EEG.data;
+    Chanlocs = EEG.chanlocs;
+    SampleRate = EEG.srate;
 
     %%% calculate specparams
 
@@ -71,14 +71,17 @@ for FileIdx = 1:numel(Files)
     [Power, Frequencies] = oscip.compute_power_on_epochs(Data, ...
         SampleRate, EpochLength, WelchWindowLength, WelchWindowOverlap);
 
-        % adjust scoring size (can be off by one)
+    % adjust scoring size (can be off by one)
     nEpochs = size(Power, 2);
     Scoring = resize_epochs(Scoring, nEpochs);
     Time = linspace(0, (nEpochs-1)*EpochLength, nEpochs);
-Artefacts = resize_epochs(Artefacts, nEpochs);
+    Artefacts = resize_epochs(Artefacts, nEpochs);
 
-% set to nan bad power
-Power(Artefacts==1) = nan;
+
+    % set to nan bad power
+    for ChannelIdx = 1:size(Artefacts, 1)
+        Power(ChannelIdx, Artefacts(ChannelIdx, :)==1, :) = nan;
+    end
 
     SmoothPower = oscip.smooth_spectrum(Power, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
 
@@ -87,7 +90,7 @@ Power(Artefacts==1) = nan;
     [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] ...
         = oscip.fit_fooof_multidimentional(SmoothPower, Frequencies, FittingFrequencyRange, MaxError, MinRSquared);
 
-    
+
 
     save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'BadSegments',  'Artefacts', 'Time', 'Chanlocs', ...
         'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...
