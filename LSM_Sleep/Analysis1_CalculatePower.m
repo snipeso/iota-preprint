@@ -20,6 +20,7 @@ Channels = P.Channels;
 % power of epochs
 WelchWindowLength = 4;
 WelchWindowOverlap = .5;
+EpochLength = 20;
 
 % fooof
 SmoothSpan = 2; % Hz
@@ -35,8 +36,7 @@ Refresh = false;
 NotEdge = Channels.NotEdge;
 
 % locations
-SourceScoring =  fullfile(Paths.Core, 'Outliers', Task);
-SourcePath = fullfile(Paths.Preprocessed, Format, 'MAT', Task);
+SourcePath = fullfile(Paths.Preprocessed, Format, 'Clean', Task);
 Files = list_filenames(SourcePath);
 Files(~contains(Files, Session)) = []; % to save time, only do basleine nights
 
@@ -51,36 +51,49 @@ end
 
 for FileIdx = 1:numel(Files)
 
+        File = Files{FileIdx};
+    if ~Refresh && exist(fullfile(Destination, File), 'file')
+        disp(['Already did ', char(File)])
+        continue
+    end
+
     %%% load in data
-   
+    
+   load(fullfile(SourcePath, File), 'EEG', 'BadSegments', 'Scoring', 'ScoringLabels', 'ScoringIndexes', 'Artefacts')
+
+   Data =EEG.data;
+   Chanlocs = EEG.chanlocs;
+   SampleRate = EEG.srate;
 
     %%% calculate specparams
 
     % calculate power
     [Power, Frequencies] = oscip.compute_power_on_epochs(Data, ...
-        SampleRate, scoringlen, WelchWindowLength, WelchWindowOverlap);
+        SampleRate, EpochLength, WelchWindowLength, WelchWindowOverlap);
 
     SmoothPower = oscip.smooth_spectrum(Power, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
 
 
     % adjust scoring size (can be off by one)
-    Scoring = resize_scoring(visnum, size(Power, 2));
-
+    nEpochs = size(Power, 2);
+    Scoring = resize_scoring(Scoring, nEpochs);
+    Time = linspace(0, (nEpochs-1)*EpochLength, nEpochs);
 
     % run FOOOF
     [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] ...
         = oscip.fit_fooof_multidimentional(SmoothPower, Frequencies, FittingFrequencyRange, MaxError, MinRSquared);
 
+    
 
-    save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'Artefacts', 'Time', 'Chanlocs', ...
+    save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'BadSegments',  'Artefacts', 'Time', 'Chanlocs', ...
         'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...
         'Intercepts', 'Slopes', 'Errors', 'RSquared')
 
-
+    % plot to check all is ok
     oscip.plot.frequency_overview(PeriodicPower, FooofFrequencies, PeriodicPeaks, ...
-        Scoring, -3:1:1, {'N3', 'N2', 'N1', 'W', 'R'}, ScatterSizeScaling, Alpha, false, false)
+        Scoring, ScoringIndexes, ScoringLabels, ScatterSizeScaling, Alpha, false, false)
     set(gcf, 'InvertHardcopy', 'off', 'Color', 'W')
-    chART.save_figure(replace(File, '.mat', 'png'), Destination)
+    chART.save_figure(replace(File, '.mat', '.png'), Destination)
 
     close all
     disp(['Finished ', File])

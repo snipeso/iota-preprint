@@ -35,6 +35,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% run
 
+Files(~contains(Files, 'Baseline')) = []; % TEMP
+
 for FileIdx = 1:numel(Files)
 
     % check if destination file already exists
@@ -74,7 +76,7 @@ for FileIdx = 1:numel(Files)
     EEG = pop_reref(EEG, []);
 
     % save
-    save(fullfile(Destination, File), 'EEG', 'BadSegments', 'Scoring', 'ScoringLabels', 'ScoringIndexes')
+    save(fullfile(Destination, File), 'EEG', 'Artefacts', 'BadSegments', 'Scoring', 'ScoringLabels', 'ScoringIndexes', '-v7.3')
     disp(['Finished ', File])
 end
 
