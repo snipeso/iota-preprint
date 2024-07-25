@@ -95,9 +95,6 @@ for Indx_DF = 1:numel(Destination_Formats) % this is to keep it flexible in case
             % save EEG
             save(fullfile(Destination, Filename_Destination), 'EEG', '-v7.3')
         end
+        disp(['************** Finished ',  RawPaths.Datasets{Indx_D}, '***************'])
     end
 end
-
-disp(['************** Finished ',  Folders.Datasets{Indx_D}, '***************'])
-%     end
-% end

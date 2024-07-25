@@ -2,14 +2,15 @@ function BadSegments = remove_channel_or_window(BadSegments, Threshold)
 % BadSegments = remove_channel_or_window(BadSegments, Threshold)
 %
 % makes sure that the channel is either completely removed, or the window
-% is. BadSegments is a Channel x Epoch matrix of 1s and 0s. Threshold is
-% the proportion of bad segments that are acceptable before the channel or
-% epoch is removed (from 0 to 1).
+% is. BadSegments is a Channel x Epoch matrix of 1s (noise) and 0s (data). 
+% Threshold is the proportion of bad segments that are acceptable before 
+% the channel or epoch is removed (from 0 to 1).
 %
 % From iota-preprint, Snipes, 2024.
 
 BadSegments = double(BadSegments);
 [nCh, nWin] = size(BadSegments);
+
 
 while any(sum(BadSegments, 2, 'omitnan')/nWin>Threshold) || ...
         any(sum(BadSegments, 1, 'omitnan')/nCh>Threshold) % while there is still missing data to remove in either channels or segments
