@@ -71,13 +71,17 @@ for FileIdx = 1:numel(Files)
     [Power, Frequencies] = oscip.compute_power_on_epochs(Data, ...
         SampleRate, EpochLength, WelchWindowLength, WelchWindowOverlap);
 
+        % adjust scoring size (can be off by one)
+    nEpochs = size(Power, 2);
+    Scoring = resize_epochs(Scoring, nEpochs);
+    Time = linspace(0, (nEpochs-1)*EpochLength, nEpochs);
+Artefacts = resize_epochs(Artefacts, nEpochs);
+
+% set to nan bad power
+Power(Artefacts==1) = nan;
+
     SmoothPower = oscip.smooth_spectrum(Power, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
 
-
-    % adjust scoring size (can be off by one)
-    nEpochs = size(Power, 2);
-    Scoring = resize_scoring(Scoring, nEpochs);
-    Time = linspace(0, (nEpochs-1)*EpochLength, nEpochs);
 
     % run FOOOF
     [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] ...
@@ -87,7 +91,7 @@ for FileIdx = 1:numel(Files)
 
     save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'BadSegments',  'Artefacts', 'Time', 'Chanlocs', ...
         'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...
-        'Intercepts', 'Slopes', 'Errors', 'RSquared')
+        'Intercepts', 'Slopes', 'Errors', 'RSquared', 'ScoringLabels', 'ScoringIndexes')
 
     % plot to check all is ok
     oscip.plot.frequency_overview(PeriodicPower, FooofFrequencies, PeriodicPeaks, ...
@@ -100,14 +104,14 @@ for FileIdx = 1:numel(Files)
 end
 
 
-function Scoring = resize_scoring(ScoringOriginal, nEpochs)
+function Resized = resize_epochs(Original, nEpochs)
 
 % adjust size
-Scoring = nan([1, nEpochs]);
-if numel(Scoring)<numel(ScoringOriginal)
-    Scoring = ScoringOriginal(1:nEpochs);
+Resized = nan([size(Original, 1), nEpochs]);
+if size(Resized, 2)<size(Original, 2)
+    Resized = Original(:, 1:nEpochs);
 else
-    Scoring(1:numel(ScoringOriginal)) = ScoringOriginal;
+    Resized(:, 1:size(Original, 2)) = Original;
 end
 end
 
