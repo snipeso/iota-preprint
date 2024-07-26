@@ -1,4 +1,6 @@
 % plots the distribution of periodic peaks in the whole HBN dataset.
+%
+% From iota-preprint, Snipes, 2024.
 clear
 clc
 close all
@@ -114,8 +116,8 @@ chART.sub_plot([], Grid, [1, 3], [], 4.5, 'C', PlotProps);
 chART.plot.stacked_bars([IotaByAge, ParticipantsByAge-IotaByAge], Labels, [], {'Iota', 'No iota'}, PlotProps, [0.4 0.4 0.4; .8 .8 .8])
 ylabel('# participants')
 xlabel('Age')
-legend('Location', 'northwest')
-ylim([0 800])
+legend('Location', 'northeast')
+ylim([0 700])
 
 % plot simple line plot of percentage with iota
 yyaxis right
