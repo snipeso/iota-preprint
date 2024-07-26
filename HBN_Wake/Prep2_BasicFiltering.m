@@ -21,7 +21,7 @@ Source = fullfile(Paths.Datasets, 'EEG');
 Destination = fullfile(Paths.Preprocessed);
 Refresh = false;
 
-Destination_Formats = {'Unfiltered'}; % chooses which filtering to do
+Destination_Formats = {'Unfiltered', 'Power'}; % chooses which filtering to do
 
 Participants = string(deblank(ls(Source)));
 Participants(contains(Participants, '.')) = [];
