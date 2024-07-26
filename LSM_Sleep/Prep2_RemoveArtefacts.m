@@ -35,8 +35,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% run
 
-Files(~contains(Files, 'Baseline')) = []; % TEMP
-
 for FileIdx = 1:numel(Files)
 
     % check if destination file already exists

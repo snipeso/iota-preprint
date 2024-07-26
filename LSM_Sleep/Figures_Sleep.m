@@ -68,8 +68,9 @@ MiniGrid = [3 1];
 MeanPower = squeeze(mean(PeriodicPower(labels2indexes(Channels, Chanlocs), :, :), 1, 'omitnan'));
 MP = smooth_frequencies(MeanPower, FooofFrequencies, 4)';
 
-chART.sub_plot([], Grid, [1, 2], [], true, 'B', PlotProps); axis off;
+chART.sub_plot([], Grid, [1, 2], [], -.1, 'B', PlotProps); axis off;
 Space = chART.sub_figure(Grid, [1, 2], [1, 2], '', PlotProps);
+Space(3) = Space(3)-10;
 
 % plot time-frequency
 chART.sub_plot(Space, MiniGrid, [2, 1], [2 1], false, '', PlotProps);
@@ -85,22 +86,29 @@ B1Axis = gca;
 
 % plot hypnogram
 chART.sub_plot(Space, MiniGrid, [3, 1], [], false, '', PlotProps);
-hold on
-plot(Time, -Slopes, 'Color', [.1 .1 .1 .01])
-plot(Time, Scoring, 'LineWidth', PlotProps.Line.Width/3, 'Color', [chART.color_picker(1, '', 'red'), .5])
+yyaxis left
+Red = chART.color_picker(1, '', 'red');
+plot(Time, Scoring, 'LineWidth', PlotProps.Line.Width*2/3, 'Color', [Red, .8])
 chART.set_axis_properties(PlotProps)
 axis tight
 box off
 xlabel('Time (h)')
 yticks(sort(ScoringIndexes))
 yticklabels(ScoringLabels)
-ylim([-3.5 1.5]) % by chance the ranges work the same; otherwise would need a second axis
+ylim([-3.1 1]) % by chance the ranges work the same; otherwise would need a second axis
+set(gca, 'YColor', Red)
+
+yyaxis right
+plot(Time, -Slopes, '-', 'Color', [.5 .5 .5 .01])
+set(gca, 'YColor', 'k', 'TickLength', [0 0])
+ylim([-3.5 -.9]) % by chance the ranges work the same; otherwise would need a second axis
+ylabel('Slope')
 
 % align A to the bottom of B
 B2Axes = gca;
 AAxes.Position(4) = AAxes.Position(4) + AAxes.Position(2) - B2Axes.Position(2);
 AAxes.Position(2) = B2Axes.Position(2);
-
+box off
 %%% C: topography
 
 % data parameters
@@ -127,9 +135,9 @@ Stages = {0, 1, [-2 -3]};
 
 chART.sub_plot([], Grid, [1, 4], [], true, 'C', PlotProps); axis off;
 Space = chART.sub_figure(Grid, [1 4], [1 2], '', PlotProps);
-% Space(1) = Space(1)-20;
-Space(2) = Space(2)- 20;
-Space(3) = Space(3)-50;
+Space(1) = Space(1)+10;
+Space(2) = Space(2)-20;
+Space(3) = Space(3)-80;
 Space(4) = Space(4)+20;
 for StageIdx = 1:numel(StageTitles) % columns
     for BandIdx = 1:numel(BandLabels) % rows
