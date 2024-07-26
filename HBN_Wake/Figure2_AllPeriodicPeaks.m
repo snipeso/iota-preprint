@@ -23,6 +23,16 @@ end
 %%% plot
 
 
+%% Participant demographics
+clc
+
+Tot = size(Metadata, 1);
+disp(['Total n = ', num2str(Tot)])
+disp(['female = ', num2str(round(100*nnz(Metadata.Sex==1)/Tot)), '%']) % inexplicably, HBN coded female as "1"
+disp(['left-handed = ', num2str(round(100*nnz(Metadata.EHQ_Total<0)/Tot)), '%']) % inexplicably, HBN coded female as "1"
+disp(['mean age = ', num2str(round(mean(Metadata.Age), 1)), ' (', num2str(round(min(Metadata.Age), 1)),'-', num2str(round(max(Metadata.Age), 1)) ')'])
+
+
 %% Figure 2
 
 % load in analyses on preprocessed data
