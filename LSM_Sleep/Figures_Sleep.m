@@ -1,7 +1,6 @@
 % This script plots all the sleep related figures
 % iota-preprint, Snipes 2024
 
-
 clear
 clc
 close all
@@ -18,10 +17,6 @@ Format = 'Minimal'; % chooses which filtering to do
 
 ExampleParticipant = 'P09';
 
-ScoringIndexes = -3:1:1; % TEMP
-ScoringLabels = {'N3', 'N2', 'N1', 'W', 'R'};
-
-
 
 % folders
 SourceSpecparam = fullfile(Paths.Final, 'EEG', 'Power',  '20sEpochs', Task, Format);
@@ -36,37 +31,29 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Plot
 
-%%
-PlotProps = Parameters.PlotProps.Manuscript;
-Grid = [2 5];
+%% Figure 6
 
-% PlotProps.Debug = true;
-figure('Units','centimeters', 'Position', [0 0 30 15])
-
-%%%%%%%%%%%%%%%%
-%%% Example data
-
-% load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
-%     'PeriodicPower', 'Slopes', 'FooofFrequencies', 'PeriodicPeaks', 'Scoring', 'Chanlocs', 'Time', 'ScoringIndexes', 'ScoringLabels')
-
+% load in data
 load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
-    'PeriodicPower', 'Slopes', 'FooofFrequencies', 'PeriodicPeaks', 'Scoring', 'Chanlocs', 'Time')
+    'PeriodicPower', 'Slopes', 'FooofFrequencies', 'PeriodicPeaks', 'Scoring', 'Chanlocs', 'Time', 'ScoringIndexes', 'ScoringLabels')
 
 Time = Time/60/60; % convert time to hours
 
+PlotProps = Parameters.PlotProps.Manuscript;
+Grid = [2 5];
+FreqLims = [3 45];
+
+figure('Units','centimeters', 'Position', [0 0 30 15])
+
 %%% A: periodic peaks
 AAxes = chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
-% Axes.Position(2) = 0.0794; % from B, lower plot, just to align axis. Bad code
 plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
+xlim(FreqLims)
 
 %%% B: time-frequency
-
-YLims = [3 40];
 MiniGrid = [3 1];
-% PlotProps.Figure.Padding = 20;
-% PlotProps.Text.AxisSize = 10;
 MeanPower = squeeze(mean(PeriodicPower(labels2indexes(Channels, Chanlocs), :, :), 1, 'omitnan'));
-MP = smooth_frequencies(MeanPower, FooofFrequencies, 4)';
+SmoothMeanPower = smooth_frequencies(MeanPower, FooofFrequencies, 4)';
 
 chART.sub_plot([], Grid, [1, 2], [], -.1, 'B', PlotProps); axis off;
 Space = chART.sub_figure(Grid, [1, 2], [1, 2], '', PlotProps);
@@ -74,14 +61,13 @@ Space(3) = Space(3)-10;
 
 % plot time-frequency
 chART.sub_plot(Space, MiniGrid, [2, 1], [2 1], false, '', PlotProps);
-% imagesc(Time, FooofFrequencies, MeanPower')
 
-imagesc(Time, FooofFrequencies, MP)
+imagesc(Time, FooofFrequencies, SmoothMeanPower)
 chART.set_axis_properties(PlotProps)
 clim(quantile(MeanPower(:), [.001, .999]))
 set(gca, 'YDir', 'normal')
 ylabel('Frequency (Hz)')
-set(gca, 'TickLength', [0 0], 'YLim', YLims)
+set(gca, 'TickLength', [0 0], 'YLim', FreqLims)
 B1Axis = gca;
 
 % plot hypnogram
@@ -109,6 +95,8 @@ B2Axes = gca;
 AAxes.Position(4) = AAxes.Position(4) + AAxes.Position(2) - B2Axes.Position(2);
 AAxes.Position(2) = B2Axes.Position(2);
 box off
+
+
 %%% C: topography
 
 % data parameters
@@ -157,9 +145,9 @@ for StageIdx = 1:numel(StageTitles) % columns
         % plot
         chART.sub_plot(Space, [numel(BandLabels), numel(StageTitles)], [BandIdx, StageIdx], [], false, '', PlotTopoProps);
         chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims(BandIdx, :), '', 'Linear', PlotTopoProps)
-        % title([StageTitles{StageIdx}, ' ', BandLabels{BandIdx}])
+
         if BandIdx == 1
-          title(StageTitles{StageIdx})
+            title(StageTitles{StageIdx})
         end
 
         if StageIdx == 1
@@ -196,6 +184,12 @@ Space(4) = Space(4)+20;
 PlotProps.Axes.yPadding = 15;
 
 for ParticipantIdx = 1:numel(Participants)
+
+    % load data
+    Participant = Participants{ParticipantIdx};
+    load(fullfile(SourceSpecparam, [Participant, '_Sleep_Baseline.mat']), 'PeriodicPeaks', 'Scoring');
+
+    % plot
     if ParticipantIdx > 9 % split after the 9th recording
         R = 2;
         C = ParticipantIdx-9;
@@ -203,22 +197,19 @@ for ParticipantIdx = 1:numel(Participants)
         R = 1;
         C = ParticipantIdx;
     end
-
-    Participant = Participants{ParticipantIdx};
-    load(fullfile(SourceSpecparam, [Participant, '_Sleep_Baseline.mat']), 'PeriodicPeaks', 'Scoring');
     chART.sub_plot(Space, MiniGrid, [R, C], [], false, '', PlotProps);
     plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
+
     box off
     set(gca,  'TickLength', [0 0])
+    xlim(FreqLims)
     xlabel('')
     ylabel('')
     legend off
-    xlim([3 45])
     if R ==2 & C == 1
         continue
     end
 end
-
 
 B1Axis.Colormap = PlotProps.Color.Maps.Linear; % reduce noise in plot
 
@@ -227,30 +218,34 @@ chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
 
 %% Example REM sleep
-    
+
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
 
+% select data
 TimeRange = [14680 14690]; % pretty good!
 Channels10_20 = labels2indexes([125 32, Parameters.Channels.Standard_10_20], EEG.chanlocs);
 TimeRange = round(TimeRange*EEG.srate);
-Snippet = EEG.data(Channels10_20, TimeRange(1):TimeRange(2)); % TODO: select 10:20 system
+Snippet = EEG.data(Channels10_20, TimeRange(1):TimeRange(2));
 Snippet = [Snippet(1, :)-Snippet(2, :); nan(2, size(Snippet, 2)); Snippet(3:end, :)];
-
-
-
-PlotProps.Figure.Padding = 5;
-YGap = 20;
-figure('Units','centimeters', 'Position',[0 0 30 15])
-chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
 
 EEGSnippet = EEG;
 EEGSnippet.data = Snippet;
 EEGSnippet.chanlocs = [EEG.chanlocs(8), EEG.chanlocs(Channels10_20)];
 
+% filter to remove drifts
 EEGSnippet = eeg_checkset(EEGSnippet);
 EEGSnippet = pop_eegfiltnew(EEGSnippet, .5);
+
+%%% plot
+PlotProps.Figure.Padding = 5;
+YGap = 20;
+figure('Units','centimeters', 'Position',[0 0 30 15])
+chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
+
+% basic EEG
 plot_eeg(EEGSnippet.data, EEG.srate, YGap, PlotProps)
 
+% bursts
 FrequencyRange = Bands.Iota;
 plot_burst_mask(EEGSnippet, FrequencyRange, YGap, PlotProps)
 
