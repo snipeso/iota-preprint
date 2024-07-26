@@ -110,9 +110,10 @@ title(['Alpha (', num2str(Range(1)), '-', num2str(Range(2)), ' Hz)'])
 IotaRangePoints = dsearchn(Freqs', IotaRange');
 IotaPower = squeeze(mean(mean(log(Power(:, :, IotaRangePoints(1):IotaRangePoints(2))), 2, 'omitnan'), 3, 'omitnan'));
 
+CLim = quantile(IotaPower, [0.01, 1]);
+
 chART.sub_plot([], Grid, [3, 3], [1 1], false, '', PlotProps);
 chART.plot.eeglab_topoplot(IotaPower, Chanlocs, [], CLim, 'log power', 'Linear', PlotProps)
-
 clim(CLim)
 Range = round(IotaRange);
 title(['Iota (', num2str(Range(1)), '-' num2str(Range(2)), ' Hz)'])
