@@ -1,6 +1,7 @@
 % plots the distribution of periodic peaks in the whole HBN dataset.
 %
 % From iota-preprint, Snipes, 2024.
+
 clear
 clc
 close all
@@ -33,6 +34,22 @@ disp(['left-handed = ', num2str(round(100*nnz(Metadata.EHQ_Total<0)/Tot)), '%'])
 disp(['mean age = ', num2str(round(mean(Metadata.Age), 1)), ' (', num2str(round(min(Metadata.Age), 1)),'-', num2str(round(max(Metadata.Age), 1)) ')'])
 
 
+disp('_________________________')
+
+% clean up mistakes with diagnoses (when left empty, matlab freaks out)
+Bad = cellfun(@numel, Metadata.Diagnosis)==0;
+Metadata.Diagnosis(Bad) = repmat({'.'}, nnz(Bad), 1);
+
+Bad = cellfun(@numel, Metadata.Diagnosis_Category)==0;
+Metadata.Diagnosis_Category(Bad) = repmat({'.'}, nnz(Bad), 1);
+
+% very quick check of how many adhd are in the data
+Total = size(Metadata, 1);
+disp(['ADHD: ', num2str(round(100*nnz(contains(Metadata.Diagnosis, 'ADHD'))/Total)), '%'])
+
+tabulate(Metadata.Diagnosis)
+
+
 %% Figure 2
 
 % load in analyses on preprocessed data
@@ -57,7 +74,7 @@ Red = chART.color_picker(1, '', 'red');
 
 figure('Units','centimeters', 'Position', [0 0 28 9])
 
-%%% Power spectra
+%%% A: Power spectra
 chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);
 plot(Frequencies, log10(AllSpectra), 'Color', [.3 .3 .3 .05])
 hold on
@@ -70,11 +87,12 @@ ylim([-2 2])
 xlabel('Frequency (Hz)')
 ylabel('Log power')
 box off
-title('Wake periodic power')
+title('Wake log-power')
 set(gca, 'TickDir', 'in')
 
 
-%%% Scatter plot of all periodic peaks
+%%% B: Scatter plot of all periodic peaks
+
 PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
 YLims = [.5 12.1];
@@ -87,24 +105,8 @@ Axes.Position(3) = Axes.Position(3)+0.0629;
 title('Periodic peaks', 'FontSize', PlotProps.Text.TitleSize)
 set(gca, 'TickDir', 'in') % switch inward because otherwise t
 
-% % put box around iota
-% x_values = [25 35];
-% y_values = [0.5 4];
-% 
-% % Calculate the width and height of the rectangle
-% width = x_values(2) - x_values(1);
-% height = y_values(2) - y_values(1);
-% 
-% % Create the figure
-% figure;
-% 
-% % Use the rectangle function to draw the dashed-edged box
-% rectangle('Position', [x_values(1), y_values(1), width, height], ...
-%           'EdgeColor', [0.5 0.5 0.5], ... % Gray color
-%           'LineStyle', '--', ...           % Dashed line
-%           'LineWidth', 1.5);               % Line width
-% 
 
+%%% C: Proportion of iota in population by age
 
 % set up age resolution
 AgeBins = [0:2:18, 22];
@@ -135,6 +137,7 @@ Axes2 = gca;
 Axes2.YAxis(2).Color = Red;
 plot(Labels, 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, ...
     'HandleVisibility', 'off', 'LineWidth',2, 'MarkerSize',6)
+
 ylabel('%')
 ylim([0 100])
 xlim([4 20])
@@ -150,16 +153,10 @@ Axes2.Units = 'normalized';
 Axes2.Position(1) = Axes2.Position(1) + .06;
 Axes2.Position(3) = Axes2.Position(3) - .095;
 
-% Axes2 = gca; 
-% Axes2.Units = 'pixels';
-% Axes2.Position(3) = Axes2.Position(3)-PlotProps.Axes.xPadding*2;
-% Axes2.Position(1) = Axes2.Position(1)+ PlotProps.Axes.xPadding;
-% Axes2.Units = 'normalized';
-
 set(gca, 'TickDir', 'in')
 chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
 
-%% Total recording percentage
+%% Total iota recording percentage by age
 
 clc
 
@@ -179,8 +176,23 @@ nTot = nnz(Metadata.Age>=18);
 nIota = nnz(IotaPeriodicPeaks.Age>=18);
 disp(['recordings >18 with iota: ', num2str(round(100*nIota/nTot)), '%, (', num2str(nIota), '/', num2str(nTot), ')'])
 
+x1 = nnz(~isnan(Metadata.IotaFrequency(Metadata.Age<14)));
+n1 = numel(~isnan(Metadata.IotaFrequency(Metadata.Age<14)));
 
-%% Periodic peaks detected in un processed data
+x2 = nnz(~isnan(Metadata.IotaFrequency(Metadata.Age>=14)));
+n2 = numel(~isnan(Metadata.IotaFrequency(Metadata.Age>=14)));
+z_test(n1, x1, n2, x2)
+
+
+[Rho, p] = corr(Metadata.IotaFrequency, Metadata.Age, 'rows', 'complete');
+disp(['Iota frequency x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
+
+[Rho, p] = corr(Metadata.IotaPower, Metadata.Age, 'rows', 'complete');
+disp(['Iota power x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
+
+
+
+%% Figure 5: Periodic peaks detected in unprocessed data
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Figure.Padding = 10;
@@ -195,7 +207,6 @@ LabelSpace = .5;
 % load in analyses on unfiltered data
 CacheName = 'PeriodicParameters_Unfiltered.mat';
 load(fullfile(CacheDir, CacheName), 'NoisePeriodicPeaks', 'PeriodicPeaks')
-% UnfilteredPeriodicPeaks = NoisePeriodicPeaks;
 UnfilteredPeriodicPeaks = PeriodicPeaks;
 
 UnfilteredPeriodicPeaks = sortrows(UnfilteredPeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
@@ -203,11 +214,14 @@ NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by ag
 
 
 figure('Units','centimeters', 'Position', [0 0 30 17])
+
+%%% A: iota vs alpha
 chART.sub_plot([], Grid, [1, 1], [], LabelSpace, 'A', PlotProps);
 hold on
 plot([8 13], [8 13]*3, ':', 'Color', [.6 .6 .6], 'LineWidth', 2, 'DisplayName',  ['Expected', newline, 'harmonic fit'])
 Scatter = scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 50, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2);
 
+% correlation lines
 Lines = lsline;
 Lines(1).Visible = 'off';
 Lines(1).HandleVisibility = 'off';
@@ -226,51 +240,65 @@ ylim([25 35])
 clim(CLims)
 title('Alpha vs iota')
 
+
+%%% B: Peaks in unprocessed data
 PlotProps.Scatter.Alpha = .07;
 chART.sub_plot([], Grid, [1, 2], [], LabelSpace, 'B', PlotProps);
 plot_periodicpeaks(UnfilteredPeriodicPeaks, XLim, YLims, CLims, false, PlotProps);
 title('Periodic peaks, unprocessed data',  'FontSize', PlotProps.Text.TitleSize)
 
 
-
+%%% C: Peaks in high frequencies
 NoiseIdx = NoisePeriodicPeaks.Frequency >58 & NoisePeriodicPeaks.Frequency<62;
-LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
-Gamma = NoisePeriodicPeaks(~NoiseIdx, :);
 
 PlotProps.Scatter.Alpha = .3;
 chART.sub_plot([], Grid, [1, 3], [], true, 'C', PlotProps);
 
+% plot line noise
+LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
+
 hold on
 scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.5 .5 .5], ...
-     'MarkerEdgeAlpha', .1, 'Marker', '.')
+    'MarkerEdgeAlpha', .1, 'Marker', '.')
+
+% plot all else
+Gamma = NoisePeriodicPeaks(~NoiseIdx, :);
 plot_periodicpeaks(Gamma, [20 100], YLims, CLims, false, PlotProps);
 
 title('Gamma, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
 
-% PlotProps.Axes.yPadding = 60;
 
-chART.sub_plot([], Grid, [2, 1], [], true, 'D', PlotProps);
-axis off % just a black spot for the D letter
-
-ExampleParticipants = {'NDARHF854JX7', 'NDARMH180XE5', 'NDARJR579FW7', 'NDARXN719LXU'};
+%%% D: plot individual examples
 
 MiniGrid = [1 4];
 PlotPropsTemp = PlotProps;
 PlotPropsTemp.Figure.Padding = 0;
 PlotPropsTemp.yPadding = 0;
 PlotPropsTemp.xPadding = 0;
+
+ExampleParticipants = {'NDARHF854JX7', 'NDARMH180XE5', 'NDARJR579FW7', 'NDARXN719LXU'};
+
+chART.sub_plot([], Grid, [2, 1], [], true, 'D', PlotProps);
+axis off % just a black spot for the D letter
+
 Space = chART.sub_figure(Grid, [2 1], [1 3], '', PlotPropsTemp, [], 1);
 PlotProps.Axes.xPadding = 2;
 for ParticipantIdx = 1:numel(ExampleParticipants)
+
+    % load in data
     Participant = ExampleParticipants{ParticipantIdx};
     Info = Metadata(find(strcmp(Metadata.EID, Participant), 1, 'first'), :);
 
-    load(fullfile('E:\Raw\EEG\', Participant, 'EEG', 'raw', 'mat_format', 'RestingState.mat'), 'EEG')
+    load(fullfile(Paths.Datasets,'EEG\', Participant, 'EEG', 'raw', 'mat_format', 'RestingState.mat'), 'EEG')
+
+    % computer power
     [RawPower, Frequencies] = oscip.compute_power(EEG.data, EEG.srate, 8, .9);
 
+    % plot
     chART.sub_plot(Space, MiniGrid, [1, ParticipantIdx], [], 0.05, '', PlotProps);
 
     plot(Frequencies, RawPower, 'Color',  [.5 .5 .5 .1])
+
     chART.set_axis_properties(PlotProps)
     box off
     set(gca, 'YScale', 'log', 'XScale', 'log');
@@ -278,11 +306,10 @@ for ParticipantIdx = 1:numel(ExampleParticipants)
     title([string(Participant); [' (\iota=', num2str(round(Info.IotaFrequency, 1)),  ' Hz; \alpha=',num2str(round(Info.AlphaFrequency, 1)) ' Hz)']], ...
         'FontWeight','normal', 'FontSize',PlotProps.Text.AxisSize)
     axis tight
-        % yticks([0, 1, 10, 100, 1000])
     ylim(quantile(RawPower(:), [.02, .999]))
     xlabel('Frequency (Hz)')
     if ParticipantIdx ==1
-    ylabel('Power')
+        ylabel('Power')
     end
     xlim([1 250])
 end
@@ -315,23 +342,7 @@ disp(['Alpha x iota: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
 [Rho, p] = corr(Metadata.AlphaFrequency, Metadata.Age, 'rows', 'complete');
 disp(['Alpha x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
 
-[Rho, p] = corr(Metadata.IotaFrequency, Metadata.Age, 'rows', 'complete');
-disp(['Iota x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
 
-[Rho, p] = corr(Metadata.IotaPower, Metadata.Age, 'rows', 'complete');
-disp(['Iota power x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
+disp('_____________')
 
-%% demographics
 
-% clean up mistakes with diagnoses (when left empty, matlab freaks out)
-Bad = cellfun(@numel, Metadata.Diagnosis)==0;
-Metadata.Diagnosis(Bad) = repmat({'.'}, nnz(Bad), 1);
-
-Bad = cellfun(@numel, Metadata.Diagnosis_Category)==0;
-Metadata.Diagnosis_Category(Bad) = repmat({'.'}, nnz(Bad), 1);
-
-% very quick check of how many adhd are in the data
-Total = size(Metadata, 1);
-disp(['ADHD: ', num2str(round(100*nnz(contains(Metadata.Diagnosis, 'ADHD'))/Total)), '%'])
-
-tabulate(Metadata.Diagnosis)
