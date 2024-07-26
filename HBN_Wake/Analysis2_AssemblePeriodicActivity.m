@@ -172,7 +172,8 @@ save(fullfile(CacheDir, CacheName), 'Metadata', 'PeriodicPeaks', 'NoisePeriodicP
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% functions
 
-function Table = all_peak_parameters(Freqs, MeanPower, FittingFrequencyRange, MetadataRow, TaskIdx, MinRSquared, MaxError)
+function Table = all_peak_parameters(Freqs, Power, FittingFrequencyRange, MetadataRow, TaskIdx, MinRSquared, MaxError)
+% fits fooof on power, saves relevant information
 
 % set up new row
 MetadataRow.Frequency = nan;
@@ -181,7 +182,7 @@ MetadataRow.Power = nan;
 MetadataRow.TaskIdx = TaskIdx;
 
 % fit fooof
-[~, ~, ~, PeriodicPeaks, ~, ~, ~] = oscip.fit_fooof(MeanPower, Freqs, FittingFrequencyRange, MaxError, MinRSquared);
+[~, ~, ~, PeriodicPeaks, ~, ~, ~] = oscip.fit_fooof(Power, Freqs, FittingFrequencyRange, MaxError, MinRSquared);
 
 PeriodicPeaks = oscip.exclude_edge_peaks(PeriodicPeaks, FittingFrequencyRange); % exclude any bursts that extend beyond the edges of the investigated range
 
@@ -199,6 +200,7 @@ end
 
 
 function MaxPeak = select_max_peak(Table, FrequencyRange, BandwidthRange)
+% selects a single peak for each band
 
 if isempty(Table)
     MaxPeak = [];

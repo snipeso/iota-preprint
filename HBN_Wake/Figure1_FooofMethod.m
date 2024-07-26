@@ -33,13 +33,16 @@ AperiodicGray = [.66 .66 .66];
 
 load(fullfile(Paths.Final, 'EEG', 'Specparam', 'NDARAE710YWG_RestingState.mat'))
 
-%%
+%% untransformed power
+
 Freqs = Frequencies;
- PowerAverageSmooth = squeeze(mean(mean(SmoothPower(labels2indexes(Channels.NotEdge, Chanlocs), :, :), 1, 'omitnan'), 2, 'omitnan'))';
+PowerAverageSmooth = squeeze(mean(mean(SmoothPower(labels2indexes(Channels.NotEdge, Chanlocs), :, :), 1, 'omitnan'), 2, 'omitnan'))';
 
 figure('Units','centimeters', 'Position', PlotSize)
 chART.sub_plot([], [1 1], [1 1], [], true, '', PlotProps);
+
 plot(Freqs, PowerAverageSmooth, 'Color', 'k', 'LineWidth',PlotProps.Line.Width)
+
 chART.set_axis_properties(PlotProps)
 xlabel('Frequency (Hz)')
 ylabel('Power (\muV^2/Hz)')
@@ -50,12 +53,15 @@ box off
 chART.save_figure('Power', ResultsFolder, PlotProps)
 
 %% log log power
+
 figure('Units','centimeters', 'Position', PlotSize)
 chART.sub_plot([], [1 1], [1 1], [], true, '', PlotProps);
+
 hold on
 plot(log10(Freqs), log10(PowerAverageSmooth), 'Color', 'k', 'LineWidth',PlotProps.Line.Width)
-    plot([0 1.67], [1.8 -1.44], 'Color', AperiodicGray, 'LineWidth',PlotProps.Line.Width*3, ...
+plot([0 1.67], [1.8 -1.44], 'Color', AperiodicGray, 'LineWidth',PlotProps.Line.Width*3, ...
     'LineStyle',':')
+
 chART.set_axis_properties(PlotProps)
 xlabel('Log frequency')
 ylabel('Log power')
@@ -71,7 +77,9 @@ WhitePowerAverageSmooth = squeeze(mean(mean(PeriodicPower(labels2indexes(Channel
 
 figure('Units','centimeters', 'Position', PlotSize)
 chART.sub_plot([], [1 1], [1 1], [], true, '', PlotProps);
+
 plot(FooofFrequencies, WhitePowerAverageSmooth, 'Color', 'k', 'LineWidth',PlotProps.Line.Width)
+
 chART.set_axis_properties(PlotProps)
 xlabel('Frequency (Hz)')
 ylabel('Log power')
