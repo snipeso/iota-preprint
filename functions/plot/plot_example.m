@@ -39,7 +39,7 @@ chART.sub_plot([], Grid, [1, 1], [1 2], true, 'A', PlotProps);
 LData = squeeze(log(Spectrum));
 CLim = quantile(LData(:)', [.6 .999]);
 
-cycy.plot.time_frequency(LData, Frequencies, Time(end), 'contourf', [1 40], CLim, 100)
+cycy.plot.time_frequency(LData, Frequencies, Time(end), 'contourf', [1 50], CLim, 100)
 
 chART.set_axis_properties(PlotProps)
 colormap(PlotProps.Color.Maps.Linear)
