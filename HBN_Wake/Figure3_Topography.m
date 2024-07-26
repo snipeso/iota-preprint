@@ -1,7 +1,13 @@
-% Scripts to plot the topographies based on the individual iota peaks
+% Scripts to plot the topographies based on the individual iota peaks.
+%
+% From iota-preprint, Snipes, 2024.
+
 clear
 clc
 close all
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Parameters
 
 Parameters = HBNParameters();
 Paths = Parameters.Paths;
@@ -14,14 +20,20 @@ if ~exist(ResultsFolder,'dir')
     mkdir(ResultsFolder)
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Run
+
+% load in data
 load(fullfile(CacheDir, CacheName),  'Metadata', 'CustomTopographies', 'Chanlocs')
 
 CleanTopo = squeeze(CustomTopographies(:, end, :));
 
+
+%% Everyone's topographies (used to choose which ones are representative)
+
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.External.EEGLAB.TopoRes = 100;
 
-%% Everyone's topographies (used to choose which ones are representative)
 figure('Units','normalized', 'OuterPosition',[0 0 1 1])
 IndexPlot = 1;
 for Index =1:size(CleanTopo, 1)
@@ -43,7 +55,7 @@ for Index =1:size(CleanTopo, 1)
 end
 
 
-%% Figure 2: Average Topography & examples
+%% Figure 3: Average topography & examples
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Colorbar.Location = 'eastoutside';
@@ -51,17 +63,19 @@ PlotProps.External.EEGLAB.TopoRes = 300;
 PlotProps.Axes.xPadding = 20;
 
 PlotTopos = {'NDARZT199MF6', 'NDARFD453NPR', 'NDARXH140YZ0', 'NDARLL846UYQ', 'NDARPN886HH9';
-    'NDARKM635UY0', 'NDARAE710YWG', 'NDARTG681ZDV', 'NDARLZ986JLL', 'NDARVK847ZRT'};
-
+    'NDARKM635UY0', 'NDARAE710YWG', 'NDARTG681ZDV', 'NDARLZ986JLL', 'NDARVK847ZRT'}; % IDs of participants
 
 Grid = [2, size(PlotTopos, 2)+2];
 
 figure('Units','normalized', 'OuterPosition',[0 0 .5 .33])
+
+% plot average
 chART.sub_plot([], Grid, [2, 1], [2, 2], false, '', PlotProps);
 chART.plot.eeglab_topoplot(mean(CleanTopo, 1, 'omitnan'), Chanlocs, [], ...
     '', 'log power', 'Linear', PlotProps)
 title(['Average (N=', num2str(nnz(~isnan(CleanTopo(:, 1)))), ')'])
 
+% plot individuals
 PlotProps.Axes.xPadding = 15;
 for IndexR = 1:size(PlotTopos, 1)
     for IndexC = 1:size(PlotTopos, 2)
