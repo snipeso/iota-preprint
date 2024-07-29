@@ -26,8 +26,6 @@ nBands = numel(BandLabels);
 
 BandwidthRange = [.5 4];
 
-ControlBand = [40 50];
-
 FittingFrequencyRange = [3 50];
 NoiseSmoothSpan = 5;
 NoiseFittingFrequencyRange = [20 100];
@@ -39,10 +37,9 @@ RangeSlopes = [0 3.5];
 RangeIntercepts = [0 4];
 
 
-SourceName = 'Clean'; nFrequencies = 513; ReferenceIdx = 513; PowerThreshold = 10^-10;
-% SourceName = 'Unfiltered'; nFrequencies = 1025; ReferenceIdx = 600; PowerThreshold = 10^-5;
+SourceName = 'Clean'; ReferenceIdx = 513; PowerThreshold = 10^-10; % The last two are little hacks to exclude recordings that had the wrong sampling rate (it wasn't many, but I noticed too late)
+% SourceName = 'Unfiltered'; ReferenceIdx = 600; PowerThreshold = 10^-5;
 SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', SourceName);
-Folder = 'window4s_allt';
 
 CacheDir = Paths.Cache;
 CacheName = ['PeriodicParameters_', SourceName, '.mat'];
@@ -66,8 +63,8 @@ nRecordings = size(Metadata, 1); % this does not consider tasks
 PeriodicPeaks = table();
 NoisePeriodicPeaks = table();
 
-AllSpectra = nan(nRecordings, nFrequencies);
-AllPeriodicSpectra = nan(nRecordings, 192);
+AllSpectra = nan(nRecordings, 1);
+AllPeriodicSpectra = nan(nRecordings, 1);
 
 CustomTopographies = nan(nRecordings, nBands, 123);
 LogTopographies = CustomTopographies;
@@ -130,8 +127,9 @@ for RecordingIdx = 1:nRecordings
     NoisePeriodicPeaks = cat(1, NoisePeriodicPeaks, NoiseTable);
 
     %%% get mean spectra
-    AllSpectra(RecordingIdx, :) = MeanPower;
-    AllPeriodicSpectra(RecordingIdx, :) = squeeze(mean(mean(PeriodicPowerNoEdge, 1, 'omitnan'), 2, 'omitnan'))';
+    AllSpectra(RecordingIdx, 1:numel(MeanPower)) = MeanPower;
+    AllPeriodicSpectra(RecordingIdx, 1:size(PeriodicPowerNoEdge, 3)) = ...
+        squeeze(mean(mean(PeriodicPowerNoEdge, 1, 'omitnan'), 2, 'omitnan'))';
 
 
     %%% get topographies & custom peaks
