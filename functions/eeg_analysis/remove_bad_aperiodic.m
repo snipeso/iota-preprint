@@ -1,4 +1,4 @@
-function CleanData = remove_bad_aperiodic(Data, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels)
+function CleanData = remove_bad_aperiodic(Data, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels)
 % removes bad epoch-channels based on aperiodic activity. Data is a Channel
 % x Epoch x Frequency matrix. Slopes and Intercepts are Channel x Epoch.
 % RangeSlopes and RangeIntercepts are like so: [0 3]. MaxBadChannels is the
@@ -10,6 +10,6 @@ CleanData = oscip.remove_data_by_intercept(Data, Intercepts, RangeIntercepts(1),
 CleanData = oscip.remove_data_by_slopes(CleanData, Slopes, RangeSlopes(1), RangeSlopes(2));
 
 % remove epochs where too many channels are missing
-BadEpochs = sum(isnan(squeeze(CleanData(:, :, 1)))) > MaxBadChannels;
+BadEpochs = sum(~isnan(squeeze(CleanData(:, :, 1))), 1) < MinCleanChannels;
 
 CleanData(:, BadEpochs, :) = nan;

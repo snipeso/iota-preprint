@@ -31,12 +31,10 @@ nStages = numel(Stages);
 
 BandwidthRange = [.5 4];
 
-FittingFrequencyRange = [3 50];
-NoiseSmoothSpan = 5;
-NoiseFittingFrequencyRange = [20 100];
+FittingFrequencyRange = [3 45];
 MaxError = .1;
 MinRSquared = .98;
-MaxBadChannels = 50;
+MinCleanChannels = 80;
 
 RangeSlopes = [0 5];
 RangeIntercepts = [0 5]; % reeeeally generous
@@ -93,8 +91,8 @@ for ParticipantIdx = 1:nParticipants
     PeriodicPowerNoEdge(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
 
     % remove data based on aperiodic activity
-    SmoothPowerNoEdge = remove_bad_aperiodic(SmoothPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels);
-    PeriodicPowerNoEdge = remove_bad_aperiodic(PeriodicPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels);
+    SmoothPowerNoEdge = remove_bad_aperiodic(SmoothPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
+    PeriodicPowerNoEdge = remove_bad_aperiodic(PeriodicPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
 
 
     for StageIdx = 1:nStages
@@ -109,9 +107,9 @@ for ParticipantIdx = 1:nParticipants
 
 
         % find all peaks in average power spectrum
-       MetadataRow = table(string(Participant), StageLabels(StageIdx), 'VariableNames', {'Participants', 'Stages'}');
-       Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, MetadataRow, StageIdx, MinRSquared, MaxError);
-       PeriodicPeaks = cat(1, PeriodicPeaks, Table);
+        MetadataRow = table(string(Participant), StageLabels(StageIdx), 'VariableNames', {'Participants', 'Stages'}');
+        Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, MetadataRow, StageIdx, MinRSquared, MaxError);
+        PeriodicPeaks = cat(1, PeriodicPeaks, Table);
 
         %%% get topographies & custom peaks
         for BandIdx = 1:nBands
@@ -151,27 +149,3 @@ save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaks', 'Stage
 %%% functions
 
 
-
-
-function MaxPeak = select_max_peak(Table, FrequencyRange, BandwidthRange)
-% selects a single peak for each band
-
-if isempty(Table)
-    MaxPeak = [];
-    return
-end
-
-PeakIdx = Table.Frequency>=FrequencyRange(1) & Table.Frequency<=FrequencyRange(2) & ...
-    Table.BandWidth>=BandwidthRange(1) & Table.BandWidth <= BandwidthRange(2);
-
-if nnz(PeakIdx)>1 % if multiple iota peaks
-    RangeIndexes = find(PeakIdx); % turn to numbers instead of boolean indexes
-    [~, MaxIdx] = max(Table.Power(RangeIndexes)); % find the one corresponding to the highest amplitude peak
-    PeakIdx = RangeIndexes(MaxIdx); % make that the iota for the next analyses
-elseif nnz(PeakIdx) == 0
-    MaxPeak = [];
-    return
-end
-
-MaxPeak = Table{PeakIdx, {'Frequency', 'Power', 'BandWidth'}};
-end

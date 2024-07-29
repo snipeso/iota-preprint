@@ -31,7 +31,7 @@ NoiseSmoothSpan = 5;
 NoiseFittingFrequencyRange = [20 100];
 MaxError = .1;
 MinRSquared = .98;
-MaxBadChannels = 50;
+MinCleanChannels = 80;
 
 RangeSlopes = [0 3.5];
 RangeIntercepts = [0 4];
@@ -103,8 +103,8 @@ for RecordingIdx = 1:nRecordings
     PeriodicPowerNoEdge(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
 
     % remove data based on aperiodic activity
-    SmoothPowerNoEdge = remove_bad_aperiodic(SmoothPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels);
-    PeriodicPowerNoEdge = remove_bad_aperiodic(PeriodicPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MaxBadChannels);
+    SmoothPowerNoEdge = remove_bad_aperiodic(SmoothPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
+    PeriodicPowerNoEdge = remove_bad_aperiodic(PeriodicPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
 
     %  average power
     MeanPower = squeeze(mean(mean(SmoothPowerNoEdge, 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
