@@ -87,7 +87,7 @@ ylim([-2 2])
 xlabel('Frequency (Hz)')
 ylabel('Log power')
 box off
-title('Wake log-power')
+title('Wake spectral power')
 set(gca, 'TickDir', 'in')
 
 
@@ -213,7 +213,7 @@ UnfilteredPeriodicPeaks = sortrows(UnfilteredPeriodicPeaks, 'Age', 'ascend'); % 
 NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 
 
-figure('Units','centimeters', 'Position', [0 0 30 17])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/2])
 
 %%% A: iota vs alpha
 chART.sub_plot([], Grid, [1, 1], [], LabelSpace, 'A', PlotProps);
@@ -233,8 +233,8 @@ legend
 set(legend, 'location', 'southeast', 'ItemTokenSize', [10 10])
 
 chART.set_axis_properties(PlotProps)
-xlabel('Alpha peak frequency (Hz)')
-ylabel('Iota peak frequency (Hz)')
+xlabel('Alpha center frequency (Hz)')
+ylabel('Iota center frequency (Hz)')
 xlim([8 13])
 ylim([25 35])
 clim(CLims)

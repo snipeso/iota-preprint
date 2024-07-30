@@ -36,7 +36,7 @@ figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.
 
 %%% A: time frequency
 chART.sub_plot([], Grid, [1, 1], [1 2], true, 'A', PlotProps);
-LData = squeeze(log(Spectrum));
+LData = squeeze(log10(Spectrum));
 CLim = quantile(LData(:)', [.6 .999]);
 
 cycy.plot.time_frequency(LData, Frequencies, Time(end), 'contourf', [1 50], CLim, 100)
@@ -76,8 +76,8 @@ Grid = [3 3];
 chART.sub_plot([], Grid, [3, 1], [1 1], true, 'C', PlotProps);
 hold on
 
-plot(Freqs, squeeze(mean(log(Power), 2, 'omitnan')), 'Color', [.5 .5 .5 .1])
-plot(Freqs, squeeze(mean(mean(log(Power), 2, 'omitnan'), 1)), 'Color', Blue, 'LineWidth',3)
+plot(Freqs, squeeze(mean(log10(Power), 2, 'omitnan')), 'Color', [.5 .5 .5 .1])
+plot(Freqs, squeeze(mean(mean(log10(Power), 2, 'omitnan'), 1)), 'Color', Blue, 'LineWidth',3)
 
 chART.set_axis_properties(PlotProps)
 
@@ -93,7 +93,7 @@ ylabel('Log power')
 [~, MaxAlphaPeak] = oscip.check_peak_in_band(PeriodicPeaks, [8 13], 1, PeakDetectionSettings);
 AlphaRange = [MaxAlphaPeak(1)-MaxAlphaPeak(3)/2, MaxAlphaPeak(1)+MaxAlphaPeak(3)/2];
 AlphaRangePoints = dsearchn(Freqs', AlphaRange');
-AlphaPower = squeeze(mean(mean(log(Power(:, :, AlphaRangePoints(1):AlphaRangePoints(2))), 2, 'omitnan'), 3, 'omitnan'));
+AlphaPower = squeeze(mean(mean(log10(Power(:, :, AlphaRangePoints(1):AlphaRangePoints(2))), 2, 'omitnan'), 3, 'omitnan'));
 
 CLim = quantile(AlphaPower, [0.01, 1]);
 
@@ -108,7 +108,7 @@ title(['Alpha (', num2str(Range(1)), '-', num2str(Range(2)), ' Hz)'])
 
 % detect iota
 IotaRangePoints = dsearchn(Freqs', IotaRange');
-IotaPower = squeeze(mean(mean(log(Power(:, :, IotaRangePoints(1):IotaRangePoints(2))), 2, 'omitnan'), 3, 'omitnan'));
+IotaPower = squeeze(mean(mean(log10(Power(:, :, IotaRangePoints(1):IotaRangePoints(2))), 2, 'omitnan'), 3, 'omitnan'));
 
 CLim = quantile(IotaPower, [0.01, 1]);
 

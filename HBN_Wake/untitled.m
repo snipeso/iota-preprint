@@ -13,7 +13,7 @@ for Indx = 1:Grid(1)
         chART.set_axis_properties(PlotProps)
         hold on
         plot([8 13], [8 13]*3, 'Color', [.4 .4 .4], 'LineWidth', 2)
-        xlabel('Alpha peak frequency (Hz)')
+        xlabel('Alpha center frequency (Hz)')
         ylabel('Iota')
         xlim([8 13])
         ylim([25 35])
