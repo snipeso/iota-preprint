@@ -69,7 +69,7 @@ load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
     'PeriodicPower', 'Slopes', 'FooofFrequencies',  'Scoring', 'Chanlocs', 'Time', 'ScoringIndexes', 'ScoringLabels')
 Time = Time/60/60; % convert time to hours
 
-figure('Units','centimeters', 'Position', [0 0 30 15])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/2])
 
 Grid = [3 5];
 MeanPower = squeeze(mean(PeriodicPower(labels2indexes(Channels, Chanlocs), :, :), 1, 'omitnan'));
@@ -157,6 +157,67 @@ Axes.Position(2) = -.1;
 chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)
 
 
+%% figure x
+
+
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/3])
+
+PlotProps = Parameters.PlotProps.Manuscript;
+PlotProps.Figure.Padding = 30;
+
+Grid = [2 11];
+%%%%% Main participant
+
+ chART.sub_plot([], Grid, [2 1], [2 2], false, '', PlotProps);
+load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
+   'PeriodicPeaks', 'Scoring', 'Chanlocs')
+
+plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
+xlim(FreqLims)
+
+%%%%%%%%%%%%%%%%
+%%% All data
+
+Participants = Parameters.Participants;
+Participants(strcmp(Participants, 'P09')) = [];
+
+%%% D
+
+for ParticipantIdx = 1:numel(Participants)
+
+    % load data
+    Participant = Participants{ParticipantIdx};
+    load(fullfile(SourceSpecparam, [Participant, '_Sleep_Baseline.mat']), 'PeriodicPeaks', 'Scoring');
+
+    % plot
+    if ParticipantIdx > 9 % split after the 9th recording
+        R = 2;
+        C = 2+ParticipantIdx-9;
+    else
+        R = 1;
+        C = 2+ParticipantIdx;
+    end
+    chART.sub_plot([], Grid, [R, C], [], false, '', PlotProps);
+    plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
+
+    box off
+    set(gca,  'TickLength', [0 0])
+    xlim(FreqLims)
+    xlabel('')
+    ylabel('')
+    legend off
+    if R ==2 & C == 1
+        continue
+    end
+end
+
+chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
+
+
+
+
+
+
 %% Figure 6
 
 % load in data
@@ -168,7 +229,7 @@ Time = Time/60/60; % convert time to hours
 PlotProps = Parameters.PlotProps.Manuscript;
 Grid = [2 5];
 
-figure('Units','centimeters', 'Position', [0 0 30 15])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/2])
 
 %%% A: periodic peaks
 AAxes = chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
@@ -364,7 +425,7 @@ EEGSnippet = pop_eegfiltnew(EEGSnippet, .5);
 %%% plot
 PlotProps.Figure.Padding = 5;
 YGap = 20;
-figure('Units','centimeters', 'Position',[0 0 30 15])
+figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width PlotProps.Figure.Width/2])
 chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
 
 % basic EEG
@@ -398,7 +459,7 @@ CLims = [
     .05 .2; % iota
     ];
 
-figure('Units','centimeters', 'OuterPosition',[0 0 30 30])
+figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width PlotProps.Figure.Width])
 for BandIdx = 1:nBands
     for StageIdx = 1:nStages
         Data = squeeze(mean(PeriodicTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));

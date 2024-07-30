@@ -72,7 +72,7 @@ Grid = [1, 3];
 XLim = [3 50];
 Red = chART.color_picker(1, '', 'red');
 
-figure('Units','centimeters', 'Position', [0 0 28 9])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/3])
 
 %%% A: Power spectra
 chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);

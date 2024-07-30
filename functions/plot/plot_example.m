@@ -32,7 +32,7 @@ SampleRate = EEG.srate;
 
 Time = Time/60;
 
-figure('Units','normalized','OuterPosition',[0 0 .4 .8])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width*2])
 
 %%% A: time frequency
 chART.sub_plot([], Grid, [1, 1], [1 2], true, 'A', PlotProps);

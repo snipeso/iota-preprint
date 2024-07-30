@@ -3,7 +3,7 @@ PlotProps = Parameters.PlotProps.Manuscript;
 % PlotProps.Debug = true;
 LabelSpace = 1;
 Grid = [2 4];
-figure('Units','centimeters', 'Position', [0 0 30 15])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/2])
 IndxL = 1;
 
 for Indx = 1:Grid(1)

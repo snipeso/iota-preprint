@@ -31,7 +31,7 @@ PlotProps.External.EEGLAB.TopoRes = 100;
 Grid = [2 5];
 
 Red = PlotProps.Color.Maps.Linear(128, :);
-figure('Units','centimeters', 'Position', [0 0 32 13])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/3])
 
 
 % plot log power average

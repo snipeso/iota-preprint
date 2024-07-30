@@ -70,7 +70,8 @@ PlotTopos = {'NDARZT199MF6', 'NDARFD453NPR', 'NDARXH140YZ0', 'NDARLL846UYQ', 'ND
 
 Grid = [2, size(PlotTopos, 2)+2];
 
-figure('Units','normalized', 'OuterPosition',[0 0 .5 .33])
+figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width PlotProps.Figure.Width/6])
+
 
 % plot average
 chART.sub_plot([], Grid, [2, 1], [2, 2], false, '', PlotProps);
