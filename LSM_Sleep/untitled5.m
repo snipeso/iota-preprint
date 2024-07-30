@@ -62,24 +62,6 @@ end
 
 %%
 
-Grid = [nBands, nStages];
-
-
-figure('Units','centimeters', 'OuterPosition',[0 0 30 30])
-for BandIdx = 1:nBands
-    for StageIdx = 1:nStages
-        % Data = squeeze(mean(PeriodicTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
-         Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
-        if all(isnan(Data)|Data==0)
-            continue
-        end
-        chART.sub_plot([], Grid, [BandIdx, StageIdx], [], false, '', PlotProps);
-        chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps);
-        title([BandLabels{BandIdx}, ' ', StageLabels{StageIdx}])
-    end
-end
-
-
 
 %% Table of center frequencies
 

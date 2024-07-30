@@ -58,6 +58,105 @@ disp(AllCenterFrequencies)
 writetable(AllCenterFrequencies, fullfile(ResultsFolder, 'DetectedPeaksByStage.csv'))
 
 
+
+%% Figure x
+
+PlotProps = Parameters.PlotProps.Manuscript;
+FreqLims = [3 45];
+PlotProps.Figure.Padding = 25;
+
+load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
+    'PeriodicPower', 'Slopes', 'FooofFrequencies',  'Scoring', 'Chanlocs', 'Time', 'ScoringIndexes', 'ScoringLabels')
+Time = Time/60/60; % convert time to hours
+
+figure('Units','centimeters', 'Position', [0 0 30 15])
+
+Grid = [3 5];
+MeanPower = squeeze(mean(PeriodicPower(labels2indexes(Channels, Chanlocs), :, :), 1, 'omitnan'));
+SmoothMeanPower = smooth_frequencies(MeanPower, FooofFrequencies, 4)';
+
+
+% plot time-frequency
+chART.sub_plot([], Grid, [2, 1], [2 4], true, 'A', PlotProps);
+
+imagesc(Time, FooofFrequencies, SmoothMeanPower)
+chART.set_axis_properties(PlotProps)
+% CLims = quantile(MeanPower(:), [.001, .999]);
+CLims = [-.1 1.1];
+clim(CLims)
+set(gca, 'YDir', 'normal')
+ylabel('Frequency (Hz)')
+set(gca, 'TickLength', [0 0], 'YLim', FreqLims)
+PlotProps.Colorbar.Location = 'eastoutside';
+PlotProps.Text.LegendSize = PlotProps.Text.AxisSize;
+chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps)
+B1Axis = gca;
+
+%%%  plot hypnogram
+chART.sub_plot([], Grid, [3, 1], [1 4], true, 'B', PlotProps);
+yyaxis left
+Red = chART.color_picker(1, '', 'red');
+plot(Time, Scoring, 'LineWidth', PlotProps.Line.Width*2/3, 'Color', [Red, .8])
+chART.set_axis_properties(PlotProps)
+axis tight
+box off
+xlabel('Time (h)')
+yticks(sort(ScoringIndexes))
+yticklabels(ScoringLabels)
+ylim([-3.1 1]) % by chance the ranges work the same; otherwise would need a second axis
+set(gca, 'YColor', Red)
+
+yyaxis right
+plot(Time, -Slopes, '-', 'Color', [.5 .5 .5 .01])
+set(gca, 'YColor', 'k', 'TickLength', [0 0])
+ylim([-3.5 -.9]) % by chance the ranges work the same; otherwise would need a second axis
+ylabel('Slope')
+box off
+B2Axes = gca;
+B2Axes.Units = B1Axis.Units;
+B2Axes.Position(3) = B1Axis.Position(3);
+
+%%% C: topography
+
+% data parameters
+
+CLims = [0.05, .75];
+
+StageTitles = {'Wake', 'REM'};
+Stages = {0, 1};
+
+Grid = [5 5];
+
+Positions = [2, 4];
+
+chART.sub_plot([], Grid, [2, 5], [2 1], true, 'C', PlotProps); axis off;
+
+Band = [30 34];
+for StageIdx = 1:numel(StageTitles) % rows
+    % select data
+
+    StageEpochs = ismember(Scoring, Stages{StageIdx}); % epochs of the requested stage
+    FreqRange = dsearchn(FooofFrequencies', Band');
+
+    Data = squeeze(mean(mean(PeriodicPower(:, StageEpochs, ...
+        FreqRange(1):FreqRange(2)), 2, 'omitnan'), 3, 'omitnan'));
+
+    % plot
+    Axes = chART.sub_plot([], Grid, [Positions(StageIdx), 5], [2, 1], false, '', PlotProps);
+    Axes.Position(2) = Axes.Position(2)-.03; 
+    chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps)
+
+    title(StageTitles{StageIdx})
+end
+Axes = chART.sub_plot([], Grid, [5, 5], [1, 1], false, '', PlotProps);
+axis off
+PlotProps.Colorbar.Location = 'north';
+chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps)
+Axes.Position(4) = .3;
+Axes.Position(2) = -.1;
+chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)
+
+
 %% Figure 6
 
 % load in data
@@ -68,7 +167,6 @@ Time = Time/60/60; % convert time to hours
 
 PlotProps = Parameters.PlotProps.Manuscript;
 Grid = [2 5];
-FreqLims = [3 45];
 
 figure('Units','centimeters', 'Position', [0 0 30 15])
 
@@ -277,3 +375,43 @@ FrequencyRange = Bands.Iota;
 plot_burst_mask(EEGSnippet, FrequencyRange, YGap, PlotProps)
 
 chART.save_figure([ExampleParticipant, '_REM_Example'], ResultsFolder, PlotProps)
+
+
+
+%% not included: topography of all stages/bands
+
+load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
+BandLabels = fieldnames(Bands);
+nStages = numel(StageLabels);
+nBands = numel(BandLabels);
+
+PlotProps = Parameters.PlotProps.Manuscript;
+Grid = [nBands, nStages];
+
+PeriodicTopographies(:, :, :, end) = nan; %
+
+CLims = [
+    .1 .25; % theta
+    .15 .7; % alpha
+    .1 .55; % sigma
+    .1 .37; % beta
+    .05 .2; % iota
+    ];
+
+figure('Units','centimeters', 'OuterPosition',[0 0 30 30])
+for BandIdx = 1:nBands
+    for StageIdx = 1:nStages
+        Data = squeeze(mean(PeriodicTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
+        % Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
+        if all(isnan(Data)|Data==0)
+            continue
+        end
+        chART.sub_plot([], Grid, [BandIdx, StageIdx], [], false, '', PlotProps);
+        chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims(BandIdx, :), '', 'Linear', PlotProps);
+        colorbar
+        title([BandLabels{BandIdx}, ' ', StageLabels{StageIdx}])
+    end
+end
+
+chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
+
