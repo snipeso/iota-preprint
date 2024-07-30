@@ -27,9 +27,36 @@ if ~exist(ResultsFolder,'dir')
     mkdir(ResultsFolder)
 end
 
+CacheDir = Paths.Cache;
+CacheName = ['PeriodicParameters_', Task, '_', Format, '.mat'];
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Plot
+
+%% Figure X
+
+% load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaks', 'StageLabels',  ...
+%     'Chanlocs', 'CustomTopographies', 'LogTopographies', 'PeriodicTopographies', ...
+%     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies', 'Bands')
+
+load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'Bands', 'StageLabels')
+BandLabels = fieldnames(Bands);
+nStages = numel(StageLabels);
+nBands = numel(BandLabels);
+
+
+AllCenterFrequencies = table();
+for BandIdx = 1:nBands
+    AllCenterFrequencies.Band{BandIdx} = [num2str(Bands.(BandLabels{BandIdx})(1)), '-', num2str(Bands.(BandLabels{BandIdx})(2)), ' Hz'];
+    for StageIdx = 1:nStages
+        AllCenterFrequencies.(StageLabels{StageIdx})(BandIdx) = nnz(~isnan(CenterFrequencies(:, StageIdx, BandIdx)));
+    end
+end
+
+disp(AllCenterFrequencies)
+writetable(AllCenterFrequencies, fullfile(ResultsFolder, 'DetectedPeaksByStage.csv'))
+
 
 %% Figure 6
 
