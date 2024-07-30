@@ -52,7 +52,7 @@ NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by ag
 figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/1.75])
 
 %%% A: iota vs alpha
-chART.sub_plot([], Grid, [1, 1], [], LabelSpace, 'A', PlotProps);
+chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
 hold on
 plot([8 13], [8 13]*3, ':', 'Color', [.6 .6 .6], 'LineWidth', 2, 'DisplayName',  ['Expected', newline, 'harmonic fit'])
 Scatter = scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 20, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2);
@@ -79,10 +79,10 @@ title('Alpha vs. iota')
 
 %%% B: Peaks in unprocessed data
 PlotProps.Scatter.Alpha = .07;
-chART.sub_plot([], Grid, [1, 2], [], LabelSpace, 'B', PlotProps);
+chART.sub_plot([], Grid, [1, 2], [], true, 'B', PlotProps);
 ylim([0.3 12.5])
 plot_periodicpeaks(UnfilteredPeriodicPeaks, XLim, YLims, CLims, false, PlotProps);
-title('Periodic peaks, unprocessed data',  'FontSize', PlotProps.Text.TitleSize)
+title('Periodic peaks, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
 
 
 %%% C: Peaks in high frequencies
@@ -94,13 +94,14 @@ ylim([0.3 12.5])
 % plot line noise
 LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
 
-hold on
-scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.1 .1 .1], 'filled', ...
-    'MarkerFaceAlpha', .1, 'Marker', 'o')
 
 % plot all else
 Gamma = NoisePeriodicPeaks(~NoiseIdx, :);
 plot_periodicpeaks(Gamma, [20 100], YLims, CLims, false, PlotProps);
+
+hold on
+scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.1 .1 .1], 'filled', ...
+    'MarkerFaceAlpha', .1, 'Marker', 'o')
 title('Gamma, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
 
 

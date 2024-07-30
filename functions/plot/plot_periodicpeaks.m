@@ -34,3 +34,6 @@ yyaxis right
 Histogram = histogram(PeriodicPeaks.Frequency, XLims(1):1:XLims(2), 'FaceColor', [.5 .5 .5], 'EdgeColor','none');
 ylim([0 max(max(Histogram.Values))*8])
 set(gca, 'YTick', [], 'YColor', 'none', 'YDir', 'reverse')
+
+
+yyaxis left

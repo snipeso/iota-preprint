@@ -14,6 +14,7 @@ Paths = Parameters.Paths;
 Channels = Parameters.Channels.NotEdge;
 Task = Parameters.Task;
 Format = 'Minimal'; % chooses which filtering to do
+FreqLims = [3 45];
 
 ExampleParticipant = 'P09';
 
@@ -54,11 +55,67 @@ disp(AllCenterFrequencies)
 writetable(AllCenterFrequencies, fullfile(ResultsFolder, 'DetectedPeaksByStage.csv'))
 
 
+%% Figure 7: periodic peaks
 
-%% Figure x hypnogram
+
 
 PlotProps = Parameters.PlotProps.Manuscript;
-FreqLims = [3 45];
+PlotProps.Figure.Padding = 30;
+
+Grid = [2 11];
+
+%%%%% Main participant
+
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width+1 PlotProps.Figure.Width/4+1])
+
+chART.sub_plot([], Grid, [2 1], [2 2], false, '', PlotProps);
+load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
+    'PeriodicPeaks', 'Scoring', 'Chanlocs')
+
+plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
+xlim(FreqLims)
+
+
+%%% All data
+
+Participants = Parameters.Participants;
+Participants(strcmp(Participants, 'P09')) = [];
+
+for ParticipantIdx = 1:numel(Participants)
+
+    % load data
+    Participant = Participants{ParticipantIdx};
+    load(fullfile(SourceSpecparam, [Participant, '_Sleep_Baseline.mat']), 'PeriodicPeaks', 'Scoring');
+
+    % plot
+    if ParticipantIdx > 9 % split after the 9th recording
+        R = 2;
+        C = 2+ParticipantIdx-9;
+    else
+        R = 1;
+        C = 2+ParticipantIdx;
+    end
+    chART.sub_plot([], Grid, [R, C], [], false, '', PlotProps);
+    plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
+
+    box off
+    set(gca,  'TickLength', [0 0])
+    xlim(FreqLims)
+    xlabel('')
+    ylabel('')
+    xticks(10:20:50)
+    legend off
+    if R ==2 & C == 1
+        continue
+    end
+end
+
+chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
+
+
+%% Figure 8 hypnogram
+
+PlotProps = Parameters.PlotProps.Manuscript;
 
 load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
     'PeriodicPower', 'Slopes', 'FooofFrequencies',  'Scoring', 'Chanlocs', 'Time', 'ScoringIndexes', 'ScoringLabels')
@@ -71,12 +128,12 @@ MeanPower = squeeze(mean(PeriodicPower(labels2indexes(Channels, Chanlocs), :, :)
 SmoothMeanPower = smooth_frequencies(MeanPower, FooofFrequencies, 4)';
 
 
-% plot time-frequency
+%%% A: plot time-frequency
+
 chART.sub_plot([], Grid, [2, 1], [2 4], true, 'A', PlotProps);
 
 imagesc(Time, FooofFrequencies, SmoothMeanPower)
 chART.set_axis_properties(PlotProps)
-% CLims = quantile(MeanPower(:), [.001, .999]);
 CLims = [-.1 1.1];
 clim(CLims)
 set(gca, 'YDir', 'normal')
@@ -87,7 +144,7 @@ PlotProps.Text.LegendSize = PlotProps.Text.AxisSize;
 chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps);
 B1Axis = gca;
 
-%%%  plot hypnogram
+%%%  B: plot hypnogram
 chART.sub_plot([], Grid, [3, 1], [1 4], true, 'B', PlotProps);
 yyaxis left
 Red = chART.color_picker(1, '', 'red');
@@ -138,7 +195,7 @@ for StageIdx = 1:numel(StageTitles) % rows
 
     % plot
     Axes = chART.sub_plot([], Grid, [Positions(StageIdx), 5], [2, 1], false, '', PlotProps);
-    Axes.Position(2) = Axes.Position(2)-.03; 
+    Axes.Position(2) = Axes.Position(2)-.03;
     chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps)
 
     title(StageTitles{StageIdx})
@@ -152,66 +209,7 @@ Axes.Position(2) = -.1;
 chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)
 
 
-%% figure x periodic peaks
-
-
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width+1 PlotProps.Figure.Width/4+1])
-
-PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.Figure.Padding = 30;
-
-Grid = [2 11];
-%%%%% Main participant
-
- chART.sub_plot([], Grid, [2 1], [2 2], false, '', PlotProps);
-load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
-   'PeriodicPeaks', 'Scoring', 'Chanlocs')
-
-plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
-xlim(FreqLims)
-
-%%%%%%%%%%%%%%%%
-%%% All data
-
-Participants = Parameters.Participants;
-Participants(strcmp(Participants, 'P09')) = [];
-
-%%% D
-
-for ParticipantIdx = 1:numel(Participants)
-
-    % load data
-    Participant = Participants{ParticipantIdx};
-    load(fullfile(SourceSpecparam, [Participant, '_Sleep_Baseline.mat']), 'PeriodicPeaks', 'Scoring');
-
-    % plot
-    if ParticipantIdx > 9 % split after the 9th recording
-        R = 2;
-        C = 2+ParticipantIdx-9;
-    else
-        R = 1;
-        C = 2+ParticipantIdx;
-    end
-    chART.sub_plot([], Grid, [R, C], [], false, '', PlotProps);
-    plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
-
-    box off
-    set(gca,  'TickLength', [0 0])
-    xlim(FreqLims)
-    xlabel('')
-    ylabel('')
-    xticks(10:20:50)
-    legend off
-    if R ==2 & C == 1
-        continue
-    end
-end
-
-chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
-
-
-
-%% Example REM sleep
+%% Figure 9: Example REM sleep
 
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
 load(fullfile(CacheDir, CacheName), 'Bands')
@@ -234,7 +232,7 @@ EEGSnippet = pop_eegfiltnew(EEGSnippet, .5);
 %%% plot
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Figure.Padding = 5;
- PlotProps.Line.Width = 1.5;
+PlotProps.Line.Width = 1.5;
 YGap = 20;
 figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width+1 PlotProps.Figure.Width/2+1])
 chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
@@ -251,7 +249,7 @@ chART.save_figure([ExampleParticipant, '_REM_Example'], ResultsFolder, PlotProps
 
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% not included: topography of all stages/bands
 
 load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
