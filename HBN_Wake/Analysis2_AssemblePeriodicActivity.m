@@ -18,9 +18,9 @@ Bands = struct();
 Bands.Theta = [4 7];
 Bands.Alpha = [8 13];
 Bands.LowBeta = [14 17];
-Bands.HighBeta = [17 25];
+Bands.HighBeta = [18 25];
 Bands.Gamma = [38 48];
-Bands.Iota = [25 35];
+Bands.Iota = [26 35];
 BandLabels = fieldnames(Bands);
 nBands = numel(BandLabels);
 

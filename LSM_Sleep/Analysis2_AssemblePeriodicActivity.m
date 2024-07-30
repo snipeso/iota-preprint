@@ -18,9 +18,9 @@ Participants = Parameters.Participants;
 
 Bands = struct();
 Bands.Theta = [4 8];
-Bands.Alpha = [8 12];
-Bands.Sigma = [12 16];
-Bands.Beta = [16 25];
+Bands.Alpha = [8 13];
+Bands.Sigma = [13 17];
+Bands.Beta = [17 25];
 Bands.Iota = [25 35];
 BandLabels = fieldnames(Bands);
 nBands = numel(BandLabels);
@@ -39,11 +39,11 @@ MinCleanChannels = 80;
 RangeSlopes = [0 5];
 RangeIntercepts = [0 5]; % reeeeally generous
 
-SourceName = 'Minimal';
-SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', Task, SourceName);
+Format = 'Minimal';
+SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', Task, Format);
 
 CacheDir = Paths.Cache;
-CacheName = ['PeriodicParameters_', Task, '_', SourceName, '.mat'];
+CacheName = ['PeriodicParameters_', Task, '_', Format, '.mat'];
 
 if ~exist(CacheDir, 'dir')
     mkdir(CacheDir)
@@ -143,9 +143,5 @@ end
 save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaks', 'StageLabels',  ...
     'Chanlocs', 'CustomTopographies', 'LogTopographies', 'PeriodicTopographies', ...
     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies', 'Bands')
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% functions
 
 
