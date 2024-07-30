@@ -29,7 +29,7 @@ PlotProps.Figure.Padding = 10;
 
 CLims = [5 21];
 XLim = [3 50];
-YLims = [.5 12.1];
+YLims = [.3 12.3];
 Grid = [2, 3];
 LabelSpace = .5;
 
@@ -80,7 +80,6 @@ title('Alpha vs. iota')
 %%% B: Peaks in unprocessed data
 PlotProps.Scatter.Alpha = .07;
 chART.sub_plot([], Grid, [1, 2], [], true, 'B', PlotProps);
-ylim([0.3 12.5])
 plot_periodicpeaks(UnfilteredPeriodicPeaks, XLim, YLims, CLims, false, PlotProps);
 title('Periodic peaks, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
 
@@ -97,7 +96,7 @@ LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
 
 % plot all else
 Gamma = NoisePeriodicPeaks(~NoiseIdx, :);
-plot_periodicpeaks(Gamma, [20 100], YLims, CLims, false, PlotProps);
+plot_periodicpeaks(Gamma, [18 100], YLims, CLims, false, PlotProps);
 
 hold on
 scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.1 .1 .1], 'filled', ...
@@ -134,7 +133,6 @@ for ParticipantIdx = 1:numel(ExampleParticipants)
     [RawPower, Frequencies] = oscip.compute_power(EEG.data, EEG.srate, 8, .9);
 
     % plot
-    % chART.sub_plot(Space, MiniGrid, [1, ParticipantIdx], [], false, '', PlotProps);
     Axes = chART.sub_plot([], MiniGrid, [2, ParticipantIdx], [], true, '', PlotProps);
     Axes.Position(2) = Axes.Position(2)-.03;
 
