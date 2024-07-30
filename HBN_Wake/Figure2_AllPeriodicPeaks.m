@@ -27,6 +27,9 @@ end
 %% Participant demographics
 clc
 
+CacheName = 'PeriodicParameters_Clean.mat';
+load(fullfile(CacheDir, CacheName), 'Metadata')
+
 Tot = size(Metadata, 1);
 disp(['Total n = ', num2str(Tot)])
 disp(['female = ', num2str(round(100*nnz(Metadata.Sex==1)/Tot)), '%']) % inexplicably, HBN coded female as "1"
@@ -79,7 +82,7 @@ chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);
 plot(Frequencies, log10(AllSpectra), 'Color', [.3 .3 .3 .05])
 hold on
 chART.set_axis_properties(PlotProps)
-plot(Frequencies, mean(log10(AllSpectra), 'omitnan'), 'Color', Red, 'LineWidth', 4)
+plot(Frequencies, log10(mean(AllSpectra, 'omitnan')), 'Color', Red, 'LineWidth', 4)
 % set(gca, 'XScale', 'log', 'YScale', 'log')
 xlim(XLim)
 xticks([1 10 20 30 40 50])
@@ -206,14 +209,14 @@ LabelSpace = .5;
 
 % load in analyses on unfiltered data
 CacheName = 'PeriodicParameters_Unfiltered.mat';
-load(fullfile(CacheDir, CacheName), 'NoisePeriodicPeaks', 'PeriodicPeaks')
+load(fullfile(CacheDir, CacheName), 'NoisePeriodicPeaks', 'PeriodicPeaks', 'Metadata')
 UnfilteredPeriodicPeaks = PeriodicPeaks;
 
 UnfilteredPeriodicPeaks = sortrows(UnfilteredPeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 NoisePeriodicPeaks = sortrows(NoisePeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
 
 
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/2])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/1.5])
 
 %%% A: iota vs alpha
 chART.sub_plot([], Grid, [1, 1], [], LabelSpace, 'A', PlotProps);
@@ -258,8 +261,8 @@ chART.sub_plot([], Grid, [1, 3], [], true, 'C', PlotProps);
 LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
 
 hold on
-scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.5 .5 .5], ...
-    'MarkerEdgeAlpha', .1, 'Marker', '.')
+scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.5 .5 .5], 'filled', ...
+    'MarkerFaceAlpha', .1, 'Marker', 'o')
 
 % plot all else
 Gamma = NoisePeriodicPeaks(~NoiseIdx, :);

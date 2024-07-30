@@ -60,4 +60,4 @@ xticks([10:10:50])
 yticks(0:3:12)
 grid on
 
-xlabel('Peak frequency (Hz)')
+xlabel('Center frequency (Hz)')

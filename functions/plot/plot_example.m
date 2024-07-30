@@ -50,7 +50,7 @@ title(Title)
 
 colorbar off
 box off
-chART.plot.pretty_colorbar('Linear', CLim, 'log power', PlotProps)
+chART.plot.pretty_colorbar('Linear', CLim, 'Log power', PlotProps)
 
 
 %%% B: EEG
@@ -101,7 +101,7 @@ CLim = quantile(AlphaPower, [0.01, 1]);
 PlotProps.External.EEGLAB.TopoRes = 300;
 
 chART.sub_plot([], Grid, [3, 2], [1 1], false, 'D', PlotProps);
-chART.plot.eeglab_topoplot(AlphaPower, Chanlocs, [], CLim, 'log power', 'Linear', PlotProps)
+chART.plot.eeglab_topoplot(AlphaPower, Chanlocs, [], CLim, 'Log power', 'Linear', PlotProps)
 clim(CLim)
 Range = round(AlphaRange);
 title(['Alpha (', num2str(Range(1)), '-', num2str(Range(2)), ' Hz)'])
@@ -113,7 +113,7 @@ IotaPower = squeeze(mean(mean(log10(Power(:, :, IotaRangePoints(1):IotaRangePoin
 CLim = quantile(IotaPower, [0.01, 1]);
 
 chART.sub_plot([], Grid, [3, 3], [1 1], false, '', PlotProps);
-chART.plot.eeglab_topoplot(IotaPower, Chanlocs, [], CLim, 'log power', 'Linear', PlotProps)
+chART.plot.eeglab_topoplot(IotaPower, Chanlocs, [], CLim, 'Log power', 'Linear', PlotProps)
 clim(CLim)
 Range = round(IotaRange);
 title(['Iota (', num2str(Range(1)), '-' num2str(Range(2)), ' Hz)'])

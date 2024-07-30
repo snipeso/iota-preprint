@@ -97,7 +97,4 @@ Parameters.MinChannels = 25; % minimum number of channels after preprocessing
 
 %%% Plotting parameters
 
-Parameters.PlotProps.Manuscript = chART.load_plot_properties({'Iota', 'Manuscript'});
-Parameters.PlotProps.Manuscript.Figure.Width = 22;
-Parameters.PlotProps.Manuscript.Text.AxisSize = 11;
-Parameters.PlotProps.Manuscript.Text.TitleSize = 13;
+Parameters.PlotProps.Manuscript = chART.load_plot_properties({ 'Manuscript', 'Iota'});

@@ -53,7 +53,7 @@ set(gca, 'YScale', 'log', 'XScale', 'linear');
 Axes= chART.sub_plot([], Grid, [1, 2], [], 0, '', PlotProps);
 Axes.Position(1) = Axes.Position(1)-.03;
 chART.plot.eeglab_topoplot(squeeze(mean(LogTopographies(:, end, :), 1, 'omitnan')), Chanlocs, [], [-1.4, -.97], ...
-    'log power', 'Linear', PlotProps)
+    'Log power', 'Linear', PlotProps)
 topo_corner_text(['N=', num2str(nnz(~isnan(LogTopographies(:, end, 1))))], PlotProps)
 title('25-35 Hz', 'FontWeight','normal', 'FontSize', PlotProps.Text.AxisSize)
 
@@ -76,7 +76,7 @@ title('Periodic power')
 Axes= chART.sub_plot([], Grid, [1, 4], [], 0, '', PlotProps);
 Axes.Position(1) = Axes.Position(1)-.03;
 chART.plot.eeglab_topoplot(squeeze(mean(PeriodicTopographies(:, end, :), 1, 'omitnan')), Chanlocs, [], [.06 .1], ...
-    'log power', 'Linear', PlotProps)
+    'Log power', 'Linear', PlotProps)
 topo_corner_text(['N=', num2str(nnz(~isnan(PeriodicTopographies(:, end, 1))))], PlotProps)
 title('25-35 Hz', 'FontWeight','normal', 'FontSize', PlotProps.Text.AxisSize)
 
@@ -88,7 +88,7 @@ chART.sub_plot([], Grid, [1, 5], [], false, '', PlotProps);
 
 % Axes.Position(1) = Axes.Position(1)+.03;
 chART.plot.eeglab_topoplot(squeeze(mean(CustomTopographies(:, end, :), 1, 'omitnan')), Chanlocs, [], [.15 .4], ...
-    'log power', 'Linear', PlotProps)
+    'Log power', 'Linear', PlotProps)
 topo_corner_text(['N=', num2str(nnz(~isnan(CustomTopographies(:, end, 1))))], PlotProps)
 title('Custom iota', 'FontSize', PlotProps.Text.TitleSize)
 
@@ -103,7 +103,7 @@ for BandIdx = 1:numel(BandLabels)-1
     chART.sub_plot([], Grid, [2, BandIdx], [], false, '', PlotProps);
 
     if BandIdx == numel(BandLabels)-1
-        Label = 'log power';
+        Label = 'Log power';
     else
         Label = ' ';
     end

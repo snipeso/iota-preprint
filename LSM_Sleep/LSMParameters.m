@@ -134,25 +134,14 @@ Parameters.Channels = Channels;
 %%% Plotting information
 
 
-Parameters.PlotProps.Manuscript = chART.load_plot_properties({'Iota', 'Manuscript'});
-Parameters.PlotProps.Manuscript.Figure.Width = 22;
+Parameters.PlotProps.Manuscript = chART.load_plot_properties({'Manuscript', 'Iota'});
 Parameters.PlotProps.Manuscript.Color.Participants = ...
     chART.utils.resize_colormap(Parameters.PlotProps.Manuscript.Color.Maps.Rainbow, ...
     numel(Parameters.Participants));
 
-Parameters.PlotProps.Powerpoint = chART.load_plot_properties({'Iota', 'Powerpoint'});
-Parameters.PlotProps.Poster = chART.load_plot_properties({'Iota', 'Poster'});
+Parameters.PlotProps.Powerpoint = chART.load_plot_properties({'Powerpoint', 'Iota'});
+Parameters.PlotProps.Poster = chART.load_plot_properties({'Poster', 'Iota'});
 
-TopoPlotProps = Parameters.PlotProps.Manuscript;
-TopoPlotProps.Text.LegendSize = 10;
-TopoPlotProps.Text.AxisSize = 10;
-TopoPlotProps.Axes.xPadding = 8;
-TopoPlotProps.Axes.yPadding = 5;
-TopoPlotProps.Figure.Padding = 20;
-TopoPlotProps.Stats.PlotN = true;
-TopoPlotProps.External.EEGLAB.TopoRes = 300;
-
-Parameters.PlotProps.TopoPlots = TopoPlotProps;
 
 
 

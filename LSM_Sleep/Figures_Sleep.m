@@ -214,6 +214,7 @@ chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 %% Example REM sleep
 
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
+load(fullfile(CacheDir, CacheName), 'Bands')
 
 % select data
 TimeRange = [14680 14690]; % pretty good!

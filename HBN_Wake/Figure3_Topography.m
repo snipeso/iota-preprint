@@ -76,7 +76,7 @@ figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width PlotProps.F
 % plot average
 chART.sub_plot([], Grid, [2, 1], [2, 2], false, '', PlotProps);
 chART.plot.eeglab_topoplot(mean(CleanTopo, 1, 'omitnan'), Chanlocs, [], ...
-    '', 'log power', 'Linear', PlotProps)
+    '', 'Log power', 'Linear', PlotProps)
 title(['Average (N=', num2str(nnz(~isnan(CleanTopo(:, 1)))), ')'])
 
 % plot individuals
@@ -125,7 +125,7 @@ for BandIdx = 1:numel(BandLabels)
         PlotIdx = numel(BandLabels) -1;
     elseif BandIdx ==numel(BandLabels) -1 % iota was placed at end for some reason that must have previously made sense, now I have this stupd fix
         PlotIdx = numel(BandLabels);
-          Label = 'log power';
+          Label = 'Log power';
     end
     Axes = chART.sub_plot([], Grid, [1, PlotIdx], [], false, '', PlotProps);
     Axes.Units = 'pixels';
