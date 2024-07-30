@@ -64,7 +64,8 @@ disp(AllDiagnoses)
 
 writetable(AllDiagnoses, fullfile(ResultsFolder, 'Demographics.csv'))
 
-%% Figure 2
+
+%% Figure 2: iota in wake
 
 % load in analyses on preprocessed data
 CacheName = 'PeriodicParameters_Clean.mat';
