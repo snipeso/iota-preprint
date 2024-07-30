@@ -293,10 +293,17 @@ chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
 
 %% plot all iota topographies 
 
-Grid = [nStages, numel(Participants)];
+PlotProps = Parameters.PlotProps.Manuscript;
+PlotProps.External.EEGLAB.TopoRes = 50;
+PlotProps.Debug = true;
+Participants = Parameters.Participants;
 
-load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'Bands', 'StageLabels')
-figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width*2 PlotProps.Figure.Width/2])
+load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'Bands', 'StageLabels', 'CenterFrequencies')
+nStages = numel(StageLabels);
+BandLabels = fieldnames(Bands);
+nBands = numel(BandLabels);
+figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width*2 PlotProps.Figure.Width])
+Grid = [nStages, numel(Participants)];
 
 
 for ParticipantIdx = 1:numel(Participants)
@@ -307,12 +314,10 @@ for ParticipantIdx = 1:numel(Participants)
         end
         chART.sub_plot([], Grid, [StageIdx, ParticipantIdx], [], false, '', PlotProps);
         chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps);
-        colorbar
         title([Participants{ParticipantIdx}, ' ', StageLabels{StageIdx}])
     end
 end
 
-chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
 
 
 

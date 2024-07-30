@@ -162,6 +162,15 @@ for RecordingIdx = 1:nRecordings
     disp([num2str(RecordingIdx), '/', num2str(nRecordings)])
 end
 
+% remove blank recordings (files didn't survive preprocessing)
+Blanks = any(isnan(AllSpectra), 2);
+Metadata(Blanks, :) = [];
+CustomTopographies(Blanks, :, :) = [];
+LogTopographies(Blanks, :, :) = [];
+PeriodicTopographies(Blanks, :, :) = [];
+AllSpectra(Blanks, :) = [];
+AllPeriodicSpectra(Blanks, :) = [];
+
 save(fullfile(CacheDir, CacheName), 'Metadata', 'PeriodicPeaks', 'NoisePeriodicPeaks', ...
     'Chanlocs', 'CustomTopographies', 'LogTopographies', 'PeriodicTopographies', ...
     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies', 'Bands')

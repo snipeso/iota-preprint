@@ -28,11 +28,8 @@ end
 clc
 
 CacheName = 'PeriodicParameters_Clean.mat';
-load(fullfile(CacheDir, CacheName), 'Metadata', 'AllSpectra')
+load(fullfile(CacheDir, CacheName), 'Metadata')
 
-% remove blank recordings (files didn't survive preprocessing)
-Blanks = any(isnan(AllSpectra), 2);
-Metadata(Blanks, :) = [];
 
 Tot = size(Metadata, 1);
 disp(['Total n = ', num2str(Tot)])
@@ -56,6 +53,7 @@ disp(['ADHD: ', num2str(round(100*nnz(contains(Metadata.Diagnosis, 'ADHD'))/Tota
 
 Metadata.Diagnosis_Category(strcmp(Metadata.Diagnosis_Category, '.')) = {'No Diagnosis Given'};
 
+% all diagnostic criteria
 AllDiagnoses = tabulate(Metadata.Diagnosis_Category);
 AllDiagnoses = cell2table(AllDiagnoses, 'VariableNames', {'Diagnosis', 'Tot', '%'});
 
@@ -64,6 +62,19 @@ disp(AllDiagnoses)
 
 writetable(AllDiagnoses, fullfile(ResultsFolder, 'Demographics.csv'))
 
+disp('________________________')
+
+% only neurodevelopmental
+
+Metadata.Diagnosis(contains(Metadata.Diagnosis, 'ADHD') | contains(Metadata.Diagnosis, 'Attention-Deficit')) = {'ADHD'};
+AllDiagnoses = tabulate(Metadata.Diagnosis(strcmp(Metadata.Diagnosis_Category, 'Neurodevelopmental Disorders')));
+
+AllDiagnoses = cell2table(AllDiagnoses, 'VariableNames', {'Diagnosis', 'Tot', '%'});
+
+AllDiagnoses = sortrows(AllDiagnoses, '%', 'descend');
+disp(AllDiagnoses)
+
+writetable(AllDiagnoses, fullfile(ResultsFolder, 'DemographicsNeurodevelopmental.csv'))
 
 %% Figure 2: iota in wake
 
@@ -71,9 +82,6 @@ writetable(AllDiagnoses, fullfile(ResultsFolder, 'Demographics.csv'))
 CacheName = 'PeriodicParameters_Clean.mat';
 load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata', 'AllSpectra', 'AllPeriodicSpectra', 'FooofFrequencies', 'Frequencies')
 
-% remove blank recordings (files didn't survive preprocessing)
-Blanks = any(isnan(AllSpectra), 2);
-Metadata(Blanks, :) = [];
 
 % sort rows by age so that the rarer adults come out on top
 PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
@@ -175,11 +183,7 @@ chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
 
 
 CacheName = 'PeriodicParameters_Clean.mat';
-load(fullfile(CacheDir, CacheName), 'Metadata', 'AllSpectra')
-
-% remove blank recordings (files didn't survive preprocessing)
-Blanks = any(isnan(AllSpectra), 2);
-Metadata(Blanks, :) = [];
+load(fullfile(CacheDir, CacheName), 'Metadata')
 
 
 clc
