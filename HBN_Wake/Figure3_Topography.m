@@ -24,7 +24,7 @@ end
 %%% Run
 
 % load in data
-load(fullfile(CacheDir, CacheName),  'Metadata', 'CustomTopographies', 'Chanlocs')
+load(fullfile(CacheDir, CacheName),  'Metadata', 'CustomTopographies', 'Chanlocs', 'LogTopographies', 'Bands')
 
 CleanTopo = squeeze(CustomTopographies(:, end, :));
 
@@ -53,6 +53,9 @@ for Index =1:size(CleanTopo, 1)
         figure('Units','normalized', 'OuterPosition',[0 0 1 1])
     end
 end
+
+
+
 
 
 %% Figure 3: Average topography & examples
@@ -89,6 +92,56 @@ for IndexR = 1:size(PlotTopos, 1)
 end
 
 chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
+
+
+%% plot all band topographies
+
+PlotProps = Parameters.PlotProps.Manuscript;
+PlotProps.Colorbar.Location = 'eastoutside';
+PlotProps.External.EEGLAB.TopoRes = 300;
+PlotProps.Figure.Padding = 25;
+PlotProps.Axes.xPadding = 10;
+
+
+BandLabels = fieldnames(Bands);
+BandTitles = BandLabels;
+BandTitles{strcmp(BandLabels, 'LowBeta')} = 'Low Beta';
+BandTitles{strcmp(BandLabels, 'HighBeta')} = 'High Beta';
+
+Grid = [2, numel(BandLabels)];
+
+LogTopographies(:, :, end) = nan; % there's something wrong with the aperiodic signal in the data. TODO: figure out
+
+figure('Units','normalized', 'OuterPosition',[0 0 .5 .32])
+chART.sub_plot([], Grid, [1, 1], [], -1, 'A', PlotProps); axis off
+chART.sub_plot([], Grid, [2, 1], [], -1, 'B', PlotProps); axis off
+
+for BandIdx = 1:numel(BandLabels)
+    Label = ' ';
+    PlotIdx = BandIdx;
+    if BandIdx==numel(BandLabels)
+      
+        PlotIdx = numel(BandLabels) -1;
+    elseif BandIdx ==numel(BandLabels) -1 % iota was placed at end for some reason that must have previously made sense, now I have this stupd fix
+        PlotIdx = numel(BandLabels);
+          Label = 'log power';
+    end
+    Axes = chART.sub_plot([], Grid, [1, PlotIdx], [], false, '', PlotProps);
+    Axes.Units = 'pixels';
+    Axes.Position(2) = Axes.Position(2)-10;
+    Axes.Units = 'normalized';
+    Data = squeeze(mean(LogTopographies(:, BandIdx, :), 1, 'omitnan'));
+    CLims = quantile(Data, [.01, 1]);
+    chART.plot.eeglab_topoplot(Data, Chanlocs, [],  CLims, Label, 'Linear', PlotProps)
+    clim(CLims)
+    title([BandTitles{BandIdx}, ' (', num2str(Bands.(BandLabels{BandIdx})(1)), '-', num2str(Bands.(BandLabels{BandIdx})(2)), ' Hz)'])
+
+    chART.sub_plot([], Grid, [2, PlotIdx], [], false, '', PlotProps);
+    Data = squeeze(mean(PeriodicTopographies(:, BandIdx, :), 1, 'omitnan'));
+    chART.plot.eeglab_topoplot(Data, Chanlocs, [],  quantile(Data, [.01, 1]), Label, 'Linear', PlotProps)
+end
+
+chART.save_figure('AllBandTopographies', ResultsFolder, PlotProps)
 
 
 %% identify peak locations
