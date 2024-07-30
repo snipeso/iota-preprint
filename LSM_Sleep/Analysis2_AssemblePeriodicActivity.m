@@ -21,7 +21,7 @@ Bands.Theta = [4 8];
 Bands.Alpha = [8 13];
 Bands.Sigma = [13 17];
 Bands.Beta = [17 25];
-Bands.Iota = [25 37];
+Bands.Iota = [25 35];
 BandLabels = fieldnames(Bands);
 nBands = numel(BandLabels);
 
