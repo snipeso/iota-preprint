@@ -22,7 +22,7 @@ PlotProps.Color.Steps.Rainbow = numel(CLims(1):1:CLims(2));
 Axes = gca;
 Axes.Units = 'pixels';
 Axes.Position(3) = Axes.Position(3)+PlotProps.Axes.xPadding*2;
-chART.plot.pretty_colorbar('Rainbow', CLims, 'Age', PlotProps)
+chART.plot.pretty_colorbar('Rainbow', CLims, 'Age', PlotProps);
 Axes = gca;
 else
    colormap(chART.utils.resize_colormap(PlotProps.Color.Maps.Rainbow, ...

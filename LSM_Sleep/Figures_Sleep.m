@@ -84,7 +84,7 @@ ylabel('Frequency (Hz)')
 set(gca, 'TickLength', [0 0], 'YLim', FreqLims)
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.Text.LegendSize = PlotProps.Text.AxisSize;
-chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps)
+chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps);
 B1Axis = gca;
 
 %%%  plot hypnogram
@@ -105,7 +105,7 @@ yyaxis right
 plot(Time, -Slopes, '-', 'Color', [.5 .5 .5 .01])
 set(gca, 'YColor', 'k', 'TickLength', [0 0])
 ylim([-3.5 -.9]) % by chance the ranges work the same; otherwise would need a second axis
-ylabel('Slope')
+ylabel('Exponent')
 box off
 B2Axes = gca;
 B2Axes.Units = B1Axis.Units;
@@ -146,7 +146,7 @@ end
 Axes = chART.sub_plot([], Grid, [5, 5], [1, 1], false, '', PlotProps);
 axis off
 PlotProps.Colorbar.Location = 'north';
-chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps)
+chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps);
 Axes.Position(4) = .3;
 Axes.Position(2) = -.1;
 chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)
