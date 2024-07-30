@@ -22,7 +22,9 @@ p_value = 2 * (1 - normcdf(abs(z)));
 
 % Display the results
 fprintf('Sample proportion for population 1 (p1): %.4f\n', p1);
+disp([num2str(x1),'/', num2str(n1)])
 fprintf('Sample proportion for population 2 (p2): %.4f\n', p2);
+disp([num2str(x2),'/', num2str(n2)])
 fprintf('Pooled proportion (p_hat): %.4f\n', p_hat);
 fprintf('Standard error (SE): %.4f\n', SE);
 fprintf('Z-test statistic (z): %.4f\n', z);
