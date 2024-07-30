@@ -19,7 +19,7 @@ PlotProps.Colorbar.Location = 'eastoutside';
 
 WindowLength = 2;
 MovingWindowSampleRate = .2;
-Grid = [3, 2];
+Grid = [4, 1];
 
 % find best iota channel
 [~, MaxCh] = max(Power(:, dsearchn(Freqs', MaxIotaPeak(1))));
@@ -32,14 +32,15 @@ SampleRate = EEG.srate;
 
 Time = Time/60;
 
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width*2])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width*1.1])
 
 %%% A: time frequency
-chART.sub_plot([], Grid, [1, 1], [1 2], true, 'A', PlotProps);
+chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
 LData = squeeze(log10(Spectrum));
 CLim = quantile(LData(:)', [.6 .999]);
 
 cycy.plot.time_frequency(LData, Frequencies, Time(end), 'contourf', [1 50], CLim, 100)
+PlotA = gca;
 
 chART.set_axis_properties(PlotProps)
 colormap(PlotProps.Color.Maps.Linear)
@@ -50,7 +51,7 @@ title(Title)
 
 colorbar off
 box off
-chART.plot.pretty_colorbar('Linear', CLim, 'Log power', PlotProps)
+Colorbar = chART.plot.pretty_colorbar('Linear', CLim, 'Log power', PlotProps);
 
 
 %%% B: EEG
@@ -58,10 +59,11 @@ Channels = labels2indexes(Channels, Chanlocs);
 TimeRangeEEG = round(TimeRange*EEG.srate);
 Snippet = EEG.data(Channels, TimeRangeEEG(1):TimeRangeEEG(2)); % TODO: select 10:20 system
 
-chART.sub_plot([], Grid, [2, 1], [1 2], true, 'B', PlotProps);
-YGap = 25;
+chART.sub_plot([], Grid, [3, 1], [2, 1], true, 'B', PlotProps);
+YGap = 40;
 
 hold on
+PlotProps.Line.Width = 1.5;
 plot_eeg(Snippet, SampleRate, YGap, PlotProps)
 
 % plot highlight sections where there's a lot more iota
@@ -72,8 +74,8 @@ plot_burst_mask(EEGSnippet, IotaRange, YGap, PlotProps)
 
 %%% C: power spectra
 Blue = PlotProps.Color.Maps.Linear(1, :);
-Grid = [3 3];
-chART.sub_plot([], Grid, [3, 1], [1 1], true, 'C', PlotProps);
+Grid = [4 4];
+chART.sub_plot([], Grid, [4, 1], [1 2], true, 'C', PlotProps);
 hold on
 
 plot(Freqs, squeeze(mean(log10(Power), 2, 'omitnan')), 'Color', [.5 .5 .5 .1])
@@ -82,7 +84,7 @@ plot(Freqs, squeeze(mean(mean(log10(Power), 2, 'omitnan'), 1)), 'Color', Blue, '
 chART.set_axis_properties(PlotProps)
 
 xlim([3 50])
-xticks([ 10 20 30 40])
+xticks([ 10 20 30 40 50])
 xlabel('Frequency (Hz)')
 ylabel('Log power')
 
@@ -97,10 +99,11 @@ AlphaPower = squeeze(mean(mean(log10(Power(:, :, AlphaRangePoints(1):AlphaRangeP
 
 CLim = quantile(AlphaPower, [0.01, 1]);
 
-% plot
-PlotProps.External.EEGLAB.TopoRes = 300;
 
-chART.sub_plot([], Grid, [3, 2], [1 1], false, 'D', PlotProps);
+chART.sub_plot([], Grid, [4, 3], [1 1], true, 'D', PlotProps); axis off
+
+% plot
+chART.sub_plot([], Grid, [4, 3], [1 1], false, '', PlotProps);
 chART.plot.eeglab_topoplot(AlphaPower, Chanlocs, [], CLim, 'Log power', 'Linear', PlotProps)
 clim(CLim)
 Range = round(AlphaRange);
@@ -112,8 +115,15 @@ IotaPower = squeeze(mean(mean(log10(Power(:, :, IotaRangePoints(1):IotaRangePoin
 
 CLim = quantile(IotaPower, [0.01, 1]);
 
-chART.sub_plot([], Grid, [3, 3], [1 1], false, '', PlotProps);
-chART.plot.eeglab_topoplot(IotaPower, Chanlocs, [], CLim, 'Log power', 'Linear', PlotProps)
+chART.sub_plot([], Grid, [4, 4], [1 1], false, '', PlotProps);
+chART.plot.eeglab_topoplot(IotaPower, Chanlocs, [], CLim, '', 'Linear', PlotProps)
+Topo = gca;
+ColorbarTopo = chART.plot.pretty_colorbar('Linear', CLim, 'Log power', PlotProps);
 clim(CLim)
 Range = round(IotaRange);
 title(['Iota (', num2str(Range(1)), '-' num2str(Range(2)), ' Hz)'])
+
+
+% adjust A so that it aligns with D
+Colorbar.Position([1 3]) = ColorbarTopo.Position([1 3]);
+PlotA.Position(3) = Topo.Position(3)+Topo.Position(1)-PlotA.Position(1);

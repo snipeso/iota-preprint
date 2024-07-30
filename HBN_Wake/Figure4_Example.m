@@ -57,6 +57,8 @@ switch Info.Sex
         Sex = 'female';
 end
 
+%%
+
 %%% plot
 Title = [num2str(round(Info.Age, 1)), ' year old ' Sex, ' (', Participant, ')'];
 plot_example(EEG, Power, Frequencies, Chanlocs, Parameters.Channels.Standard_10_20,...
