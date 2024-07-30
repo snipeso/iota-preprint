@@ -117,11 +117,11 @@ for ParticipantIdx = 1:nParticipants
             % standard range
             Range = dsearchn(Frequencies', Bands.(BandLabels{BandIdx})');
             LogTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
-                squeeze(mean(mean(log10(SmoothPower(:, :, Range(1):Range(2))), 3, 'omitnan'), 2, 'omitnan'));
+                squeeze(mean(mean(log10(SmoothPower(:, StageEpochs, Range(1):Range(2))), 3, 'omitnan'), 2, 'omitnan'));
 
             Range = dsearchn(FooofFrequencies', Bands.(BandLabels{BandIdx})');
             PeriodicTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
-                squeeze(mean(mean(PeriodicPower(:, :, Range(1):Range(2)), 3, 'omitnan'), 2, 'omitnan'));
+                squeeze(mean(mean(PeriodicPower(:, StageEpochs, Range(1):Range(2)), 3, 'omitnan'), 2, 'omitnan'));
 
             % custom topography
             Peak = select_max_peak(Table, Bands.(BandLabels{BandIdx}), BandwidthRange);
@@ -129,7 +129,7 @@ for ParticipantIdx = 1:nParticipants
             if ~isempty(Peak)
                 CustomRange = dsearchn(FooofFrequencies', [Peak(1)-Peak(3)/2; Peak(1)+Peak(3)/2]);
                 CustomTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
-                    squeeze(mean(mean(PeriodicPower(:, :, CustomRange(1):CustomRange(2)), 3, 'omitnan'), 2, 'omitnan'));
+                    squeeze(mean(mean(PeriodicPower(:, StageEpochs, CustomRange(1):CustomRange(2)), 3, 'omitnan'), 2, 'omitnan'));
 
                 % save peak information to metadata
                 CenterFrequencies(ParticipantIdx, StageIdx, BandIdx) = Peak(1);
