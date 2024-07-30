@@ -289,3 +289,30 @@ end
 
 chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
 
+
+
+%% plot all iota topographies 
+
+Grid = [nStages, numel(Participants)];
+
+load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'Bands', 'StageLabels')
+figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width*2 PlotProps.Figure.Width/2])
+
+
+for ParticipantIdx = 1:numel(Participants)
+    for StageIdx = 1:nStages
+        Data = squeeze(CustomTopographies(ParticipantIdx, StageIdx, end, :));
+        if all(isnan(Data)|Data==0)
+            continue
+        end
+        chART.sub_plot([], Grid, [StageIdx, ParticipantIdx], [], false, '', PlotProps);
+        chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps);
+        colorbar
+        title([Participants{ParticipantIdx}, ' ', StageLabels{StageIdx}])
+    end
+end
+
+chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
+
+
+
