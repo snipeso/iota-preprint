@@ -29,31 +29,6 @@ load(fullfile(CacheDir, CacheName),  'Metadata', 'CustomTopographies', 'Chanlocs
 CleanTopo = squeeze(CustomTopographies(:, end, :));
 
 
-%% Everyone's topographies (used to choose which ones are representative)
-
-PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.External.EEGLAB.TopoRes = 100;
-
-figure('Units','normalized', 'OuterPosition',[0 0 1 1])
-IndexPlot = 1;
-for Index =1:size(CleanTopo, 1)
-
-    Data = CleanTopo(Index, :);
-    if any(isnan(Data))
-        continue
-    end
-    subplot(8, 12, IndexPlot)
-    chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps)
-    IndexPlot = IndexPlot+1;
-    title([Metadata.EID{Index}, ' (', num2str(round(Metadata.Age(Index))) 'yo)'], 'FontWeight','normal', 'FontSize', 8)
-    if IndexPlot>8*12
-        IndexPlot = 1;
-        chART.save_figure(['AllTopos_', num2str(Index), '.png'], ResultsFolder, PlotProps)
-
-        figure('Units','normalized', 'OuterPosition',[0 0 1 1])
-    end
-end
-
 
 %% Figure 3: Iota average topography & examples
 
@@ -93,7 +68,7 @@ end
 chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
 
 
-%% plot all band topographies
+%% Figure 4: all band topographies
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Colorbar.Location = 'eastoutside';
@@ -154,5 +129,34 @@ Topography.Iota = MeanTopo';
 disp(sortrows(Topography, 'Iota', 'descend'))
 
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Unpublished
+
+%% Everyone's topographies (used to choose which ones are representative)
+
+PlotProps = Parameters.PlotProps.Manuscript;
+PlotProps.External.EEGLAB.TopoRes = 100;
+
+figure('Units','normalized', 'OuterPosition',[0 0 1 1])
+IndexPlot = 1;
+for Index =1:size(CleanTopo, 1)
+
+    Data = CleanTopo(Index, :);
+    if any(isnan(Data))
+        continue
+    end
+    subplot(8, 12, IndexPlot)
+    chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps)
+    IndexPlot = IndexPlot+1;
+    title([Metadata.EID{Index}, ' (', num2str(round(Metadata.Age(Index))) 'yo)'], 'FontWeight','normal', 'FontSize', 8)
+    if IndexPlot>8*12
+        IndexPlot = 1;
+        chART.save_figure(['AllTopos_', num2str(Index), '.png'], ResultsFolder, PlotProps)
+
+        figure('Units','normalized', 'OuterPosition',[0 0 1 1])
+    end
+end
 
 
