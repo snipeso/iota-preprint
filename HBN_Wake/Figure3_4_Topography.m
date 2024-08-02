@@ -118,9 +118,9 @@ end
 chART.save_figure('AllBandTopographies', ResultsFolder, PlotProps)
 
 %%
-    disp(['Log topo N=' num2str(nnz(~isnan(LogTopographies(:, BandIdx, 11))))])
+    disp(['Log topo N=' num2str(nnz(~isnan(LogTopographies(:, 1, 11))))])
 
-        disp(['Periodic topo N=' num2str(nnz(~isnan(LogTopographies(:, BandIdx, 11))))])
+        disp(['Periodic topo N=' num2str(nnz(~isnan(LogTopographies(:, 1, 11))))])
 
 
 %% identify peak locations
