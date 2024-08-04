@@ -12,6 +12,7 @@ close all
 Parameters = HBNParameters();
 Paths = Parameters.Paths;
 CacheDir = Paths.Cache;
+Iota = [25 35];
 
 %%% paths
 ResultsFolder = fullfile(Paths.Results, 'AllPeaks');
@@ -135,7 +136,7 @@ Labels = AgeBins(1:end-1)+diff(AgeBins)/2;
 Labels(end) = 19;
 
 % gather participants with iota
-IotaPeriodicPeaks = PeriodicPeaks(PeriodicPeaks.Frequency>25 & PeriodicPeaks.Frequency<=35 & PeriodicPeaks.BandWidth < 4, :);
+IotaPeriodicPeaks = PeriodicPeaks(PeriodicPeaks.Frequency>Iota(1) & PeriodicPeaks.Frequency<=Iota(2) & PeriodicPeaks.BandWidth < 4, :);
 IotaPeriodicPeaks = one_row_each(IotaPeriodicPeaks, 'EID'); % in case multiple peaks were detected in the same participant
 IotaByAge = tabulate(discretize(IotaPeriodicPeaks.Age, AgeBins));
 IotaByAge = IotaByAge(:, 2);
@@ -216,3 +217,9 @@ disp(['Iota frequency x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(
 disp(['Iota power x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
 
 
+%% Totals
+
+Iota40PeriodicPeaks = PeriodicPeaks(PeriodicPeaks.Frequency>35 & PeriodicPeaks.Frequency<=40 & PeriodicPeaks.BandWidth < 4, :);
+nTot = size(Metadata, 1);
+nIota = size(Iota40PeriodicPeaks, 1);
+disp(['recordings with 35-40 Hz: ', num2str(round(100*nIota/nTot)), '%, (', num2str(nIota), '/', num2str(nTot), ')'])
