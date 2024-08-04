@@ -26,7 +26,15 @@ end
 % load in data
 load(fullfile(CacheDir, CacheName),  'Metadata', 'CustomTopographies', 'Chanlocs', 'LogTopographies', 'PeriodicTopographies', 'Bands')
 
-CleanTopo = squeeze(CustomTopographies(:, end, :));
+
+BandLabels = fieldnames(Bands);
+BandTitles = BandLabels;
+BandTitles{strcmp(BandLabels, 'LowBeta')} = 'Low Beta';
+BandTitles{strcmp(BandLabels, 'HighBeta')} = 'High Beta';
+
+IotaIdx = find(strcmp(BandLabels, 'Iota'));
+
+IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
 
 
 
@@ -44,12 +52,11 @@ Grid = [2, size(PlotTopos, 2)+2];
 
 figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width PlotProps.Figure.Width/3.5])
 
-
 % plot average
 chART.sub_plot([], Grid, [2, 1], [2, 2], false, '', PlotProps);
-chART.plot.eeglab_topoplot(mean(CleanTopo, 1, 'omitnan'), Chanlocs, [], ...
+chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], ...
     '', 'Log power', 'Linear', PlotProps)
-title(['Average (N=', num2str(nnz(~isnan(CleanTopo(:, 1)))), ')'])
+title(['Average (N=', num2str(nnz(~isnan(IotaTopo(:, 1)))), ')'])
 
 % plot individuals
 PlotProps.Axes.xPadding = 5;
@@ -57,7 +64,7 @@ PlotProps.Axes.yPadding =10;
 for IndexR = 1:size(PlotTopos, 1)
     for IndexC = 1:size(PlotTopos, 2)
         Index = find(strcmp(Metadata.EID, PlotTopos(IndexR, IndexC)));
-        Data = CleanTopo(Index, :);
+        Data = IotaTopo(Index, :);
         chART.sub_plot([], Grid, [IndexR, IndexC+2], [], false, '', PlotProps);
         chART.plot.eeglab_topoplot(Data, Chanlocs, [], quantile(Data, [.01, 1]), '', 'Linear', PlotProps)
         chART.plot.topo_corner_text([num2str(round(Metadata.IotaFrequency(Index))), 'Hz'], PlotProps)
@@ -70,47 +77,52 @@ chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
 
 %% Figure 4: all band topographies
 
+CLimsLog = [
+.16 .4;
+-.01 .3;
+-.65 -.35;
+-.85 -.6;
+-1.3 -.9;
+-1.6 -1.1;
+];
+
+CLimsPeriodic = [];
+
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.Figure.Padding = 25;
 PlotProps.Axes.xPadding = 1;
 PlotProps.Axes.yPadding = 5;
 
-BandLabels = fieldnames(Bands);
-BandTitles = BandLabels;
-BandTitles{strcmp(BandLabels, 'LowBeta')} = 'Low Beta';
-BandTitles{strcmp(BandLabels, 'HighBeta')} = 'High Beta';
-
 Grid = [2, numel(BandLabels)];
 
 LogTopographies(:, :, end) = nan; % there's something wrong with the aperiodic signal in the data. TODO: figure out
 
-figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width+2 PlotProps.Figure.Width/3])
+figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width+2 PlotProps.Figure.Width/2.6])
 
 chART.sub_plot([], Grid, [1, 1], [], -1, 'A', PlotProps); axis off
 chART.sub_plot([], Grid, [2, 1], [], -1, 'B', PlotProps); axis off
 
 for BandIdx = 1:numel(BandLabels)
     Label = ' ';
-    PlotIdx = BandIdx;
     if BandIdx==numel(BandLabels)
-
-        PlotIdx = numel(BandLabels) -1;
-    elseif BandIdx ==numel(BandLabels) -1 % iota was placed at end for some reason that must have previously made sense, now I have this stupd fix
-        PlotIdx = numel(BandLabels);
         Label = 'Log power';
     end
-    Axes = chART.sub_plot([], Grid, [1, PlotIdx], [], false, '', PlotProps);
+
+    Axes = chART.sub_plot([], Grid, [1, BandIdx], [], false, '', PlotProps);
+
+    % shift slightly
     Axes.Units = 'pixels';
     Axes.Position(2) = Axes.Position(2)-10;
     Axes.Units = 'normalized';
+
+    % plot log power
     Data = squeeze(mean(LogTopographies(:, BandIdx, :), 1, 'omitnan'));
-    CLims = quantile(Data, [.01, 1]);
-    chART.plot.eeglab_topoplot(Data, Chanlocs, [],  CLims, Label, 'Linear', PlotProps)
-    clim(CLims)
+    chART.plot.eeglab_topoplot(Data, Chanlocs, [],  quantile(Data, [.01, 1]), Label, 'Linear', PlotProps)
     title({BandTitles{BandIdx}, ['(', num2str(Bands.(BandLabels{BandIdx})(1)), '-', num2str(Bands.(BandLabels{BandIdx})(2)), ' Hz)']})
 
-    chART.sub_plot([], Grid, [2, PlotIdx], [], false, '', PlotProps);
+    % plot periodic power
+    chART.sub_plot([], Grid, [2, BandIdx], [], false, '', PlotProps);
     Data = squeeze(mean(PeriodicTopographies(:, BandIdx, :), 1, 'omitnan'));
     chART.plot.eeglab_topoplot(Data, Chanlocs, [],  quantile(Data, [.01, 1]), Label, 'Linear', PlotProps)
 end
@@ -118,14 +130,14 @@ end
 chART.save_figure('AllBandTopographies', ResultsFolder, PlotProps)
 
 %%
-    disp(['Log topo N=' num2str(nnz(~isnan(LogTopographies(:, 1, 11))))])
+disp(['Log topo N=' num2str(nnz(~isnan(LogTopographies(:, 1, 11))))])
 
-        disp(['Periodic topo N=' num2str(nnz(~isnan(LogTopographies(:, 1, 11))))])
+disp(['Periodic topo N=' num2str(nnz(~isnan(LogTopographies(:, 1, 11))))])
 
 
 %% identify peak locations
 
-MeanTopo = mean(CleanTopo, 1, 'omitnan');
+MeanTopo = mean(IotaTopo, 1, 'omitnan');
 
 Topography = table();
 Topography.Labels = {Chanlocs.labels}';
@@ -146,9 +158,9 @@ PlotProps.External.EEGLAB.TopoRes = 100;
 
 figure('Units','normalized', 'OuterPosition',[0 0 1 1])
 IndexPlot = 1;
-for Index =1:size(CleanTopo, 1)
+for Index =1:size(IotaTopo, 1)
 
-    Data = CleanTopo(Index, :);
+    Data = IotaTopo(Index, :);
     if any(isnan(Data))
         continue
     end
