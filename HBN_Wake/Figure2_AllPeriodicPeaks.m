@@ -106,12 +106,11 @@ plot(Frequencies, log10(mean(AllSpectra, 'omitnan')), 'Color', Red, 'LineWidth',
 % set(gca, 'XScale', 'log', 'YScale', 'log')
 xlim(XLim)
 xticks([1 10 20 30 40 50])
-ylim([-2 2])
+ylim([-2.1 2])
 xlabel('Frequency (Hz)')
 ylabel('Log power')
 box off
 title('Wake spectral power')
-set(gca, 'TickDir', 'in')
 
 
 %%% B: Scatter plot of all periodic peaks
@@ -126,7 +125,6 @@ Axes.Units = 'normalized';
 Axes.Position(1) = Axes.Position(1)-.015; % move it a little bit
 Axes.Position(3) = Axes.Position(3)+0.0629;
 title('Periodic peaks', 'FontSize', PlotProps.Text.TitleSize)
-set(gca, 'TickDir', 'in') % switch inward because otherwise t
 
 
 %%% C: Proportion of iota in population by age
@@ -176,7 +174,6 @@ Axes2.Units = 'normalized';
 Axes2.Position(1) = Axes2.Position(1) + .06;
 Axes2.Position(3) = Axes2.Position(3) - .095;
 
-set(gca, 'TickDir', 'in')
 chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
 
 %% Total iota recording percentage by age

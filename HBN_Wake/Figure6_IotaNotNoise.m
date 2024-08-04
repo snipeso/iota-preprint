@@ -42,7 +42,6 @@ load(fullfile(CacheDir, CacheName), 'Metadata',  'AllSpectra')
 Blanks = any(isnan(AllSpectra), 2);
 Metadata(Blanks, :) = [];
 
-
 UnfilteredPeriodicPeaks = PeriodicPeaks;
 
 UnfilteredPeriodicPeaks = sortrows(UnfilteredPeriodicPeaks, 'Age', 'ascend'); % sort by age so that the rarer adults are on top
@@ -54,20 +53,19 @@ figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.
 %%% A: iota vs alpha
 chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
 hold on
-plot([8 13], [8 13]*3, ':', 'Color', [.6 .6 .6], 'LineWidth', 2, 'DisplayName',  ['Expected', newline, 'harmonic fit'])
-Scatter = scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 20, Metadata.Age, 'filled', 'MarkerFaceAlpha', .2);
+plot([8 13], [8 13]*3, '--', 'Color', [.6 .6 .6], 'LineWidth', 2, 'DisplayName',  ['Expected', newline, 'harmonic fit'])
+Scatter = scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 10, Metadata.Age, 'filled', 'MarkerFaceAlpha', .25);
+clim(CLims)
 
 % correlation lines
 Lines = lsline;
-Lines(1).Visible = 'off';
-Lines(1).HandleVisibility = 'off';
-Lines(2).Color = [0 0 0];
-Lines(2).DisplayName = 'Linear fit';
-Lines(2).LineWidth = 2;
+Lines.Color = [0 0 0];
+Lines.DisplayName = 'Linear fit';
+Lines.LineWidth = 2;
 Scatter.HandleVisibility = 'off';
+
 legend
 set(legend, 'location', 'southeast', 'ItemTokenSize', [10 10])
-
 chART.set_axis_properties(PlotProps)
 xlabel('Alpha center frequency (Hz)')
 ylabel('Iota center frequency (Hz)')
@@ -90,16 +88,16 @@ NoiseIdx = NoisePeriodicPeaks.Frequency >58 & NoisePeriodicPeaks.Frequency<62;
 PlotProps.Scatter.Alpha = .3;
 chART.sub_plot([], Grid, [1, 3], [], true, 'C', PlotProps);
 ylim([0.3 12.5])
-% plot line noise
-LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
-
 
 % plot all else
 Gamma = NoisePeriodicPeaks(~NoiseIdx, :);
-plot_periodicpeaks(Gamma, [18 100], YLims, CLims, false, PlotProps);
+plot_periodicpeaks(Gamma, [17 100], YLims, CLims, false, PlotProps);
+
+% plot line noise
+LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
 
 hold on
-scatter(LineNoise.Frequency, LineNoise.BandWidth, 10, [.1 .1 .1], 'filled', ...
+scatter(LineNoise.Frequency, LineNoise.BandWidth, PlotProps.Scatter.Size, [.1 .1 .1], 'filled', ...
     'MarkerFaceAlpha', .1, 'Marker', 'o')
 title('Gamma, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
 
