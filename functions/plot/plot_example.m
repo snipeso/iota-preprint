@@ -14,7 +14,7 @@ PeakDetectionSettings.PeakAmplitudeMin = .5;
 [~, MaxIotaPeak] = oscip.check_peak_in_band(PeriodicPeaks, [25 35], 1, PeakDetectionSettings);
 
 IotaRange = [MaxIotaPeak(1)-MaxIotaPeak(3)/2, MaxIotaPeak(1)+MaxIotaPeak(3)/2];
-PlotProps.Figure.Padding= 30;
+% PlotProps.Figure.Padding= 30;
 PlotProps.Colorbar.Location = 'eastoutside';
 
 WindowLength = 2;
@@ -44,7 +44,7 @@ PlotA = gca;
 
 chART.set_axis_properties(PlotProps)
 colormap(PlotProps.Color.Maps.Linear)
-set(gca, 'TickLength', [.001 .001])
+set(gca, 'TickLength', [.005 0])
 xlabel('Time (min)')
 xlim([3 247]/60)
 title(Title)
@@ -59,7 +59,7 @@ Channels = labels2indexes(Channels, Chanlocs);
 TimeRangeEEG = round(TimeRange*EEG.srate);
 Snippet = EEG.data(Channels, TimeRangeEEG(1):TimeRangeEEG(2)); % TODO: select 10:20 system
 
-chART.sub_plot([], Grid, [3, 1], [2, 1], true, 'B', PlotProps);
+Axes=chART.sub_plot([], Grid, [3, 1], [2, 1], true, 'B', PlotProps);
 YGap = 40;
 
 hold on
@@ -70,6 +70,8 @@ plot_eeg(Snippet, SampleRate, YGap, PlotProps)
 EEGSnippet = EEG;
 EEGSnippet.data = Snippet;
 plot_burst_mask(EEGSnippet, IotaRange, YGap, PlotProps)
+set(gca, 'TickLength', [.005 0])
+Axes.Position(2) = Axes.Position(2)+.01;
 
 
 %%% C: power spectra
@@ -82,6 +84,7 @@ plot(Freqs, squeeze(mean(log10(Power), 2, 'omitnan')), 'Color', [.5 .5 .5 .1])
 plot(Freqs, squeeze(mean(mean(log10(Power), 2, 'omitnan'), 1)), 'Color', Blue, 'LineWidth',3)
 
 chART.set_axis_properties(PlotProps)
+set(gca, 'TickLength', [.005 0])
 
 xlim([3 50])
 xticks([ 10 20 30 40 50])
