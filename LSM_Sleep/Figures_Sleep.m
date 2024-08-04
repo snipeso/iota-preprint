@@ -57,24 +57,30 @@ writetable(AllCenterFrequencies, fullfile(ResultsFolder, 'DetectedPeaksByStage.c
 
 %% Figure 7: periodic peaks
 
-
+Settings = oscip.default_settings();
+Settings.PeakBandwidthMax = 4;
+Settings.DistributionBandwidthMax = 4; % how much jitter there can be across periodic peaks
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Figure.Padding = 30;
 
-Grid = [2 11];
+IotaBand = [25 40];
+IotaTextColor = [73 63 11]/255;
+
+Grid = [3 9];
 
 %%%%% Main participant
 
 figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width+1 PlotProps.Figure.Width/4+1])
 
-chART.sub_plot([], Grid, [2 1], [2 2], false, '', PlotProps);
+chART.sub_plot([], Grid, [3 1], [3 3], false, '', PlotProps);
 load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
     'PeriodicPeaks', 'Scoring', 'Chanlocs')
 
 plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
 xlim(FreqLims)
-
+add_peak_text(PeriodicPeaks(labels2indexes(Channels, Chanlocs), Scoring==1, :), ...
+    IotaBand, IotaTextColor, PlotProps)
 
 %%% All data
 
@@ -88,12 +94,15 @@ for ParticipantIdx = 1:numel(Participants)
     load(fullfile(SourceSpecparam, [Participant, '_Sleep_Baseline.mat']), 'PeriodicPeaks', 'Scoring');
 
     % plot
-    if ParticipantIdx > 9 % split after the 9th recording
+    if ParticipantIdx > 12 % split by row
+        R = 3;
+        C = 3+ParticipantIdx-12;
+    elseif % second row
         R = 2;
-        C = 2+ParticipantIdx-9;
-    else
+        C = 3+ParticipantIdx-6;
+    else % first row
         R = 1;
-        C = 2+ParticipantIdx;
+        C = 3+ParticipantIdx;
     end
     chART.sub_plot([], Grid, [R, C], [], false, '', PlotProps);
     plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
@@ -105,9 +114,10 @@ for ParticipantIdx = 1:numel(Participants)
     ylabel('')
     xticks(10:20:50)
     legend off
-    if R ==2 & C == 1
-        continue
-    end
+
+    % find REM iota, and display
+    add_peak_text(PeriodicPeaks(labels2indexes(Channels, Chanlocs), Scoring==1, :), ...
+        IotaBand, IotaTextColor, PlotProps)
 end
 
 chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
@@ -290,8 +300,10 @@ end
 chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
 
 
+% TODO: average all bands!! 
+% REM, Wake, NREM x bands in table
 
-%% plot all iota topographies 
+%% plot all iota topographies
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.External.EEGLAB.TopoRes = 50;
