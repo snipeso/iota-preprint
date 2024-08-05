@@ -27,7 +27,7 @@ Paths.Final = fullfile(Core, 'Final'); % where data gets saved once its been tur
 Paths.Core = Core;
 Paths.Metadata = fullfile(Core, 'Metadata');
 Paths.Cache = fullfile(Core, 'Cache', 'iota-preprint');
-Paths.Results = fullfile(Core, 'Results', 'iota-preprint');
+Paths.Results = fullfile(Core, 'Results', 'iota-poster');
 
 if ~exist(Paths.Cache, 'dir')
     mkdir(Paths.Cache)
@@ -97,4 +97,4 @@ Parameters.MinChannels = 25; % minimum number of channels after preprocessing
 
 %%% Plotting parameters
 
-Parameters.PlotProps.Manuscript = chART.load_plot_properties({ 'Manuscript', 'Iota'});
+Parameters.PlotProps.Manuscript = chART.load_plot_properties({'Iota', 'Poster'});

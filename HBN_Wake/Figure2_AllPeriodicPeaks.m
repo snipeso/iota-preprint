@@ -25,58 +25,6 @@ end
 %%% plot
 
 
-%% Participant demographics
-clc
-
-CacheName = 'PeriodicParameters_Clean.mat';
-load(fullfile(CacheDir, CacheName), 'Metadata')
-
-
-Tot = size(Metadata, 1);
-disp(['Total n = ', num2str(Tot)])
-disp(['female = ', num2str(round(100*nnz(Metadata.Sex==1)/Tot)), '%']) % inexplicably, HBN coded female as "1"
-disp(['left-handed = ', num2str(round(100*nnz(Metadata.EHQ_Total<0)/Tot)), '%']) % inexplicably, HBN coded female as "1"
-disp(['mean age = ', num2str(round(mean(Metadata.Age), 1)), ' (', num2str(round(min(Metadata.Age), 1)),'-', num2str(round(max(Metadata.Age), 1)) ')'])
-
-
-disp('_________________________')
-
-% clean up mistakes with diagnoses (when left empty, matlab freaks out)
-Bad = cellfun(@numel, Metadata.Diagnosis)==0;
-Metadata.Diagnosis(Bad) = repmat({'.'}, nnz(Bad), 1);
-
-Bad = cellfun(@numel, Metadata.Diagnosis_Category)==0;
-Metadata.Diagnosis_Category(Bad) = repmat({'.'}, nnz(Bad), 1);
-
-% very quick check of how many adhd are in the data
-Total = size(Metadata, 1);
-disp(['ADHD: ', num2str(round(100*nnz(contains(Metadata.Diagnosis, 'ADHD'))/Total)), '%'])
-
-Metadata.Diagnosis_Category(strcmp(Metadata.Diagnosis_Category, '.')) = {'No Diagnosis Given'};
-
-% all diagnostic criteria
-AllDiagnoses = tabulate(Metadata.Diagnosis_Category);
-AllDiagnoses = cell2table(AllDiagnoses, 'VariableNames', {'Diagnosis', 'Tot', '%'});
-
-AllDiagnoses = sortrows(AllDiagnoses, '%', 'descend');
-disp(AllDiagnoses)
-
-writetable(AllDiagnoses, fullfile(ResultsFolder, 'Demographics.csv'))
-
-disp('________________________')
-
-% only neurodevelopmental
-
-Metadata.Diagnosis(contains(Metadata.Diagnosis, 'ADHD') | contains(Metadata.Diagnosis, 'Attention-Deficit')) = {'ADHD'};
-AllDiagnoses = tabulate(Metadata.Diagnosis(strcmp(Metadata.Diagnosis_Category, 'Neurodevelopmental Disorders')));
-
-AllDiagnoses = cell2table(AllDiagnoses, 'VariableNames', {'Diagnosis', 'Tot', '%'});
-
-AllDiagnoses = sortrows(AllDiagnoses, '%', 'descend');
-disp(AllDiagnoses)
-
-writetable(AllDiagnoses, fullfile(ResultsFolder, 'DemographicsNeurodevelopmental.csv'))
-
 %% Figure 2: iota in wake
 
 % load in analyses on preprocessed data
@@ -90,43 +38,27 @@ PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that 
 %%%%%%%%%%%%%%%%%%%
 %%% plot
 
+%%
 PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.Axes.yPadding = 5;
+% PlotProps.Figure.Padding = 100;
 Grid = [1, 3];
 XLim = [3 50];
-Red = chART.color_picker(1, '', 'red');
-
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/3])
-
-%%% A: Power spectra
-chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);
-plot(Frequencies, log10(AllSpectra), 'Color', [.3 .3 .3 .05])
-hold on
-chART.set_axis_properties(PlotProps)
-plot(Frequencies, log10(mean(AllSpectra, 'omitnan')), 'Color', Red, 'LineWidth', 4)
-% set(gca, 'XScale', 'log', 'YScale', 'log')
-xlim(XLim)
-xticks([1 10 20 30 40 50])
-ylim([-2.1 2])
-xlabel('Frequency (Hz)')
-ylabel('Log power')
-box off
-title('Wake spectral power')
 
 
-%%% B: Scatter plot of all periodic peaks
+%%% scatterplot peaks
+figure('Units','centimeters', 'Position', [0 0 20 20])
 
 PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
-YLims = [.3 12.3];
+YLims = [.3 12];
 
-chART.sub_plot([], Grid, [1, 2], [], .2, 'B', PlotProps);
+chART.sub_plot([], [1 1], [1 1], [], true, '', PlotProps);
 Axes = plot_periodicpeaks(PeriodicPeaks, XLim, YLims, CLims, true, PlotProps);
 Axes.Units = 'normalized';
-Axes.Position(1) = Axes.Position(1)-.015; % move it a little bit
-Axes.Position(3) = Axes.Position(3)+0.0629;
-title('Periodic peaks', 'FontSize', PlotProps.Text.TitleSize)
+Axes.Position(1) = Axes.Position(1)-.05; % move it a little bit
 
+chART.save_figure('AllPeriodicPeaks', ResultsFolder, PlotProps)
+%%
 
 %%% C: Proportion of iota in population by age
 
@@ -134,6 +66,7 @@ title('Periodic peaks', 'FontSize', PlotProps.Text.TitleSize)
 AgeBins = [0:2:18, 22];
 Labels = AgeBins(1:end-1)+diff(AgeBins)/2;
 Labels(end) = 19;
+Red = [193, 36, 133]/255;
 
 % gather participants with iota
 IotaPeriodicPeaks = PeriodicPeaks(PeriodicPeaks.Frequency>Iota(1) & PeriodicPeaks.Frequency<=Iota(2) & PeriodicPeaks.BandWidth < 4, :);
@@ -146,11 +79,13 @@ ParticipantsByAge = tabulate(discretize(Metadata.Age, AgeBins));
 ParticipantsByAge = ParticipantsByAge(:, 2);
 
 % plot stacked bar plot of distribution of participants
-chART.sub_plot([], Grid, [1, 3], [], 4.5, 'C', PlotProps);
-chART.plot.stacked_bars([IotaByAge, ParticipantsByAge-IotaByAge], Labels, [], {'Iota', 'No iota'}, PlotProps, [0.4 0.4 0.4; .8 .8 .8])
+figure('Units','centimeters', 'Position', [0 0 20 20])
+chART.sub_plot([], [1 1], [1 1], [], true, '', PlotProps);
+chART.plot.stacked_bars([IotaByAge, ParticipantsByAge-IotaByAge], Labels, [], {' Iota', ' No iota'}, PlotProps, [0.4 0.4 0.4; .8 .8 .8])
 ylabel('# participants')
 xlabel('Age')
-legend('Location', 'northeast')
+legend('Location', 'northeast', 'Box','off')
+set(legend, 'ItemTokenSize', [18 18])
 ylim([0 700])
 
 % plot simple line plot of percentage with iota
@@ -158,7 +93,7 @@ yyaxis right
 Axes2 = gca;
 Axes2.YAxis(2).Color = Red;
 plot(Labels, 100*IotaByAge./ParticipantsByAge, '-o', 'MarkerFaceColor', Red, 'Color',Red, ...
-    'HandleVisibility', 'off', 'LineWidth',2, 'MarkerSize',6)
+    'HandleVisibility', 'off', 'LineWidth',5, 'MarkerSize',15)
 
 ylabel('%')
 ylim([0 100])
@@ -168,14 +103,12 @@ StringLabels(end) = "+18";
 xticklabels(StringLabels)
 box off
 chART.set_axis_properties(PlotProps)
-title('Iota', 'FontSize', PlotProps.Text.TitleSize)
 
 % shift a bit
 Axes2.Units = 'normalized';
-Axes2.Position(1) = Axes2.Position(1) + .06;
-Axes2.Position(3) = Axes2.Position(3) - .095;
+Axes2.Position = Axes.Position;
 
-chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
+chART.save_figure('AllIotaProportion', ResultsFolder, PlotProps)
 
 %% Total iota recording percentage by age
 

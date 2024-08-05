@@ -43,36 +43,42 @@ IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.External.EEGLAB.TopoRes = 300;
-PlotProps.Axes.xPadding = 20;
+PlotProps.Figure.Padding = 20;
 
-PlotTopos = {'NDARZT199MF6', 'NDARFD453NPR', 'NDARXH140YZ0', 'NDARLL846UYQ', 'NDARPN886HH9';
-    'NDARKM635UY0', 'NDARAE710YWG', 'NDARTG681ZDV', 'NDARLZ986JLL', 'NDARVK847ZRT'}; % IDs of participants
 
-Grid = [2, size(PlotTopos, 2)+2];
-
-figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width PlotProps.Figure.Width/3.5])
+figure('Units','centimeters', 'Position',[0 0 15 13])
 
 % plot average
-chART.sub_plot([], Grid, [2, 1], [2, 2], false, '', PlotProps);
+chART.sub_plot([], [1 1], [1, 1], [], false, '', PlotProps);
 chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], [.15 .38], ...
     'Log power', 'Linear', PlotProps)
-title(['Average (N=', num2str(nnz(~isnan(IotaTopo(:, 1)))), ')'])
+
+chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
+
+
+%%
+
+
+PlotTopos = {'NDARZT199MF6', 'NDARFD453NPR', 'NDARXH140YZ0', 'NDARLL846UYQ', 'NDARPN886HH9', 'NDARFG943GVZ';
+    'NDARKM635UY0', 'NDARAE710YWG', 'NDARTG681ZDV', 'NDARLZ986JLL', 'NDARVK847ZRT', 'NDARPD977VX2'}; % IDs of participants
 
 % plot individuals
+Grid = [2, size(PlotTopos, 2)];
+figure('Units','centimeters', 'Position',[0 0 45 15])
+PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.xPadding = 5;
 PlotProps.Axes.yPadding =10;
 for IndexR = 1:size(PlotTopos, 1)
     for IndexC = 1:size(PlotTopos, 2)
         Index = find(strcmp(Metadata.EID, PlotTopos(IndexR, IndexC)));
         Data = IotaTopo(Index, :);
-        chART.sub_plot([], Grid, [IndexR, IndexC+2], [], false, '', PlotProps);
+        chART.sub_plot([], Grid, [IndexR, IndexC], [], false, '', PlotProps);
         chART.plot.eeglab_topoplot(Data, Chanlocs, [], quantile(Data, [.01, 1]), '', 'Linear', PlotProps)
         chART.plot.topo_corner_text([num2str(round(Metadata.IotaFrequency(Index))), 'Hz'], PlotProps)
-        title(Metadata.Participant(Index), 'FontSize', PlotProps.Text.LegendSize)
     end
 end
 
-chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
+chART.save_figure('ExampleTopographies', ResultsFolder, PlotProps)
 
 
 %% Figure 4: all band topographies
