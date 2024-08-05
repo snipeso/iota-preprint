@@ -54,8 +54,8 @@ figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width PlotProps.F
 
 % plot average
 chART.sub_plot([], Grid, [2, 1], [2, 2], false, '', PlotProps);
-chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], ...
-    '', 'Log power', 'Linear', PlotProps)
+chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], [.15 .38], ...
+    'Log power', 'Linear', PlotProps)
 title(['Average (N=', num2str(nnz(~isnan(IotaTopo(:, 1)))), ')'])
 
 % plot individuals
@@ -78,27 +78,27 @@ chART.save_figure('AverageTopography', ResultsFolder, PlotProps)
 %% Figure 4: all band topographies
 
 CLimsLog = [
-.16 .4;
--.01 .3;
--.65 -.35;
--.85 -.6;
--1.3 -.9;
--1.6 -1.1;
-];
+    .16 .4;
+    -.01 .3;
+    -.65 -.35;
+    -.85 -.6;
+    -1.3 -.9;
+    -1.6 -1.1;
+    ];
 
 CLimsPeriodic = [];
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.Figure.Padding = 25;
-PlotProps.Axes.xPadding = 1;
+PlotProps.Axes.xPadding = 3;
 PlotProps.Axes.yPadding = 5;
 
 Grid = [2, numel(BandLabels)];
 
 LogTopographies(:, :, end) = nan; % there's something wrong with the aperiodic signal in the data. TODO: figure out
 
-figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width+2 PlotProps.Figure.Width/2.6])
+figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width+2 PlotProps.Figure.Width/2.7])
 
 chART.sub_plot([], Grid, [1, 1], [], -1, 'A', PlotProps); axis off
 chART.sub_plot([], Grid, [2, 1], [], -1, 'B', PlotProps); axis off
@@ -128,11 +128,6 @@ for BandIdx = 1:numel(BandLabels)
 end
 
 chART.save_figure('AllBandTopographies', ResultsFolder, PlotProps)
-
-%%
-disp(['Log topo N=' num2str(nnz(~isnan(LogTopographies(:, 1, 11))))])
-
-disp(['Periodic topo N=' num2str(nnz(~isnan(LogTopographies(:, 1, 11))))])
 
 
 %% identify peak locations

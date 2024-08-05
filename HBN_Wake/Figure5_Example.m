@@ -31,7 +31,7 @@ SourcePower = fullfile(Paths.Core, 'Final_Old', 'EEG','Specparam/');
 load(fullfile(CacheDir, CacheName), 'Metadata')
 
 Participant = 'NDARMH180XE5'; TimeRange = [39 49]; % the bestest
-% Participant = 'NDARUL694GYN'; TimeRange = [150 160];
+% Participant = 'NDARUL694GYN'; TimeRange = [150 160]; % works for all of these others as well
 % Participant = 'NDARDR804MFE'; TimeRange = [10 20];
 % Participant = 'NDARTZ926NMZ';TimeRange = [54 64];
 % Participant = 'NDARKL327YDQ'; TimeRange = [39 49]; % Works with same time interval

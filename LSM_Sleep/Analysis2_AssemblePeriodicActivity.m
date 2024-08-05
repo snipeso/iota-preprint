@@ -18,8 +18,8 @@ Participants = Parameters.Participants;
 
 Bands = struct();
 Bands.Theta = [4 8];
-Bands.Alpha = [8 13];
-Bands.Sigma = [13 17];
+Bands.Alpha = [8 12];
+Bands.Sigma = [12 17];
 Bands.Beta = [17 25];
 Bands.Iota = [25 35];
 BandLabels = fieldnames(Bands);

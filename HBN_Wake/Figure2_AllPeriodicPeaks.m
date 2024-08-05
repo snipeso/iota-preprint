@@ -209,7 +209,6 @@ x2 = nnz(~isnan(Metadata.IotaFrequency(Metadata.Age>=14)));
 n2 = numel(~isnan(Metadata.IotaFrequency(Metadata.Age>=14)));
 z_test(n1, x1, n2, x2)
 
-
 [Rho, p] = corr(Metadata.IotaFrequency, Metadata.Age, 'rows', 'complete');
 disp(['Iota frequency x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
 

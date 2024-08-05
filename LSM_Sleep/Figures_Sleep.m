@@ -51,6 +51,7 @@ for BandIdx = 1:nBands
     end
 end
 
+AllCenterFrequencies = AllCenterFrequencies(:, [1 5 6 4 3 2]);
 disp(AllCenterFrequencies)
 writetable(AllCenterFrequencies, fullfile(ResultsFolder, 'DetectedPeaksByStage.csv'))
 
@@ -140,7 +141,7 @@ SmoothMeanPower = smooth_frequencies(MeanPower, FooofFrequencies, 4)';
 
 
 %%% A: plot time-frequency
-
+TickLength = .005;
 chART.sub_plot([], Grid, [2, 1], [2 5], true, 'A', PlotProps);
 
 imagesc(Time, FooofFrequencies, SmoothMeanPower)
@@ -149,11 +150,15 @@ CLims = [-.1 1.1];
 clim(CLims)
 set(gca, 'YDir', 'normal')
 ylabel('Frequency (Hz)')
-set(gca, 'TickLength', [0 0], 'YLim', FreqLims)
+set(gca, 'TickLength', [TickLength 0], 'YLim', FreqLims)
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.Text.LegendSize = PlotProps.Text.AxisSize;
-chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps);
+box off
+Bar = chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps);
 B1Axis = gca;
+Width = B1Axis.Position(3);
+Bar.Position(3) = 0.014647239581274;
+B1Axis.Position(3) = Width;
 
 %%%  B: plot hypnogram
 chART.sub_plot([], Grid, [3, 1], [1 5], true, 'B', PlotProps);
@@ -171,13 +176,13 @@ set(gca, 'YColor', Red)
 
 yyaxis right
 plot(Time, -Slopes, '-', 'Color', [.5 .5 .5 .01])
-set(gca, 'YColor', 'k', 'TickLength', [0 0])
+set(gca, 'YColor', 'k', 'TickLength', [TickLength 0])
 ylim([-3.5 -.9]) % by chance the ranges work the same; otherwise would need a second axis
 ylabel('Exponent')
 box off
 B2Axes = gca;
 B2Axes.Units = B1Axis.Units;
-B2Axes.Position(3) = B1Axis.Position(3);
+B2Axes.Position(3) = Width;
 
 %%% C: topography
 

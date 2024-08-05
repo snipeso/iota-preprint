@@ -53,7 +53,7 @@ figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.
 %%% A: iota vs alpha
 chART.sub_plot([], Grid, [1, 1], [], true, 'A', PlotProps);
 hold on
-plot([8 13], [8 13]*3, '--', 'Color', [.6 .6 .6], 'LineWidth', 2, 'DisplayName',  ['Expected', newline, 'harmonic fit'])
+plot([7.9 13], [7.9 13]*3, '--', 'Color', [.6 .6 .6], 'LineWidth', 2, 'DisplayName',  ['Expected', newline, 'harmonic fit'])
 Scatter = scatter(Metadata.AlphaFrequency, Metadata.IotaFrequency, 10, Metadata.Age, 'filled', 'MarkerFaceAlpha', .25);
 clim(CLims)
 
@@ -69,8 +69,8 @@ set(legend, 'location', 'southeast', 'ItemTokenSize', [10 10])
 chART.set_axis_properties(PlotProps)
 xlabel('Alpha center frequency (Hz)')
 ylabel('Iota center frequency (Hz)')
-xlim([8 13])
-ylim([25 35])
+xlim([7.9 13])
+ylim([24.7 35])
 clim(CLims)
 title('Alpha vs. iota')
 
@@ -99,7 +99,7 @@ LineNoise = NoisePeriodicPeaks(NoiseIdx, :);
 hold on
 scatter(LineNoise.Frequency, LineNoise.BandWidth, PlotProps.Scatter.Size, [.1 .1 .1], 'filled', ...
     'MarkerFaceAlpha', .1, 'Marker', 'o')
-title('Gamma, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
+title('High frequency peaks, unprocessed',  'FontSize', PlotProps.Text.TitleSize)
 
 
 %%% D: plot individual examples
@@ -140,7 +140,7 @@ for ParticipantIdx = 1:numel(ExampleParticipants)
     box off
     set(gca, 'XScale', 'log');
     xticks([0 1 10 30 60 120])
-    title([string(Participant); [' (\iota=', num2str(round(Info.IotaFrequency, 1)),  ' Hz; \alpha=',num2str(round(Info.AlphaFrequency, 1)) ' Hz)']], ...
+    title([string(Participant); ['iota = ', num2str(round(Info.IotaFrequency, 1)),  ' Hz; alpha = ',num2str(round(Info.AlphaFrequency, 1)) ' Hz']], ...
         'FontWeight','normal', 'FontSize',PlotProps.Text.AxisSize)
     axis tight
     ylim(quantile(log10(RawPower(:)), [.02, .999]))
