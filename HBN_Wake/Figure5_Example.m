@@ -106,29 +106,42 @@ chART.save_figure(['ExampleFrequency_', Participant], ResultsFolder, PlotProps)
 %%
 ChannelIndexes = Parameters.Channels.Standard_10_20;
 
+
 %%% B: EEG
 Channels = labels2indexes(ChannelIndexes, Chanlocs);
 TimeRangeEEG = round(TimeRange*EEG.srate);
 Snippet = EEG.data(Channels, TimeRangeEEG(1):TimeRangeEEG(2)); % TODO: select 10:20 system
 
-Axes=chART.sub_plot([], Grid, [3, 1], [2, 1], true, 'B', PlotProps);
-YGap = 40;
-
-hold on
-PlotProps.Line.Width = 1.5;
-plot_eeg(Snippet, SampleRate, YGap, PlotProps)
-
-% plot highlight sections where there's a lot more iota
 EEGSnippet = EEG;
 EEGSnippet.data = Snippet;
+
+YGap = 40;
+
+PlotProps = Parameters.PlotProps.Manuscript;
+PlotProps.Figure.Padding = 5;
+PlotProps.Line.Width = 3;
+figure('Units','centimeters', 'Position',[0 0 50 28])
+chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
+
+hold on
+% basic EEG
+
+plot_eeg(EEGSnippet.data, EEG.srate, YGap, PlotProps)
+
+% bursts
 plot_burst_mask(EEGSnippet, IotaRange, YGap, PlotProps)
-set(gca, 'TickLength', [.005 0])
-Axes.Position(2) = Axes.Position(2)+.01;
+
+% PlotProps.Line.Width = 1.5;
+% plot_eeg(Snippet, SampleRate, YGap, PlotProps)
+% 
+
+% % plot highlight sections where there's a lot more iota
+
+% plot_burst_mask(EEGSnippet, IotaRange, YGap, PlotProps)
+% set(gca, 'TickLength', [.005 0])
+% Axes.Position(2) = Axes.Position(2)+.01;
 
 
 
-
-
-
-% chART.save_figure(['ExampleTime_', Participant], ResultsFolder, PlotProps)
+chART.save_figure(['ExampleTime_', Participant, '.svg'], ResultsFolder, PlotProps)
 
