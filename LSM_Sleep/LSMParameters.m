@@ -40,7 +40,7 @@ end
 
 Paths.Cache =  fullfile(PrepCore, 'Cache', 'iota-preprint');
 Paths.Final = fullfile(PrepCore, 'Final'); % where data gets saved once its been turned into something else
-Paths.Results = fullfile(PrepCore, 'Results', 'iota-preprint');
+Paths.Results = fullfile(PrepCore, 'Results', 'iota-pposter');
 
 Parameters.Paths = Paths;
 
@@ -134,7 +134,7 @@ Parameters.Channels = Channels;
 %%% Plotting information
 
 
-Parameters.PlotProps.Manuscript = chART.load_plot_properties({'Manuscript', 'Iota'});
+Parameters.PlotProps.Manuscript = chART.load_plot_properties({'Iota', 'Poster'});
 Parameters.PlotProps.Manuscript.Color.Participants = ...
     chART.utils.resize_colormap(Parameters.PlotProps.Manuscript.Color.Maps.Rainbow, ...
     numel(Parameters.Participants));
