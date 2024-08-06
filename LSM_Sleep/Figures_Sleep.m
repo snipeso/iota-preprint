@@ -122,7 +122,7 @@ PlotProps.Figure.Padding = 5;
 PlotProps.Line.Width = 3;
 YGap = 30;
 
-figure('Units','centimeters', 'Position',[0 0 50 28])
+figure('Units','centimeters', 'Position',[0 0 51 28])
 chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
 
 % basic EEG
@@ -134,80 +134,5 @@ FrequencyRange = [30 35];
 plot_burst_mask(EEGSnippet, FrequencyRange, YGap, PlotProps)
 
 chART.save_figure('REM_Example', ResultsFolder, PlotProps)
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% not included: topography of all stages/bands
-
-load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
-BandLabels = fieldnames(Bands);
-nStages = numel(StageLabels);
-nBands = numel(BandLabels);
-
-PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.Axes.xPadding = 5;
-PlotProps.Axes.yPadding = 5;
-Grid = [nBands, nStages];
-
-PeriodicTopographies(:, :, :, end) = nan; %
-
-CLims = [
-    .1 .25; % theta
-    .15 .7; % alpha
-    .1 .55; % sigma
-    .1 .37; % beta
-    .05 .2; % iota
-    ];
-
-figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width PlotProps.Figure.Width])
-for BandIdx = 1:nBands
-    for StageIdx = 1:nStages
-        Data = squeeze(mean(PeriodicTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
-        % Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
-        if all(isnan(Data)|Data==0)
-            continue
-        end
-        chART.sub_plot([], Grid, [BandIdx, StageIdx], [], false, '', PlotProps);
-        chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims(BandIdx, :), '', 'Linear', PlotProps);
-        colorbar
-        title([BandLabels{BandIdx}, ' ', StageLabels{StageIdx}])
-    end
-end
-
-chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
-
-
-% TODO: average all bands!! 
-% REM, Wake, NREM x bands in table
-
-%% plot all iota topographies
-
-PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.External.EEGLAB.TopoRes = 50;
-PlotProps.Debug = true;
-Participants = Parameters.Participants;
-
-load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'Bands', 'StageLabels', 'CenterFrequencies')
-nStages = numel(StageLabels);
-BandLabels = fieldnames(Bands);
-nBands = numel(BandLabels);
-figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width*2 PlotProps.Figure.Width])
-Grid = [nStages, numel(Participants)];
-
-
-for ParticipantIdx = 1:numel(Participants)
-    for StageIdx = 1:nStages
-        Data = squeeze(CustomTopographies(ParticipantIdx, StageIdx, end, :));
-        if all(isnan(Data)|Data==0)
-            continue
-        end
-        chART.sub_plot([], Grid, [StageIdx, ParticipantIdx], [], false, '', PlotProps);
-        chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps);
-        title([Participants{ParticipantIdx}, ' ', StageLabels{StageIdx}])
-    end
-end
-
-
 
 

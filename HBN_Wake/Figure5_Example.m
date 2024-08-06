@@ -86,7 +86,7 @@ chART.sub_plot([], Grid, [1, 1], [], true, '', PlotProps);
 LData = squeeze(log10(Spectrum));
 CLim = quantile(LData(:)', [.6 .999]);
 
-cycy.plot.time_frequency(LData, Frequencies, Time(end), 'contourf', [1 50], CLim, 100)
+cycy.plot.time_frequency(LData, Frequencies, Time(end), 'contourf', [3 45], CLim, 100)
 PlotA = gca;
 
 chART.set_axis_properties(PlotProps)
@@ -120,7 +120,7 @@ YGap = 40;
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Figure.Padding = 5;
 PlotProps.Line.Width = 3;
-figure('Units','centimeters', 'Position',[0 0 50 28])
+figure('Units','centimeters', 'Position',[0 0 51 28])
 chART.sub_plot([], [1 1], [1, 1], [], true, '', PlotProps);
 
 hold on

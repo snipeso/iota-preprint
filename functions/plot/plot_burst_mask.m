@@ -25,6 +25,7 @@ Bursts = cycy.detect_bursts_all_channels(EEG, EEGNarrowband, Band1, ...
 Mask = cycy.utils.mask_bursts(EEG.data, Bursts);
 
 
-PlotProps.Color.Generic = PlotProps.Color.Maps.Linear(128, :);
+% PlotProps.Color.Generic = PlotProps.Color.Maps.Linear(128, :);
+PlotProps.Color.Generic = [222 67 117]/255;
 
 plot_eeg(Mask, SampleRate, YGap, PlotProps)
