@@ -21,7 +21,8 @@ RawCore = 'E:\LSM\Data';
 Paths.Datasets = fullfile(RawCore, 'Raw');
 
 % where to put preprocessed data (much smaller hard disk)
-PrepCore = 'F:\Data';
+% PrepCore = 'F:\Data';
+PrepCore = 'E:\Data';
 
 Paths.Preprocessed = fullfile(PrepCore, 'Preprocessed');
 Paths.Core = PrepCore;

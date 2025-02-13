@@ -96,6 +96,8 @@ for RecordingIdx = 1:nRecordings
 
     SmoothPowerNoEdge = SmoothPower;
     PeriodicPowerNoEdge = PeriodicPower;
+
+    
     %%% Get periodic peaks
 
     % remove edge channels

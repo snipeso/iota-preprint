@@ -38,7 +38,55 @@ IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
 
 
 
-%% Figure 3: Iota average topography & examples
+%% abridged (pending acceptance, I'll make this code nice)
+
+
+PlotProps = Parameters.PlotProps.Manuscript;
+PlotProps.Colorbar.Location = 'eastoutside';
+PlotProps.External.EEGLAB.TopoRes = 300;
+PlotProps.Axes.xPadding = 20;
+
+PlotTopos = {
+    'NDARLZ986JLL', 'NDARKM635UY0', 'NDARXH140YZ0',  'NDARVK847ZRT', 'NDARAE710YWG', 'NDARPD977VX2'}; % IDs of participants
+
+
+[idx, loc] = ismember(PlotTopos, Metadata.EID);
+indexes = loc(idx); % Get only the valid indexes
+
+Topographies = IotaTopo(indexes, :);
+IotaFrequencies = Metadata.IotaFrequency(indexes);
+Participants = Metadata.Participant(indexes);
+Participant = 'NDARMH180XE5'; TimeRange = [39 49]; % the bestest
+
+File = [Participant, '_RestingState.mat'];
+load(fullfile(Paths.Preprocessed, 'Power\Clean\RestingState\', File), 'EEG')
+
+
+
+
+% load fooof data
+load(fullfile( Paths.Final, 'EEG', 'Power', '20sEpochs', 'Clean', File), 'Power', 'Frequencies', 'Chanlocs', 'PeriodicPeaks')
+
+Info = Metadata(find(strcmp(Metadata.EID, Participant), 1, 'first'), :);
+
+switch Info.Sex
+    case 0
+        Sex = 'male';
+    case 1
+        Sex = 'female';
+end
+
+
+
+Title = [num2str(round(Info.Age, 1)), ' year old ' Sex, ' (', Participant, ')'];
+
+
+plot_examples(EEG, Power, Topographies, IotaFrequencies, Participants, Frequencies, Chanlocs, Parameters.Channels.Standard_10_20,...
+    PeriodicPeaks, TimeRange, Title, Parameters.PlotProps.Manuscript)
+chART.save_figure(['Example_', Participant], ResultsFolder, PlotProps)
+
+
+%% Figure 3: Iota average topography & examples (original)
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Colorbar.Location = 'eastoutside';
@@ -63,12 +111,12 @@ PlotProps.Axes.xPadding = 5;
 PlotProps.Axes.yPadding =10;
 for IndexR = 1:size(PlotTopos, 1)
     for IndexC = 1:size(PlotTopos, 2)
-        Index = find(strcmp(Metadata.EID, PlotTopos(IndexR, IndexC)));
-        Data = IotaTopo(Index, :);
+        IndexC = find(strcmp(Metadata.EID, PlotTopos(IndexR, IndexC)));
+        Data = IotaTopo(IndexC, :);
         chART.sub_plot([], Grid, [IndexR, IndexC+2], [], false, '', PlotProps);
         chART.plot.eeglab_topoplot(Data, Chanlocs, [], quantile(Data, [.01, 1]), '', 'Linear', PlotProps)
-        chART.plot.topo_corner_text([num2str(round(Metadata.IotaFrequency(Index))), 'Hz'], PlotProps)
-        title(Metadata.Participant(Index), 'FontSize', PlotProps.Text.LegendSize)
+        chART.plot.topo_corner_text([num2str(round(Metadata.IotaFrequency(IndexC))), 'Hz'], PlotProps)
+        title(Metadata.Participant(IndexC), 'FontSize', PlotProps.Text.LegendSize)
     end
 end
 
@@ -153,19 +201,19 @@ PlotProps.External.EEGLAB.TopoRes = 100;
 
 figure('Units','normalized', 'OuterPosition',[0 0 1 1])
 IndexPlot = 1;
-for Index =1:size(IotaTopo, 1)
+for IndexC =1:size(IotaTopo, 1)
 
-    Data = IotaTopo(Index, :);
+    Data = IotaTopo(IndexC, :);
     if any(isnan(Data))
         continue
     end
     subplot(8, 12, IndexPlot)
     chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps)
     IndexPlot = IndexPlot+1;
-    title([Metadata.EID{Index}, ' (', num2str(round(Metadata.Age(Index))) 'yo)'], 'FontWeight','normal', 'FontSize', 8)
+    title([Metadata.EID{IndexC}, ' (', num2str(round(Metadata.Age(IndexC))) 'yo)'], 'FontWeight','normal', 'FontSize', 8)
     if IndexPlot>8*12
         IndexPlot = 1;
-        chART.save_figure(['AllTopos_', num2str(Index), '.png'], ResultsFolder, PlotProps)
+        chART.save_figure(['AllTopos_', num2str(IndexC), '.png'], ResultsFolder, PlotProps)
 
         figure('Units','normalized', 'OuterPosition',[0 0 1 1])
     end
