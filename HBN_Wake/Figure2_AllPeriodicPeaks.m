@@ -92,7 +92,7 @@ PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that 
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.yPadding = 5;
-Grid = [1, 3];
+Grid = [1, 4];
 XLim = [3 50];
 Red = chART.color_picker(1, '', 'red');
 
@@ -174,6 +174,26 @@ title('Iota', 'FontSize', PlotProps.Text.TitleSize)
 Axes2.Units = 'normalized';
 Axes2.Position(1) = Axes2.Position(1) + .06;
 Axes2.Position(3) = Axes2.Position(3) - .095;
+
+
+%%% D: average topography
+% load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'LogTopographies', 'PeriodicTopographies', 'Bands')
+% 
+% 
+% BandLabels = fieldnames(Bands);
+% BandTitles = BandLabels;
+% BandTitles{strcmp(BandLabels, 'LowBeta')} = 'Low Beta';
+% BandTitles{strcmp(BandLabels, 'HighBeta')} = 'High Beta';
+% 
+% IotaIdx = find(strcmp(BandLabels, 'Iota'));
+% 
+% IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
+% 
+% chART.sub_plot([], Grid, [1, 4], [], 4.5, 'D', PlotProps);
+% chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], [.15 .38], ...
+%     'Log power', 'Linear', PlotProps)
+% title(['Average (N=', num2str(nnz(~isnan(IotaTopo(:, 1)))), ')'])
+
 
 chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
 

@@ -68,13 +68,13 @@ PlotProps.Figure.Padding = 30;
 IotaBand = [25 40];
 IotaTextColor = [73 63 11]/255;
 
-Grid = [3 9];
+Grid = [5 9];
 
 %%%%% Main participant
 
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/2.5])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/1.5])
 
-chART.sub_plot([], Grid, [3 1], [3 3], false, '', PlotProps);
+chART.sub_plot([], Grid, [3 1], [3 3], false, 'A', PlotProps);
 load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
     'PeriodicPeaks', 'Scoring', 'Chanlocs')
 
@@ -121,7 +121,64 @@ for ParticipantIdx = 1:numel(Participants)
         IotaBand, IotaTextColor, PlotProps)
 end
 
+% TODO: add spectral power of wake alpha, NREM slow/fast spindles, REM iota
+% and theta
+
+load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
+BandLabels = fieldnames(Bands);
+nStages = numel(StageLabels);
+nBands = numel(BandLabels);
+PlotProps.Colorbar.Location = 'North';
+
+PlotIndexes = {[4 2], [4 4], [1 2], [2 3], [5 1], [5 5]}; % [stage, band]
+Titles = {'W — alpha', 'W — beta', 'N3 — slow sigma', 'N2 — fast sigma', 'R — theta', 'R — iota'};
+
+Grid = [6, numel(PlotIndexes)];
+for PlotIdx = 1:numel(PlotIndexes)
+    Indexes = PlotIndexes{PlotIdx};
+        Data = squeeze(mean(PeriodicTopographies(:, Indexes(1), Indexes(2), :), 1, 'omitnan'));
+        disp([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}, ' ' num2str(nnz(~isnan(PeriodicTopographies(:, Indexes(1), Indexes(2), 1))))])
+        % Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
+        if all(isnan(Data)|Data==0)
+            continue
+        end
+
+        if PlotIdx ==1
+         chART.sub_plot([], Grid, [6, PlotIdx], [2, 1], false, 'B', PlotProps);
+         axis off
+         Legend = 'Log power';
+        else
+            Legend = '';
+        end
+
+          CLims = quantile(Data, [0 1]);
+
+        chART.sub_plot([], Grid, [6, PlotIdx], [2, 1], false, '', PlotProps);
+        chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps);
+        % title([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}])
+        title(Titles{PlotIdx})
+
+        Axes = chART.sub_plot([], [6, numel(PlotIndexes)], [6, PlotIdx], [2, 1], false, ' ', PlotProps);
+        set(gca, 'Units', 'centimeters')
+        Axes.Position(2) = Axes.Position(2)-3.2;
+
+        chART.plot.pretty_colorbar('Linear', CLims, Legend, PlotProps);
+        axis off
+    end
+
+
 chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
+
+%%
+
+MeanTopo = Data;
+
+Topography = table();
+Topography.Labels = {Chanlocs.labels}';
+Topography.Iota = MeanTopo;
+
+disp(sortrows(Topography, 'Iota', 'descend'))
+
 
 
 %% Figure 8 hypnogram
