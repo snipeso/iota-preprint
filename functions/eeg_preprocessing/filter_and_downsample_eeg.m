@@ -4,7 +4,7 @@ function EEG = filter_and_downsample_eeg(EEG, Parameters)
 % EEG is an EEGLAB structure
 % Parameters should be a struct with fields: .fs, .lp, .hp, .hp_stopband, .line
 %
-% from iota-preprint, Sophia Snipes, 2024
+% from iota-neurophys, Sophia Snipes, 2024
 
 
 % set selected parameters

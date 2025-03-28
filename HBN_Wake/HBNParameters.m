@@ -26,8 +26,8 @@ Paths.Preprocessed = fullfile(Core, 'Preprocessed');
 Paths.Final = fullfile(Core, 'Final'); % where data gets saved once its been turned into something else
 Paths.Core = Core;
 Paths.Metadata = fullfile(Core, 'Metadata');
-Paths.Cache = fullfile(Core, 'Cache', 'iota-preprint');
-Paths.Results = fullfile(Core, 'Results', 'iota-preprint');
+Paths.Cache = fullfile(Core, 'Cache', 'iota-neurophys');
+Paths.Results = fullfile(Core, 'Results', 'iota-neurophys');
 
 if ~exist(Paths.Cache, 'dir')
     mkdir(Paths.Cache)

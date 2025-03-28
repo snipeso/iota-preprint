@@ -5,7 +5,7 @@ function [Slopes, Intercepts, Power, Freqs] = channel_slopes(EEG, Ranges, Dataty
 % which components are noise vs EEG. Ranges is an n x 2 matrix, that will
 % fit 
 %
-% From iota-preprint, by Snipes, 2024
+% From iota-neurophys, by Snipes, 2024
 
 Window = 4;
 

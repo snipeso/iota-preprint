@@ -1,6 +1,6 @@
 % Scripts to plot the topographies based on the individual iota peaks.
 %
-% From iota-preprint, Snipes, 2024.
+% From iota-neurophys, Snipes, 2024.
 
 clear
 clc

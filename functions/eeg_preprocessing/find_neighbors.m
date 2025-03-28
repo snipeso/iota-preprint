@@ -3,7 +3,7 @@ function Neighbors = find_neighbors(Chanlocs)
 % finds all the channels that are 2 times the median minimum distance of
 % each channel to the other.
 %
-% From iota-preprint, by Snipes, 2024
+% From iota-neurophys, by Snipes, 2024
 
 M = channel_distances([Chanlocs.X], [Chanlocs.Y], [Chanlocs.Z]);
 M(1:numel(Chanlocs)+1:numel(M)) = nan; % set diagonal to nan;

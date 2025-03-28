@@ -1,7 +1,7 @@
 % Calculates power and specparam properties on epochs of the EEG data.
 % Requires EEG and cutting information from manually selected artefact
 % epochs/channels.
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 
 clear
 clc

@@ -1,7 +1,7 @@
 % goes through folder structure, gets set/mat file, saves sleep scoring data.
 % This is saving data in the legacy format for "zurich sleep scoring"
 % software. Now, I recommend to use Sven Leach's "scoringhero".
-% from iota-preprint, Snipes, 2024 (originally much older).
+% from iota-neurophys, Snipes, 2024 (originally much older).
 
 clear
 clc

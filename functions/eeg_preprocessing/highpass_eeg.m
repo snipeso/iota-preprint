@@ -4,7 +4,7 @@ function EEG_filt = highpass_eeg(EEG, high_pass, hp_stopband)
 % special filter for high-pass filtering; done to have more control over
 % the stopband.
 %
-% from iota-preprint, Sophia Snipes, 2024
+% from iota-neurophys, Sophia Snipes, 2024
 
 fs = EEG.srate;
 StopAtten = 60;

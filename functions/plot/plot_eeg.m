@@ -3,7 +3,7 @@ function plot_eeg(Data, SampleRate, YGap, PlotProps)
 %
 % Plots eeg traces.
 %
-% From iota-preprint, Snipes, 2024.
+% From iota-neurophys, Snipes, 2024.
 
 Dims = size(Data);
 t = linspace(0, Dims(2)/SampleRate, Dims(2));

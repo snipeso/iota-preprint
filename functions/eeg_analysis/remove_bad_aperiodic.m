@@ -4,7 +4,7 @@ function CleanData = remove_bad_aperiodic(Data, Slopes, Intercepts, RangeSlopes,
 % RangeSlopes and RangeIntercepts are like so: [0 3]. MaxBadChannels is the
 % number of bad channels acceptable before the whole epoch is removed. 
 %
-% From iota-preprint, Snipes, 2024.
+% From iota-neurophys, Snipes, 2024.
 
 CleanData = oscip.remove_data_by_intercept(Data, Intercepts, RangeIntercepts(1), RangeIntercepts(2));
 CleanData = oscip.remove_data_by_slopes(CleanData, Slopes, RangeSlopes(1), RangeSlopes(2));

@@ -1,5 +1,5 @@
 % This script plots all the sleep related figures
-% iota-preprint, Snipes 2024
+% iota-neurophys, Snipes 2024
 
 clear
 clc

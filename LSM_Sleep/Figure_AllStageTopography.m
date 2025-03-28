@@ -1,6 +1,6 @@
 % This script plots the topographies from sleep
 %
-% iota-preprint, Snipes 2024
+% iota-neurophys, Snipes 2024
 
 clear
 clc

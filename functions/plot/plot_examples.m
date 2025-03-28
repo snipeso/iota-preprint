@@ -3,7 +3,7 @@ function plot_examples(EEG, Power, Topographies, IotaFrequencies, Participants, 
 %
 % Script to plot a lot of different things from the same recording
 %
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 
 %%% detect iota peak and determine custom range
 PeakDetectionSettings = oscip.default_settings();

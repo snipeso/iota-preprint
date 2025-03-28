@@ -1,6 +1,6 @@
 function EEG = FilterScoring(EEG)
 % takes an EEGLAB structure, and filters the EEG and EMG data separately.
-% from iota-preprint, Snipes 2024.
+% from iota-neurophys, Snipes 2024.
 
 %%% General filter parameters
 fs = EEG.srate;

@@ -1,6 +1,6 @@
 % plot example participant to show burstiness of iota.
 %
-% From iota-preprint, Snipes, 2024.
+% From iota-neurophys, Snipes, 2024.
 
 clear
 clc

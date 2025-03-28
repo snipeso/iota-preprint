@@ -1,6 +1,6 @@
 # Iota preprint
 
-The code in this repository was used to generate the data from the Snipes 2024 preprint *Iota oscillations (25-35 Hz) during wake and REM sleep in children and young adults*.
+The code in this repository was used to generate the data from the Snipes 2025 short report *Iota oscillations (25-35 Hz) during wake and REM sleep in children and young adults*.
 
 ## Key functions
 If you're here because you think I may have messed up, I explained something poorly, or you want to try it for yourself, here are the key functions in the pipeline that produced the paper:

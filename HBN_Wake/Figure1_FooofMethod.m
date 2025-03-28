@@ -1,7 +1,7 @@
 % this is just the basic code to plot the example data in Figure1 of the
 % iota preprint.
 %
-% iota-preprint, Snipes, 2024.
+% iota-neurophys, Snipes, 2024.
 
 clear
 clc

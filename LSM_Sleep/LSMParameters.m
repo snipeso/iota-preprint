@@ -1,7 +1,7 @@
 function Parameters = LSMParameters()
 % This is where I save all the parameters and variables used throughout the
 % the code for analyzing the sleep LSM dataset.
-% for iota-preprint, Snipes, 2024.
+% for iota-neurophys, Snipes, 2024.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,9 +39,9 @@ for Indx = 1:numel(Content)
 end
 
 
-Paths.Cache =  fullfile(PrepCore, 'Cache', 'iota-preprint');
+Paths.Cache =  fullfile(PrepCore, 'Cache', 'iota-neurophys');
 Paths.Final = fullfile(PrepCore, 'Final'); % where data gets saved once its been turned into something else
-Paths.Results = fullfile(PrepCore, 'Results', 'iota-preprint');
+Paths.Results = fullfile(PrepCore, 'Results', 'iota-neurophys');
 
 Parameters.Paths = Paths;
 

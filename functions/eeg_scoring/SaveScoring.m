@@ -7,7 +7,7 @@ function SaveScoring(Destination, FolderName, FileName, ScoringData, sp1, sp2)
 % row 6&7: C3,4
 % row 8&9: O1,2
 % if you have different inputs, you'll need to change the header template.
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 
 % limit filename size
 if length(FileName) > 15 % there is a limit to the size of the filename, I'm just guessing that 15 characters is ok

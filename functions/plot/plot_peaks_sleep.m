@@ -1,7 +1,7 @@
 function plot_peaks_sleep(PeriodicPeaks, Scoring, PlotProps, Slopes)
 % PeriodicPeaks is either a P x T x 3 matrix, or a Ch x T x 3 matrix
 % Scoring is a 1 x T matrix or a P x T matrix
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 
 
 

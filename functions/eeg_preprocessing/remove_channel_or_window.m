@@ -6,7 +6,7 @@ function BadSegments = remove_channel_or_window(BadSegments, Threshold)
 % Threshold is the proportion of bad segments that are acceptable before
 % the channel or epoch is removed (from 0 to 1).
 %
-% From iota-preprint, Snipes, 2024.
+% From iota-neurophys, Snipes, 2024.
 
 BadSegments = double(BadSegments);
 [nCh, nWin] = size(BadSegments);

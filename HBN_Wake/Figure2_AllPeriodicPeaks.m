@@ -1,6 +1,6 @@
 % plots the distribution of periodic peaks in the whole HBN dataset.
 %
-% From iota-preprint, Snipes, 2024.
+% From iota-neurophys, Snipes, 2024.
 
 clear
 clc

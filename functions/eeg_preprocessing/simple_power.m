@@ -5,7 +5,7 @@ function [Power, Freqs] = simple_power(Data, SampleRate, WindowLength, Overlap)
 % e.g.:  [Power, Frequencies] = compute_power(Data, fs, 4, 0.5);
 % Power is a Channel x Frequency matrix.
 %
-% from iota-preprint, Snipes, 2024
+% from iota-neurophys, Snipes, 2024
 arguments
     Data
     SampleRate (1, 1) {mustBePositive}

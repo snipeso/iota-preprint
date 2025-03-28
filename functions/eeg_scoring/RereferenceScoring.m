@@ -1,7 +1,7 @@
 function Scoring = RereferenceScoring(EEGdata)
 % takes in: F3, F4, C3, C4, O1, O2, M1, M2, EOG1L, EOG1R, EOG2L, EOG2R, EMG
 % spits out: EMG, EOG1, EOG2, F3, F4, C3, C4, O1, O2
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 
 % re-reference each channel to contralateral mastoid (except EOG and EMG)
 % index info of the original channel vector:

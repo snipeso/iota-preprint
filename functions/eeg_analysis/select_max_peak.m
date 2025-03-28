@@ -3,7 +3,7 @@ function MaxPeak = select_max_peak(Table, FrequencyRange, BandwidthRange)
 %
 % selects a single peak within a given band.
 %
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 
 if isempty(Table)
     MaxPeak = [];

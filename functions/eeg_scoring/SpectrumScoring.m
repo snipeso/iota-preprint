@@ -2,7 +2,7 @@ function [Delta, VI30] = SpectrumScoring(Data, srate)
 %%% Code taken from Sven Leach and Elena Krugliakova. Calculates delta
 %%% power across the night, and also this magic Vigilence Index that is
 %%% helpful. 
-%%% from iota-preprint, Snipes, 2024.
+%%% from iota-neurophys, Snipes, 2024.
 
 % number of 4s epochs in the data
 pnts = size(Data, 2);
@@ -61,8 +61,8 @@ close(wb)
 % https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5455770/?fbclid=IwAR22XbpTGq2LsOiQGeNwZujvLiZ_aNGvFPwn65iAClTAn5yUgtMjFYQiPbg
 % VI = [delta power norm + 2*spindle power norm] / ...
 %      [alpha power norm + high-beta power norm]
-% Frequency ranges used were delta (1–4 Hz),  spindle (11–16Hz), 
-%                            alpha (8–13 Hz), high-beta (20–40 Hz)   
+% Frequency ranges used were delta (1ï¿½4 Hz),  spindle (11ï¿½16Hz), 
+%                            alpha (8ï¿½13 Hz), high-beta (20ï¿½40 Hz)   
 
 VI = (sp2(1,:)./median(sp2(1,:))  +  sp2(2,:)./median(sp2(2,:)).*2) ./ ...
          (sp2(3,:)./median(sp2(3,:))  +  sp2(4,:)./median(sp2(4,:)));     

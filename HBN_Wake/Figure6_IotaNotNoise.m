@@ -1,6 +1,6 @@
 % plots and analyses to exclude that iota is just noise.
 %
-% From iota-preprint, Snipes, 2024.
+% From iota-neurophys, Snipes, 2024.
 
 clear
 clc

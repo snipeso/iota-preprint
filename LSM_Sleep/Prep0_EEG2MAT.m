@@ -1,5 +1,5 @@
 % first script is for converting eeg files so there's a .mat with the data.
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 
 close all
 clear

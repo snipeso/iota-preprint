@@ -5,7 +5,7 @@ function Slopes = ica_slopes(EEG, Range)
 % which components are noise vs EEG. Ranges is a 1 x 2 matrix that
 % indicates which range to fit the aperiodic slope
 %
-% From iota-preprint, by Snipes, 2024
+% From iota-neurophys, by Snipes, 2024
 
 Window = 4; % in seconds
 SmoothFactor = 5; % in Hz

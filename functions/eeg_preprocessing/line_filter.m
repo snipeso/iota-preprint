@@ -3,7 +3,7 @@ function EEG_filt = line_filter(EEG, linefs, showFiltPlots)
 %
 % Removes line noise, and harmonics
 %
-% from iota-preprint, Sophia Snipes, 2024
+% from iota-neurophys, Sophia Snipes, 2024
 
 EEG_filt = EEG;
 fs = EEG.srate; % Sampling Frequency (Hz)

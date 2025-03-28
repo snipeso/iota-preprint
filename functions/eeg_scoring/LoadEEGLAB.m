@@ -1,7 +1,7 @@
 function EEG = LoadEEGLAB(Path, Channels)
 % Loads eeglab ".set" file (or mat file), and selects the requested channels. Assumes only
 % one file is in provided folder.
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 
 EEG = []; % blank in case things go wrong
 

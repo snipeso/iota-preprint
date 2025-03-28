@@ -1,5 +1,5 @@
 % filters sleep data for analysis. Saves all together in one folder.
-% from iota-preprint, Snipes, 2024.
+% from iota-neurophys, Snipes, 2024.
 clear
 clc
 close all
