@@ -1,7 +1,7 @@
 % Removes bad components in EEG automatically, based on ICLabel's
 % classification.
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 close all
 clc

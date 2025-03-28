@@ -20,7 +20,7 @@ function [BadSegments, BadCh, BadWindows_t, Starts, Ends] = ...
 % BadWindows_t is a vector the length of the data to indicate which are bad
 % timepoints
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 if ~exist("AmplitudeThreshold", 'var')
     AmplitudeThreshold = 500; % maximum microvolts before give up entirely on the channel/window
@@ -61,7 +61,7 @@ for Indx_S = 1:numel(Starts)
     % get segment of data
     Data = EEG.data(:, Starts(Indx_S):Ends(Indx_S));
 
-    % Later, I realzied the following would be good to do. It's not used in the data for the preprint, but I will use it later
+    % Later, I realized the following would be good to do. It's not used in the data for the iota paper, but I will use it later
     
     %%% identify how many unique correlations there are (rounding to 3 decimal points)
     % The logic: when the data is physiological, there shouldn't be

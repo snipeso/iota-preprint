@@ -3,7 +3,7 @@ function Indexes = labels2indexes(Labels, Chanlocs)
 %
 % function for converting from labels to indexes.
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 
 Labels = string(Labels);

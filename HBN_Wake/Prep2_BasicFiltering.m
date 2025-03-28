@@ -1,6 +1,6 @@
 % saves and filters EEG data
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 close all
 clear
@@ -10,26 +10,31 @@ clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Parameters
 
-P = HBNParameters();
-PrepParameters = P.Parameters; % parameters for filtering and downsampling. There are multiple, because different for ICA
-LineNoise = P.LineNoise;
-Task = P.Tasks{1};
-MinTime = P.MinTime;
-Paths = P.Paths;
+GeneralParameters = HBNParameters();
+PrepParameters = GeneralParameters.Parameters; % parameters for filtering and downsampling. There are multiple, because different for ICA
+LineNoise = GeneralParameters.LineNoise;
+Task = GeneralParameters.Tasks{1};
+MinTime = GeneralParameters.MinTime;
+Paths = GeneralParameters.Paths;
 
 Source = fullfile(Paths.Datasets, 'EEG');
 Destination = fullfile(Paths.Preprocessed);
-Refresh = false;
+Refresh = true;
 
-Destination_Formats = {'Unfiltered', 'Power'}; % chooses which filtering to do
+Destination_Formats = {'Unfiltered', 'Power', 'ICA'}; % chooses which filtering to do
 
-Participants = string(deblank(ls(Source)));
-Participants(contains(Participants, '.')) = [];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Run
+
+
+Participants = list_filenames(Source);
+Participants(contains(Participants, '.')) = []; % exclude any files
 
 load('StandardChanlocs128.mat', 'StandardChanlocs')
 
 % parfor ParticipantIdx = 1:numel(Participants) % loop through participants 
-    for ParticipantIdx = 1:numel(Participants) % doesnt seem to need parfor if theres no filtering happening
+    for ParticipantIdx = 1:numel(Participants) % doesn't seem to need parfor if theres no filtering happening
 
     AllParams = PrepParameters; % in here to reduce overhead when running parallel loop
     AllParticipants = Participants;
@@ -55,6 +60,8 @@ load('StandardChanlocs128.mat', 'StandardChanlocs')
         EEG.chanlocs = StandardChanlocs; % 128 channel locations
         EEG.nbchan = 128;
         EEG.ref = 'Cz';
+        
+        % check if data is ok
         if size(EEG.data, 2) < 100 % seperate from below, because it's hypothetically possible that there's something wrong with srate
             warning([Participant 'doesnt have enough data'])
         elseif  size(EEG.data, 2) < MinTime*EEG.srate
@@ -66,8 +73,9 @@ load('StandardChanlocs128.mat', 'StandardChanlocs')
         RawEEG = EEG; % set aside, so that each destination format can be saved as "EEG"
 
         for Indx_DF = 1:numel(Destination_Formats)
-            Destination_Format = Destination_Formats{Indx_DF};
 
+            % set up preprocessing parameters
+            Destination_Format = Destination_Formats{Indx_DF};
             Parameters = AllParams.(Destination_Format);
             Parameters.line = LineNoise;
 

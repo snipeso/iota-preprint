@@ -2,7 +2,12 @@ function EEG = filter_and_downsample_eeg(EEG, Parameters)
 % EEG = filter_and_downsample_eeg(EEG, Parameters)
 %
 % EEG is an EEGLAB structure
-% Parameters should be a struct with fields: .fs, .lp, .hp, .hp_stopband, .line
+% Parameters should be a struct with fields: 
+%  - .fs (sample rate)
+%  - .lp (low pass filter limit)
+%  - .hp (high pass filter limit)
+%  - .hp_stopband 
+%  - .line (frequency of line noise
 %
 % from iota-neurophys, Sophia Snipes, 2024
 
@@ -47,8 +52,7 @@ end
 
 function EEG = center_eeg(EEG)
 
-% for data with major DC shifts, this moves all the traces to be centered
-% to their mean, so that the high-pass filter struggles less.
+% for data with major DC shifts
 
 Means = mean(EEG.data, 2);
 EEG.data = EEG.data - Means;

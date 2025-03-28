@@ -21,7 +21,6 @@ writetable(Metadata, fullfile(Destination, 'MetadataHBN.csv'))
 save(fullfile(Destination, 'MetadataHBN.mat'), 'Metadata')
 
 
-
 %% assign metadata extra information
 
 Destination = 'E:\Metadata';

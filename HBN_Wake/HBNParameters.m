@@ -1,10 +1,11 @@
 function Parameters = HBNParameters()
 % Here is located all the common variables, paths, and parameters that get
-% repeatedly called by more than one preprocessing script.
+% repeatedly called by more than one script.
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 Parameters.Tasks = {'RestingState'}; % the dataset has other tasks, so I left the option open to do more than one
+Parameters.LineNoise = 60; % Hz
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Locations
@@ -36,10 +37,11 @@ end
 Parameters.Paths = Paths;
 
 % add location of subfunctions
-addpath(fullfile(Paths.Analysis, 'functions', 'general'))
+addpath(fullfile(Paths.Analysis, 'functions', 'general')) % needed for "list_filenames"
 Subfunctions = list_filenames(fullfile(Paths.Analysis, 'functions'));
+
 for Indx_F = 1:numel(Subfunctions)
-    addpath(fullfile(Paths.Analysis, 'functions',Subfunctions{Indx_F}))
+    addpath(fullfile(Paths.Analysis, 'functions', Subfunctions{Indx_F}))
 end
 
 % if eeglab has not run, run it so all the subdirectories get added
@@ -56,7 +58,6 @@ end
 %%% EEG channels
 EEG_Channels = struct();
 EEG_Channels.notEEG = [49, 56, 107, 113, 126, 127];
-EEG_Channels.notSourceLoc = [EEG_Channels.notEEG, 48, 119, 17];
 EEG_Channels.Edge = [1 8 14 17 21 25 32 128 38 44 43 48 63 68 73 81 88 94 99 120 119 114 121 125];
 EEG_Channels.NotEdge = 1:128;
 EEG_Channels.NotEdge(EEG_Channels.Edge) = [];
@@ -64,9 +65,8 @@ EEG_Channels.Standard_10_20 = [11 22 9 24 124 33 122 129 36 104 45 108 62 52 92 
 
 Parameters.Channels = EEG_Channels;
 
-%%% Filtering & downsampling
 
-Parameters.LineNoise = 60; % Hz
+%%% Filtering & downsampling
 
 % Power: starting data for properly cleaned wake data
 PreprocessingParameters.Power.fs = 250; % new sampling rate

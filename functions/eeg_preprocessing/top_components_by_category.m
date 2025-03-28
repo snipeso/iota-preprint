@@ -4,7 +4,7 @@ function Top = top_components_by_category(Components, Spread)
 % function to identify the components that are definitely a given category,
 % based on it being Spread times more than the next highest component
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 
 nComponents = size(Components, 1);

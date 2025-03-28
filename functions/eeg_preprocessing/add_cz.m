@@ -1,7 +1,7 @@
 function EEG = add_cz(EEG)
 % adds an empty channel for Cz
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 if any(strcmpi({EEG.chanlocs.labels}, 'CZ'))
     return

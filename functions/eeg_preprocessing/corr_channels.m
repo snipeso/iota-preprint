@@ -9,7 +9,7 @@ function R = corr_channels(Data, Chanlocs, ChannelTypes)
 %   - 'NotNeighbor': Only non-neighboring channels
 %   otherwise all
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 
 if numel(Chanlocs)==129
