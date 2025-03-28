@@ -1,6 +1,6 @@
 % script to calculate ICA components used to clean data.
 %
-% From iota-preprocessing by Sophia Snipes, 2024
+% From iota-neurophys by Sophia Snipes, 2024
 
 close all
 clc
@@ -17,7 +17,7 @@ EEG_Channels = P.Channels;
 
 MinNeighborCorrelation = .3;
 ChopEdge = 2; % in seconds, cut off these many seconds at the beginning and end of recordings
-WindowLength = 3; % in seconds
+WindowLength = 3; % window of artifacts, in seconds
 MinDataKeep = .15; % proportion of noise in data as either channel or segment, above which the channel/segment is tossed
 MinChannels = P.MinChannels; % maximum number of channels that can be removed
 MinTime = P.MinTime; % ninimum file duration in seconds
@@ -26,14 +26,16 @@ MaxPorportionUniqueCorr = .02; % the minimum number of unique correlation values
 
 Refresh = true;
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Run
 
 Source_All = fullfile(Paths.Preprocessed, 'ICA', 'MAT');
 Destination_All = fullfile(Paths.Preprocessed, 'ICA', 'Components');
 
-
-
 for Indx_T = 1:numel(Tasks)
+    
+    % set paths
     Task = Tasks{Indx_T};
 
     Source = fullfile(Source_All, Task);
@@ -66,16 +68,17 @@ for Indx_T = 1:numel(Tasks)
             end
 
             Channels = EEG_Channels;
+            EEG.data = double(EEG.data); % ICA only takes doubles
 
-            % convert to double
-            EEG.data = double(EEG.data);
-
-            % remove bad channels and really bad timepoints
+            % identify bad channels and really bad timepoints
             [~, BadChannels, BadWindows_t] = find_bad_segments(EEG, WindowLength, MinNeighborCorrelation, ...
                 MaxPorportionUniqueCorr, Channels.notEEG, true, MinDataKeep, CorrelationFrequencyRange);
 
+            % remove edges of the recording
             BadWindows_t(1:ChopEdge*EEG.srate) = 1;
             BadWindows_t(end-ChopEdge*EEG.srate:end) = 1;
+            
+            % remove artifacts
             EEG.data(:, BadWindows_t) = [];
             EEG.pnts = size(EEG.data, 2);
             EEG = eeg_checkset(EEG);
@@ -128,18 +131,9 @@ for Indx_T = 1:numel(Tasks)
             % rereference to average
             EEG = pop_reref(EEG, []);
 
-            % run ICA (takes a while)
-            Rank = sum(eig(cov(double(EEG.data'))) > 1E-7);
-            if Rank ~= size(EEG.data, 1)
-                warning(['Applying PCA reduction for ', File])
-            end
-
-            % calculate components
-            EEG = pop_runica(EEG, 'runica', 'pca', Rank);
-
-            % classify components
-            EEG = iclabel(EEG);
-
+            % run ICA
+            EEG = eeglab_ica(EEG);
+           
             parsave(fullfile(Destination, File), EEG)
         catch
             warning(['Skipping ', File])
