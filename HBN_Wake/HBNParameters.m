@@ -98,3 +98,17 @@ Parameters.MinChannels = 25; % minimum number of channels after preprocessing
 %%% Plotting parameters
 
 Parameters.PlotProps.Manuscript = chART.load_plot_properties({ 'Manuscript', 'Iota'});
+
+
+%%% cycle-by-cycle parameters
+CriteriaSet = struct();
+
+CriteriaSet.MonotonicityInAmplitude = 0.9;
+CriteriaSet.AmplitudeConsistency = .3; % left and right cycles should be of similar amplitude
+CriteriaSet.isTruePeak = 1;
+CriteriaSet.isProminent = 1;
+CriteriaSet.MinCyclesPerBurst = 4;
+CriteriaSet.ShapeConsistency = .4;
+CriteriaSet.FlankConsistency = .4;
+
+Parameters.CriteriaSet = CriteriaSet;

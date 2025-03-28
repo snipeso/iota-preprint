@@ -289,7 +289,7 @@ plot_eeg(EEGSnippet.data, EEG.srate, YGap, PlotProps)
 
 
 % bursts
-FrequencyRange = Bands.Iota;
+FrequencyRange = Bands.Iota; % TODO: make custom
 plot_burst_mask(EEGSnippet, FrequencyRange, CriteriaSet, YGap, PlotProps)
 B3Axes = gca;
 B3Axes.Units = B1Axis.Units;
