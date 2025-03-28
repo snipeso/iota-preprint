@@ -10,7 +10,7 @@ function EEG = eeglab_ica(EEG)
 % run ICA (takes a while)
 Rank = sum(eig(cov(double(EEG.data'))) > 1E-7);
 if Rank ~= size(EEG.data, 1)
-    warning(['Applying PCA reduction for ', File])
+    warning('Applying PCA reduction')
 end
 
 % calculate components
