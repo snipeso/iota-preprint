@@ -131,6 +131,20 @@ Channels.Standard_10_20 = [11 22 9 24 124 33 122 129 36 104 45 108 62 52 92 58 9
 Parameters.Channels = Channels;
 
 
+%%% cycle-by-cycle parameters
+CriteriaSet = struct();
+
+CriteriaSet.MonotonicityInAmplitude = 0.9;
+CriteriaSet.AmplitudeConsistency = .3; % left and right cycles should be of similar amplitude
+CriteriaSet.isTruePeak = 1;
+CriteriaSet.isProminent = 1;
+CriteriaSet.MinCyclesPerBurst = 4;
+CriteriaSet.ShapeConsistency = .4;
+CriteriaSet.FlankConsistency = .4;
+
+Parameters.CriteriaSet = CriteriaSet;
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Plotting information
 

@@ -1,24 +1,15 @@
-function plot_burst_mask(EEG, Range, YGap, PlotProps)
+function plot_burst_mask(EEG, BandRange, CriteriaSet, YGap, PlotProps)
 
 SampleRate = EEG.srate;
-CriteriaSet = struct();
-
-CriteriaSet.MonotonicityInAmplitude = 0.9;
-CriteriaSet.AmplitudeConsistency = .3; % left and right cycles should be of similar amplitude
-CriteriaSet.isTruePeak = 1;
-CriteriaSet.isProminent = 1;
-CriteriaSet.MinCyclesPerBurst = 4;
-CriteriaSet.ShapeConsistency = .4;
-CriteriaSet.FlankConsistency = .4;
 
 
-DataNarrowband = cycy.utils.highpass_filter(EEG.data, SampleRate, Range(1)); % if you want, you can specify other aspects of the filter; see function
-DataNarrowband = cycy.utils.lowpass_filter(DataNarrowband, SampleRate, Range(2));
+DataNarrowband = cycy.utils.highpass_filter(EEG.data, SampleRate, BandRange(1)); % if you want, you can specify other aspects of the filter; see function
+DataNarrowband = cycy.utils.lowpass_filter(DataNarrowband, SampleRate, BandRange(2));
 EEGNarrowband = EEG;
 EEGNarrowband.data = DataNarrowband;
 
 Band1 = struct();
-Band1.Iota = Range;
+Band1.Iota = BandRange;
 
 Bursts = cycy.detect_bursts_all_channels(EEG, EEGNarrowband, Band1, ...
     CriteriaSet, true);

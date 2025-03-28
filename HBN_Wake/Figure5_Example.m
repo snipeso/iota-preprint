@@ -12,6 +12,7 @@ close all
 Parameters = HBNParameters();
 Paths = Parameters.Paths;
 PlotProps = Parameters.PlotProps.Manuscript;
+CriteriaSet = Parameters.CriteriaSet;
 
 % paths
 CacheDir = Paths.Cache;
@@ -62,5 +63,5 @@ end
 %%% plot
 Title = [num2str(round(Info.Age, 1)), ' year old ' Sex, ' (', Participant, ')'];
 plot_example(EEG, Power, Frequencies, Chanlocs, Parameters.Channels.Standard_10_20,...
-    PeriodicPeaks, TimeRange, Title, Parameters.PlotProps.Manuscript)
+    PeriodicPeaks, TimeRange, CriteriaSet, Title, Parameters.PlotProps.Manuscript)
 chART.save_figure(['Example_', Participant], ResultsFolder, PlotProps)

@@ -1,4 +1,4 @@
-function plot_example(EEG, Power, Freqs, Chanlocs, Channels, PeriodicPeaks, TimeRange, Title, PlotProps)
+function plot_example(EEG, Power, Freqs, Chanlocs, Channels, PeriodicPeaks, TimeRange, CriteriaSet, Title, PlotProps)
 %  plot_example(EEG, Power, Freqs, Chanlocs, Channels, PeriodicPeaks, TimeRange, Title, PlotProps)
 %
 % Script to plot a lot of different things from the same recording
@@ -69,7 +69,7 @@ plot_eeg(Snippet, SampleRate, YGap, PlotProps)
 % plot highlight sections where there's a lot more iota
 EEGSnippet = EEG;
 EEGSnippet.data = Snippet;
-plot_burst_mask(EEGSnippet, IotaRange, YGap, PlotProps)
+plot_burst_mask(EEGSnippet, IotaRange, CriteriaSet, YGap, PlotProps)
 set(gca, 'TickLength', [.005 0])
 Axes.Position(2) = Axes.Position(2)+.01;
 

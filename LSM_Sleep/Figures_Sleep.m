@@ -10,6 +10,7 @@ close all
 
 Parameters = LSMParameters();
 Paths = Parameters.Paths;
+CriteriaSet = Parameters.CriteriaSet;
 
 Channels = Parameters.Channels.NotEdge;
 Task = Parameters.Task;
@@ -289,7 +290,7 @@ plot_eeg(EEGSnippet.data, EEG.srate, YGap, PlotProps)
 
 % bursts
 FrequencyRange = Bands.Iota;
-plot_burst_mask(EEGSnippet, FrequencyRange, YGap, PlotProps)
+plot_burst_mask(EEGSnippet, FrequencyRange, CriteriaSet, YGap, PlotProps)
 B3Axes = gca;
 B3Axes.Units = B1Axis.Units;
 B3Axes.Position(3) = Width;
