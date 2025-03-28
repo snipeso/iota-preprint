@@ -169,7 +169,20 @@ for PlotIdx = 1:numel(PlotIndexes)
 
 chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
-%%
+%% poster iota
+
+PlotProps.External.EEGLAB.TopoRes = 500;
+ PlotProps.Text.AxisSize = 12;
+ Data = squeeze(mean(PeriodicTopographies(:, 5, 5, :), 1, 'omitnan'));
+ CLims = quantile(Data, [0 1]);
+
+figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width/2 PlotProps.Figure.Width/3.5])
+  chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, 'Log power', 'Linear', PlotProps);
+Results = 'D:\Dropbox\Research\Publications and Presentations\Sleep\Conferences\25-04 inTrace Parma';
+chART.save_figure('sleeptopo', Results, PlotProps)
+
+%% 
+
 
 MeanTopo = Data;
 
