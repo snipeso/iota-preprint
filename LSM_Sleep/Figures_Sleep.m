@@ -206,7 +206,7 @@ Time = Time/60/60; % convert time to hours
 
 figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width*1.1 PlotProps.Figure.Height])
 
-Grid = [6 1];
+Grid = [7 1];
 MeanPower = squeeze(mean(PeriodicPower(labels2indexes(Channels, Chanlocs), :, :), 1, 'omitnan'));
 SmoothMeanPower = smooth_frequencies(MeanPower, FooofFrequencies, 4)';
 
@@ -256,9 +256,22 @@ B2Axes.Units = B1Axis.Units;
 B2Axes.Position(3) = Width;
 
 
+%%% C: REM bout
+CacheName = [ExampleParticipant, '_BurstsOneREM.mat'];
+load(fullfile(CacheDir, CacheName), 'Bursts', 'EEGSnippet', 'BurstClusters')
+EOG2 =  EEGSnippet.data(32, :)-EEGSnippet.data(125, :);
+
+rms_per_channel = sqrt(EOG2.^2);
+t = linspace(0, size(EEGSnippet.data, 2)/EEGSnippet.srate, size(EEGSnippet.data, 2));
+chART.sub_plot([], Grid, [4, 1], [1 1], true, 'C', PlotProps);
+
+scatter([Bursts.Start]/EEGSnippet.srate/60, [Bursts.ChannelIndex], [Bursts.MeanAmplitude]*5, 'filled', 'MarkerFaceAlpha', .1, 'MarkerFaceColor', PlotProps.Color.Maps.Linear(128, :))
+hold on
+plot(t/60, mat2gray(smooth(rms_per_channel, 1000))*129, 'LineWidth', 2, 'color', [0 0 0])
+axis tight
 
 
-%%% example REM sleep
+%%% D: example REM time
 
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
 load(fullfile(CacheDir, CacheName), 'Bands')
@@ -284,7 +297,7 @@ YGap = 20;
 
 
 % basic EEG
-chART.sub_plot([], Grid, [6, 1], [3 1], true, 'C', PlotProps);
+chART.sub_plot([], Grid, [7, 1], [3 1], true, 'C', PlotProps);
 plot_eeg(EEGSnippet.data, EEG.srate, YGap, PlotProps)
 
 
