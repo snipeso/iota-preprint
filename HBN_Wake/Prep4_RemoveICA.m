@@ -126,7 +126,8 @@ for Indx_T = 1:numel(Tasks)
             % assign one category to each component
             Top = top_components_by_category(Components, Spread);
 
-            % identify slope in beta-gamma range
+            % identify slope in beta-gamma range to identify muscle
+            % components
             Slopes = ica_slopes(EEG, SlopeRange);
 
             % if anything classified as noise or other that has a flat
@@ -155,6 +156,7 @@ for Indx_T = 1:numel(Tasks)
             badcomps = find(EEG.reject.gcompreject); % get indexes of selected components
             NewEEG = pop_subcomp(NewEEG, badcomps);
 
+            % remove channels that are still bad, and still bad timepoints
             [~, BadCh, BadWindows_t] = ...
                 find_bad_segments(NewEEG, WindowLength, -inf, MaxPorportionUniqueCorr, EEG_Channels.notEEG, false, MinDataKeep, CorrelationFrequencyRange, MaxAmplitude); % mine; just a quick check
 

@@ -66,7 +66,7 @@ Artefacts were marked in a channel x epoch matrix called `artndxn` (also saved i
 Wake scripts are in [HBN_Wake/](./HBN_Wake/)
 
 1. Adjust paths in HBNParameters.m. Add toolbox paths to MATLAB if you haven't already.
-2. Run preprocessing scripts Prep1 to Prep4
+2. Run preprocessing scripts Prep1 to Prep4. "parfor" loop lines are currently commented out; undo if you want to run it fast
 3. Run the analysis scripts Analysis1 to Analysis2
 4. Run the plotting scripts
 

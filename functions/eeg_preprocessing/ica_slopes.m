@@ -18,7 +18,7 @@ ICA = eeg_getdatact(EEG, 'component', 1:size(EEG.icaweights,1));
 
 % smooth it so fooof doesnt have a hard time
 Power = smooth_frequencies(Power, Freqs, SmoothFactor);
-Power(Power<=0) = min(Power(Power>0));
+Power(Power<=0) = min(Power(Power>0)); % make sure all values are positive; sometimes smoothing makes the spectrum dip below 0 a little bit
 
 
 % run fooof on components
@@ -33,6 +33,3 @@ for Indx_Ch = 1:nChannels
         warning('fooof didnt fit!')
     end
 end
-
-
-

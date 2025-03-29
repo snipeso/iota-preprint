@@ -1,9 +1,9 @@
 function sData = smooth_frequencies(Data, Frequencies, SmoothSpan)
 % smooth_frequencies(Data, Freqs, FreqDim, SmoothSpan)
 % function for smoothing data by "smoothSpan".
-% horrible mess, to fix once I figure out how
-% dimention to smooth has to be last
-% for Lapse-Causes
+% horrible mess to deal with different dimensions.
+%
+% for iota-neurophys, Snipes, 2024.
 
 Dims = size(Data);
 
