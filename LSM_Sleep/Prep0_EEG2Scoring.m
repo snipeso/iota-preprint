@@ -93,7 +93,7 @@ for Indx_D = 1:size(Folders.Datasets,1) % loop through participants
         %%% process the data
         
         % load file
-        EEGunf = LoadEEGLAB(Path, Sleep_Channels()); % loads a .set, selects relevant channels
+        EEGunf = load_eeglab_file_for_sleep(Path, Sleep_Channels()); % loads a .set, selects relevant channels
         
         % filter and downsample the data
         EEG = FilterScoring(EEGunf);

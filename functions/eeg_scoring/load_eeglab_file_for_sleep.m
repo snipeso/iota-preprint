@@ -1,4 +1,4 @@
-function EEG = LoadEEGLAB(Path, Channels)
+function EEG = load_eeglab_file_for_sleep(Path, Channels)
 % Loads eeglab ".set" file (or mat file), and selects the requested channels. Assumes only
 % one file is in provided folder.
 % from iota-neurophys, Snipes, 2024.
