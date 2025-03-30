@@ -65,6 +65,18 @@ EEG_Channels.Standard_10_20 = [11 22 9 24 124 33 122 129 36 104 45 108 62 52 92 
 
 Parameters.Channels = EEG_Channels;
 
+%%% spectral bands % NB: these are slightly different from the wake ones,
+%%% but it doesn't matter since the analysis of different topographies by
+%%% bands was removed for space.
+
+Bands = struct();
+Bands.Theta = [4 7];
+Bands.Alpha = [8 13];
+Bands.LowBeta = [14 17];
+Bands.HighBeta = [18 25];
+Bands.Iota = [25 35];
+Bands.Gamma = [35 48];
+Parameters.Bands = Bands;
 
 %%% Filtering & downsampling
 

@@ -1,5 +1,5 @@
-% runs fooof on all wake recordings, and gets basic numbers that allow
-% comparisons. updates metadata table, and creates big table of all
+% runs fooof on all wake recordings, and gets power values that allow quick
+% comparisons. Updates metadata table, and creates big table of all
 % detected peaks.
 
 clear
@@ -12,19 +12,14 @@ close all
 Parameters = HBNParameters();
 Paths = Parameters.Paths;
 Channels = Parameters.Channels;
+Bands = Parameters.Bands;
 Task = Parameters.Tasks{1};
 
-Bands = struct();
-Bands.Theta = [4 7];
-Bands.Alpha = [8 13];
-Bands.LowBeta = [14 17];
-Bands.HighBeta = [18 25];
-Bands.Iota = [25 35];
-Bands.Gamma = [35 48];
 BandLabels = fieldnames(Bands);
 nBands = numel(BandLabels);
 
-BandwidthRange = [.5 4];
+% fooof parameters
+BandwidthRange = [.5 4]; % min max bandwidth to identify iota peak
 
 FittingFrequencyRange = [3 50];
 NoiseSmoothSpan = 5;
