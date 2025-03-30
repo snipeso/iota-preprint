@@ -33,7 +33,6 @@ ScatterSizeScaling = 10;
 Alpha = .05;
 
 Refresh = false;
-NotEdge = Channels.NotEdge;
 
 % locations
 SourcePath = fullfile(Paths.Preprocessed, Format, 'Clean', Task);
@@ -89,8 +88,6 @@ for FileIdx = 1:numel(Files)
     % run FOOOF
     [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] ...
         = oscip.fit_fooof_multidimentional(SmoothPower, Frequencies, FittingFrequencyRange, MaxError, MinRSquared);
-
-
 
     save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'BadSegments',  'Artefacts', 'Time', 'Chanlocs', ...
         'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...

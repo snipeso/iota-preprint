@@ -26,7 +26,7 @@ SourceScoring =  fullfile(Paths.Core, 'Outliers', Task);
 SourceEEG = fullfile(Paths.Preprocessed, Format, 'MAT', Task);
 Files = list_filenames(SourceEEG);
 
-Destination = fullfile(Paths.Preprocessed,  Format, 'Clean2', Task);
+Destination = fullfile(Paths.Preprocessed,  Format, 'Clean', Task);
 
 if ~exist(Destination, 'dir')
     mkdir(Destination)
@@ -94,6 +94,5 @@ for FileIdx = 1:numel(Files)
     save(fullfile(Destination, File), 'EEG', 'Artefacts', 'BadSegments', 'Scoring', 'ScoringLabels', 'ScoringIndexes', '-v7.3')
     disp(['Finished ', File])
 end
-
 
 
