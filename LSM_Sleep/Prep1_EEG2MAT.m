@@ -1,4 +1,4 @@
-% first script is for converting eeg files so there's a .mat with the data.
+% Script is for converting eeg files so there's a .mat with the data.
 % from iota-neurophys, Snipes, 2024.
 
 close all

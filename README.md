@@ -73,13 +73,13 @@ Wake scripts are in [HBN_Wake/](./HBN_Wake/)
 1. Adjust paths in HBNParameters.m. Add toolbox paths to MATLAB if you haven't already.
 2. Run preprocessing scripts Prep1 to Prep4. "parfor" loop lines are currently commented out; undo if you want to run it fast
 3. Run the analysis scripts Analysis1 to Analysis2
-4. Run the plotting scripts
+4. Run the results scripts
 
 ### Sleep
 Sleep scripts are in [LSM_Sleep/](./LSM_Sleep/)
 
 1. Adjust paths in LSMParameters.m
-2. Run Prep0-Prep1.
+2. Run Prep1-Prep4.
 3. Conduct sleep scoring (manually)
 4. Using [Hd-SleepCleaner](https://github.com/snipeso/Hd-SleepCleaner/), identify artefact epochs. This saves a file with artndx (ch x epochs) and visnum (1 x epochs) with the artefacts and scoring respectively. 
 5. Run Analysis1-2
