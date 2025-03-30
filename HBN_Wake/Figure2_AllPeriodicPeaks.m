@@ -96,7 +96,7 @@ Grid = [1, 4];
 XLim = [3 50];
 Red = chART.color_picker(1, '', 'red');
 
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/3])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width*1.2 PlotProps.Figure.Width/3])
 
 %%% A: Power spectra
 chART.sub_plot([], Grid, [1, 1], [], 1, 'A', PlotProps);
@@ -172,30 +172,46 @@ title('Iota', 'FontSize', PlotProps.Text.TitleSize)
 
 % shift a bit
 Axes2.Units = 'normalized';
-Axes2.Position(1) = Axes2.Position(1) + .06;
-Axes2.Position(3) = Axes2.Position(3) - .095;
+Axes2.Position(1) = Axes2.Position(1) + .05;
+Axes2.Position(3) = Axes2.Position(3) - .045;
 
 
 %%% D: average topography
-% load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'LogTopographies', 'PeriodicTopographies', 'Bands')
-% 
-% 
-% BandLabels = fieldnames(Bands);
-% BandTitles = BandLabels;
-% BandTitles{strcmp(BandLabels, 'LowBeta')} = 'Low Beta';
-% BandTitles{strcmp(BandLabels, 'HighBeta')} = 'High Beta';
-% 
-% IotaIdx = find(strcmp(BandLabels, 'Iota'));
-% 
-% IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
-% 
-% chART.sub_plot([], Grid, [1, 4], [], 4.5, 'D', PlotProps);
-% chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], [.15 .38], ...
-%     'Log power', 'Linear', PlotProps)
-% title(['Average (N=', num2str(nnz(~isnan(IotaTopo(:, 1)))), ')'])
+
+PlotProps.Colorbar.Location = 'eastoutside';
+load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'LogTopographies', 'PeriodicTopographies', 'Bands')
+
+
+BandLabels = fieldnames(Bands);
+BandTitles = BandLabels;
+BandTitles{strcmp(BandLabels, 'LowBeta')} = 'Low Beta';
+BandTitles{strcmp(BandLabels, 'HighBeta')} = 'High Beta';
+
+IotaIdx = find(strcmp(BandLabels, 'Iota'));
+
+IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
+
+chART.sub_plot([], Grid, [1, 4], [], 3.5, 'D', PlotProps);
+chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], [.15 .38], ...
+    'Log power', 'Linear', PlotProps)
+colormap(PlotProps.Color.Maps.Rainbow) % needed to reset colormaps; eeglab's topoplot changes the colormap for the whole figure
+set(gca, 'colormap', PlotProps.Color.Maps.Linear)
 
 
 chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
+
+
+
+%% identify peak locations
+
+MeanTopo = mean(IotaTopo, 1, 'omitnan');
+
+Topography = table();
+Topography.Labels = {Chanlocs.labels}';
+Topography.Iota = MeanTopo';
+
+disp(sortrows(Topography, 'Iota', 'descend'))
+
 
 %% Total iota recording percentage by age
 
@@ -242,3 +258,6 @@ Iota40PeriodicPeaks = PeriodicPeaks(PeriodicPeaks.Frequency>35 & PeriodicPeaks.F
 nTot = size(Metadata, 1);
 nIota = size(Iota40PeriodicPeaks, 1);
 disp(['recordings with 35-40 Hz: ', num2str(round(100*nIota/nTot)), '%, (', num2str(nIota), '/', num2str(nTot), ')'])
+
+
+
