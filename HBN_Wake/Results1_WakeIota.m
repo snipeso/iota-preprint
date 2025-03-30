@@ -1,4 +1,5 @@
-% plots the distribution of periodic peaks in the whole HBN dataset.
+% All the results with the whole HBN dataset (demographics, spectra,
+% topographies, etc).
 %
 % From iota-neurophys, Snipes, 2024.
 
@@ -30,7 +31,6 @@ clc
 
 CacheName = 'PeriodicParameters_Clean.mat';
 load(fullfile(CacheDir, CacheName), 'Metadata')
-
 
 Tot = size(Metadata, 1);
 disp(['Total n = ', num2str(Tot)])
@@ -77,11 +77,11 @@ disp(AllDiagnoses)
 
 writetable(AllDiagnoses, fullfile(ResultsFolder, 'DemographicsNeurodevelopmental.csv'))
 
-%% Figure 2: iota in wake
+%% Figure 1: iota in wake
 
 % load in analyses on preprocessed data
 CacheName = 'PeriodicParameters_Clean.mat';
-load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata', 'AllSpectra', 'AllPeriodicSpectra', 'FooofFrequencies', 'Frequencies')
+load(fullfile(CacheDir, CacheName), 'PeriodicPeaks', 'Metadata', 'AllSpectra', 'Frequencies')
 
 
 % sort rows by age so that the rarer adults come out on top
@@ -104,7 +104,6 @@ plot(Frequencies, log10(AllSpectra), 'Color', [.3 .3 .3 .05])
 hold on
 chART.set_axis_properties(PlotProps)
 plot(Frequencies, log10(mean(AllSpectra, 'omitnan')), 'Color', Red, 'LineWidth', 4)
-% set(gca, 'XScale', 'log', 'YScale', 'log')
 xlim(XLim)
 xticks([1 10 20 30 40 50])
 ylim([-2.1 2])
@@ -115,7 +114,6 @@ title('Wake spectral power')
 
 
 %%% B: Scatter plot of all periodic peaks
-
 PlotProps.Scatter.Alpha = .1;
 CLims = [5 21];
 YLims = [.3 12.3];
@@ -177,16 +175,10 @@ Axes2.Position(3) = Axes2.Position(3) - .045;
 
 
 %%% D: average topography
-
 PlotProps.Colorbar.Location = 'eastoutside';
-load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'LogTopographies', 'PeriodicTopographies', 'Bands')
+load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs')
 
-
-BandLabels = fieldnames(Bands);
-BandTitles = BandLabels;
-BandTitles{strcmp(BandLabels, 'LowBeta')} = 'Low Beta';
-BandTitles{strcmp(BandLabels, 'HighBeta')} = 'High Beta';
-
+BandLabels = fieldnames(Parameters.Bands);
 IotaIdx = find(strcmp(BandLabels, 'Iota'));
 
 IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
@@ -196,7 +188,6 @@ chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], [.15 .38]
     'Log power', 'Linear', PlotProps)
 colormap(PlotProps.Color.Maps.Rainbow) % needed to reset colormaps; eeglab's topoplot changes the colormap for the whole figure
 set(gca, 'colormap', PlotProps.Color.Maps.Linear)
-
 
 chART.save_figure('AllPeriodicPeakBandwidths', ResultsFolder, PlotProps)
 
@@ -218,7 +209,6 @@ disp(sortrows(Topography, 'Iota', 'descend'))
 
 CacheName = 'PeriodicParameters_Clean.mat';
 load(fullfile(CacheDir, CacheName), 'Metadata')
-
 
 clc
 
@@ -250,14 +240,5 @@ disp(['Iota frequency x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(
 
 [Rho, p] = corr(Metadata.IotaPower, Metadata.Age, 'rows', 'complete');
 disp(['Iota power x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
-
-
-%% Totals
-
-Iota40PeriodicPeaks = PeriodicPeaks(PeriodicPeaks.Frequency>35 & PeriodicPeaks.Frequency<=40 & PeriodicPeaks.BandWidth < 4, :);
-nTot = size(Metadata, 1);
-nIota = size(Iota40PeriodicPeaks, 1);
-disp(['recordings with 35-40 Hz: ', num2str(round(100*nIota/nTot)), '%, (', num2str(nIota), '/', num2str(nTot), ')'])
-
 
 
