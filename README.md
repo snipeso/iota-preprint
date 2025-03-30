@@ -58,6 +58,11 @@ Sleep scoring and artefact detection was done manually. The output of which was 
 
 Artefacts were marked in a channel x epoch matrix called `artndxn` (also saved in the same mat file) such that 1 indicates data to keep and 0 data to remove.
 
+### Output data
+#### Power & specparam
+- Power is saved as a Channel x Epoch x Frequency matrix.
+- Periodic peaks are saved as a Channel x Epoch x 3 matrix, with the three layers representing center frequency, peak amplitude, and bandwidth (2 x standard deviation of the gaussian).
+- Metadata is a large table with "EID" the participant ID, "Sex" (1=female), "EHQ" for handedness (<0 is left)
 
 ## Run 
 
