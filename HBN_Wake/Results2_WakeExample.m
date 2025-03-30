@@ -11,12 +11,7 @@ close all
 
 Parameters = HBNParameters();
 Paths = Parameters.Paths;
-PlotProps = Parameters.PlotProps.Manuscript;
 CriteriaSet = Parameters.CriteriaSet;
-
-% paths
-CacheDir = Paths.Cache;
-CacheName = 'PeriodicParameters.mat';
 
 ResultsFolder = fullfile(Paths.Results, 'WakeExamples');
 if ~exist(ResultsFolder,'dir')
@@ -29,22 +24,40 @@ SourcePower = fullfile(Paths.Core, 'Final_Old', 'EEG','Specparam/');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run
 
-load(fullfile(CacheDir, CacheName), 'Metadata')
 
+
+%% Figure 2
+
+PlotProps = Parameters.PlotProps.Manuscript;
+PlotProps.Colorbar.Location = 'eastoutside';
+PlotProps.External.EEGLAB.TopoRes = 300;
+PlotProps.Axes.xPadding = 20;
+
+PlotTopos = {
+    'NDARLZ986JLL', 'NDARKM635UY0', 'NDARXH140YZ0',  'NDARVK847ZRT', 'NDARAE710YWG', 'NDARPD977VX2'}; % IDs of participants
+
+CacheDir = Paths.Cache;
+CacheName = 'PeriodicParameters_Clean.mat';
+
+load(fullfile(CacheDir, CacheName),  'Metadata', 'CustomTopographies')
+
+[idx, loc] = ismember(PlotTopos, Metadata.EID);
+indexes = loc(idx); % Get only the valid indexes
+
+BandLabels = fieldnames(Parameters.Bands);
+IotaIdx = find(strcmp(BandLabels, 'Iota'));
+IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
+
+
+
+Topographies = IotaTopo(indexes, :);
+IotaFrequencies = Metadata.IotaFrequency(indexes);
+Participants = Metadata.Participant(indexes);
 Participant = 'NDARMH180XE5'; TimeRange = [39 49]; % the bestest
-% Participant = 'NDARUL694GYN'; TimeRange = [150 160]; % works for all of these others as well
-% Participant = 'NDARDR804MFE'; TimeRange = [10 20];
-% Participant = 'NDARTZ926NMZ';TimeRange = [54 64];
-% Participant = 'NDARKL327YDQ'; TimeRange = [39 49]; % Works with same time interval
-% Participant = 'NDARKL327YDQ'; TimeRange = [39 49]; % 16 year old
-% Participant = 'NDARYH110YV9'; TimeRange = [39 49]; % 16 year old
-% Participant= 'NDARTF566PYH'; TimeRange = [39 49]; % good time
-% Participant= 'NDARAJ674WJT'; TimeRange = [39 49];
-% Participant = 'NDARDR804MFE';TimeRange = [39 49];
 
-% load preprocessed EEG
 File = [Participant, '_RestingState.mat'];
 load(fullfile(Paths.Preprocessed, 'Power\Clean\RestingState\', File), 'EEG')
+
 
 % load fooof data
 load(fullfile( Paths.Final, 'EEG', 'Power', '20sEpochs', 'Clean', File), 'Power', 'Frequencies', 'Chanlocs', 'PeriodicPeaks')
@@ -58,11 +71,12 @@ switch Info.Sex
         Sex = 'female';
 end
 
-%%
 
-%%% plot
+
 Title = [num2str(round(Info.Age, 1)), ' year old ' Sex, ' (', Participant, ')'];
-plot_example(EEG, Power, Frequencies, Chanlocs, Parameters.Channels.Standard_10_20,...
+
+
+plot_examples(EEG, Power, Topographies, IotaFrequencies, Participants, Frequencies, Chanlocs, Parameters.Channels.Standard_10_20,...
     PeriodicPeaks, TimeRange, CriteriaSet, Title, Parameters.PlotProps.Manuscript)
 chART.save_figure(['Example_', Participant], ResultsFolder, PlotProps)
 
