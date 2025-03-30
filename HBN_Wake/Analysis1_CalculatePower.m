@@ -1,11 +1,12 @@
-% calculate power over 20 s epochs for every channel
+% calculate power over 20 s epochs for every channel, basically like whats
+% done for sleep data.
 
 clear
 close all
 clc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% setup
+%%% Parameters
 
 P = HBNParameters();
 Paths = P.Paths;
@@ -27,12 +28,12 @@ MinRSquared = .98;
 DestinationName = 'Clean';
 Source = fullfile(Paths.Preprocessed, 'Power', 'Clean', Task);
 
-DestinationName = 'NotchFiltered';
-Source = fullfile(Paths.Preprocessed, 'Power', 'NotchFiltered', Task);
+% different versions of analysis to make sure results are the same
+% DestinationName = 'NotchFiltered';
+% Source = fullfile(Paths.Preprocessed, 'Power', 'NotchFiltered', Task);
 
 % DestinationName = 'Unfiltered';
 % Source = fullfile(Paths.Preprocessed, 'Unfiltered', 'MAT', Task);
-
 
 Destination = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', DestinationName);
 if ~exist(Destination, 'dir')
@@ -43,7 +44,6 @@ end
 %%% run
 
 Files = oscip.list_filenames(Source);
-
 
 for FileIdx = 1:numel(Files)
 
@@ -63,7 +63,6 @@ for FileIdx = 1:numel(Files)
         SampleRate, EpochLength, WelchWindowLength, WelchOverlap);
 
     SmoothPower = oscip.smooth_spectrum(Power, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
-
 
     [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] = ...
         oscip.fit_fooof_multidimentional(SmoothPower, Frequencies, FooofFrequencyRange, MaxError, MinRSquared);
