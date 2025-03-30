@@ -1,10 +1,10 @@
 % this script removes manually detected artefacts, re-references to the
-% average, and saves the data with the scoring
+% average, and saves the data with the scoring.
+% From iota-neurophys, Snipes, 2024.
 
 clear
 clc
 close all
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Parameters
@@ -14,8 +14,9 @@ P = LSMParameters();
 Paths  = P.Paths;
 Refresh = false;
 Task = P.Task;
+EEG_Channels = P.Channels;
 Format = 'Minimal'; % chooses which filtering to do
-RemovalThreshold = .1;
+RemovalThreshold = .1; % percent of data before completely removing channel/epoch
 
 ScoringIndexes = -3:1:1;
 ScoringLabels = {'N3', 'N2', 'N1', 'W', 'R'};
@@ -25,15 +26,23 @@ SourceScoring =  fullfile(Paths.Core, 'Outliers', Task);
 SourceEEG = fullfile(Paths.Preprocessed, Format, 'MAT', Task);
 Files = list_filenames(SourceEEG);
 
-Destination = fullfile(Paths.Preprocessed,  Format, 'Clean', Task);
+Destination = fullfile(Paths.Preprocessed,  Format, 'Clean2', Task);
 
 if ~exist(Destination, 'dir')
     mkdir(Destination)
 end
 
 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% run
+
+load('StandardChanlocs128.mat', 'StandardChanlocs')
+load('Cz.mat', 'CZ')
+FinalChanlocs = StandardChanlocs;
+FinalChanlocs(ismember({StandardChanlocs.labels}, string(EEG_Channels.notEEG))) = [];
+FinalChanlocs(end+1) = CZ;
 
 for FileIdx = 1:numel(Files)
 
@@ -65,13 +74,21 @@ for FileIdx = 1:numel(Files)
     % determine whether to remove channel or epoch
     BadSegments = remove_channel_or_window(Artefacts, RemovalThreshold);
 
-    % for bad channels, remove and interpolate
+    % remove bad channels
     BadChannels = all(BadSegments==1, 2);
-    EEG = pop_interp(EEG, find(BadChannels));
+    EEG = pop_select(EEG, 'nochannel', find(BadChannels));
 
     % average-reference data
     EEG = add_cz(EEG);
     EEG = pop_reref(EEG, []);
+
+    % interpolate all but the non-eeg channels, and remove also from
+    % artefact matrices.
+    EEG = pop_interp(EEG, FinalChanlocs);
+    Artefacts(ismember({StandardChanlocs.labels}, string(EEG_Channels.notEEG)), :) = [];
+    BadSegments(ismember({StandardChanlocs.labels}, string(EEG_Channels.notEEG)), :) = [];
+    Artefacts(end+1, :) = 0; %#ok<SAGROW>
+    BadSegments(end+1, :) = 0; %#ok<SAGROW>
 
     % save
     save(fullfile(Destination, File), 'EEG', 'Artefacts', 'BadSegments', 'Scoring', 'ScoringLabels', 'ScoringIndexes', '-v7.3')
