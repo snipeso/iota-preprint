@@ -110,10 +110,6 @@ for ParticipantIdx = 1:numel(Participants)
     add_peak_text(squeeze(CenterFrequencies(ParticipantDataIdx, end, end)), IotaTextColor, PlotProps)
 end
 
-% TODO: add spectral power of wake alpha, NREM slow/fast spindles, REM iota
-% and theta
-
-
 %%% B: table of all peaks
 MeanCenterFrequency = round(squeeze(mean(CenterFrequencies, 1, 'omitnan')),1);
 nParticipants = squeeze(sum(~isnan(CenterFrequencies), 1));
@@ -127,7 +123,9 @@ chART.sub_plot([], Grid, [5, 1], [2, 9], false, 'B', PlotProps);
 AxesGrid.Position(2) = CurrentPosition-.3;
 WhiteAxes.Position(2) = CurrentPosition-.3;
 
+
 %%% C: topography
+
 load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
 BandLabels = fieldnames(Bands);
 nStages = numel(StageLabels);
@@ -180,21 +178,11 @@ AxesGrid.Colormap = flip(PlotProps.Color.Maps.Linear(160:end, :));
 
 chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
-%% poster iota
 
-PlotProps.External.EEGLAB.TopoRes = 500;
-PlotProps.Text.AxisSize = 12;
-Data = squeeze(mean(PeriodicTopographies(:, 5, 5, :), 1, 'omitnan'));
-CLims = quantile(Data, [0 1]);
-
-figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width/2 PlotProps.Figure.Width/3.5])
-chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, 'Log power', 'Linear', PlotProps);
-Results = 'D:\Dropbox\Research\Publications and Presentations\Sleep\Conferences\25-04 inTrace Parma';
-chART.save_figure('sleeptopo', Results, PlotProps)
 
 %%
 
-
+Data = squeeze(mean(PeriodicTopographies(:, 5, 5, :), 1, 'omitnan'));
 MeanTopo = Data;
 
 Topography = table();
