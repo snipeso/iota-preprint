@@ -123,9 +123,10 @@ for ParticipantIdx = 1:nParticipants
             PeriodicTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
                 squeeze(mean(mean(PeriodicPower(:, StageEpochs, Range(1):Range(2)), 3, 'omitnan'), 2, 'omitnan'));
 
-            % custom topography
+            % identify individual peak within each canonical band
             [isPeak, Peak] = oscip.check_peak_in_band(PeriodicPeaks(:, StageEpochs, :), Band, 1, CustomPeakSettings);
-
+            
+            % custom topography (not used)
             if isPeak
                 CustomRange = dsearchn(FooofFrequencies', [Peak(1)-Peak(3)/2; Peak(1)+Peak(3)/2]);
                 CustomTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...

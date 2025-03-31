@@ -78,7 +78,8 @@ ax = gca;
 % Set axis and tick color to white
 ax.XColor = 'none';
 ax.YColor = 'none';
-ax.Color = [0 21 80]/256;
+% ax.Color = [0 21 80]/256;
+ax.Color = 'none';
 
 chART.save_figure('Cover', Paths.Results, PlotProps)
 
