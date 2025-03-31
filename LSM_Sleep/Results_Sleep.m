@@ -19,7 +19,6 @@ FreqLims = [3 45];
 
 ExampleParticipant = 'P09';
 
-
 % folders
 SourceSpecparam = fullfile(Paths.Final, 'EEG', 'Power',  '20sEpochs', Task, Format);
 SourceEEG = fullfile(Paths.Preprocessed, Format, 'Clean', Task);
@@ -36,28 +35,8 @@ CacheName = ['PeriodicParameters_', Task, '_', Format, '.mat'];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Plot
 
-%% Table 1: peaks detected in sleep
 
-load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'Bands', 'StageLabels')
-BandLabels = fieldnames(Bands);
-nStages = numel(StageLabels);
-nBands = numel(BandLabels);
-
-
-AllCenterFrequencies = table();
-for BandIdx = 1:nBands
-    AllCenterFrequencies.Band{BandIdx} = [num2str(Bands.(BandLabels{BandIdx})(1)), '-', num2str(Bands.(BandLabels{BandIdx})(2)), ' Hz'];
-    for StageIdx = 1:nStages
-        AllCenterFrequencies.(StageLabels{StageIdx})(BandIdx) = nnz(~isnan(CenterFrequencies(:, StageIdx, BandIdx)));
-    end
-end
-
-AllCenterFrequencies = AllCenterFrequencies(:, [1 5 6 4 3 2]);
-disp(AllCenterFrequencies)
-writetable(AllCenterFrequencies, fullfile(ResultsFolder, 'DetectedPeaksByStage.csv'))
-
-
-%% Figure 7: periodic peaks
+%% Figure 3: periodic peaks
 
 Settings = oscip.default_settings();
 Settings.PeakBandwidthMax = 4;
@@ -71,20 +50,22 @@ IotaTextColor = [73 63 11]/255;
 
 Grid = [5 9];
 
-%%%%% Main participant
+%%% A: periodic peaks individuas
+
+
+% Main participant
+load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
+    'PeriodicPeaks', 'Scoring', 'Chanlocs')
 
 figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/1.5])
 
 chART.sub_plot([], Grid, [3 1], [3 3], false, 'A', PlotProps);
-load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
-    'PeriodicPeaks', 'Scoring', 'Chanlocs')
-
 plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
 xlim(FreqLims)
 add_peak_text(PeriodicPeaks(labels2indexes(Channels, Chanlocs), Scoring==1, :), ...
     IotaBand, IotaTextColor, PlotProps)
 
-%%% All data
+% All other participants
 
 Participants = Parameters.Participants;
 Participants(strcmp(Participants, 'P09')) = [];

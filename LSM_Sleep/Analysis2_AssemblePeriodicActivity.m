@@ -65,6 +65,9 @@ LogTopographies = CustomTopographies;
 PeriodicTopographies = CustomTopographies;
 
 CenterFrequencies = nan(nParticipants, nStages, nBands);
+CustomPeakSettings = oscip.default_settings();
+CustomPeakSettings.PeakBandwidthMin = .5;
+CustomPeakSettings.PeakBandwidthMax = 12;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run
@@ -116,18 +119,19 @@ for ParticipantIdx = 1:nParticipants
         for BandIdx = 1:nBands
 
             % standard range
-            Range = dsearchn(Frequencies', Bands.(BandLabels{BandIdx})');
+            Band = Bands.(BandLabels{BandIdx});
+            Range = dsearchn(Frequencies', Band');
             LogTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
                 squeeze(mean(mean(log10(SmoothPower(:, StageEpochs, Range(1):Range(2))), 3, 'omitnan'), 2, 'omitnan'));
 
-            Range = dsearchn(FooofFrequencies', Bands.(BandLabels{BandIdx})');
+            Range = dsearchn(FooofFrequencies', Band');
             PeriodicTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
                 squeeze(mean(mean(PeriodicPower(:, StageEpochs, Range(1):Range(2)), 3, 'omitnan'), 2, 'omitnan'));
 
             % custom topography
-            Peak = select_max_peak(Table, Bands.(BandLabels{BandIdx}), BandwidthRange);
+            [isPeak, Peak] = oscip.check_peak_in_band(PeriodicPeaks, Band, 1, CustomPeakSettings);
 
-            if ~isempty(Peak)
+            if isPeak
                 CustomRange = dsearchn(FooofFrequencies', [Peak(1)-Peak(3)/2; Peak(1)+Peak(3)/2]);
                 CustomTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
                     squeeze(mean(mean(PeriodicPower(:, StageEpochs, CustomRange(1):CustomRange(2)), 3, 'omitnan'), 2, 'omitnan'));
