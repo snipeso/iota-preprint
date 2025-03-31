@@ -21,9 +21,9 @@ Bands = Parameters.Bands;
 BandLabels = fieldnames(Bands);
 nBands = numel(BandLabels);
 
-Stages = -3:1:1;
+StageIndexes = -3:1:1;
 StageLabels = {'N3', 'N2', 'N1', 'W', 'R'};
-nStages = numel(Stages);
+nStages = numel(StageIndexes);
 
 BandwidthRange = [.5 4];
 
@@ -96,7 +96,7 @@ for ParticipantIdx = 1:nParticipants
 
     for StageIdx = 1:nStages
 
-        StageEpochs = Scoring==Stages(StageIdx);
+        StageEpochs = Scoring==StageIndexes(StageIdx);
 
         %%% average power
         MeanPower = squeeze(mean(mean(SmoothPowerNoEdge(:, StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
@@ -141,7 +141,7 @@ for ParticipantIdx = 1:nParticipants
     disp([num2str(ParticipantIdx), '/', num2str(nParticipants)])
 end
 
-save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaksTable', 'StageLabels',  ...
+save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaksTable', 'StageLabels', 'StageIndexes',  ...
     'Chanlocs', 'CustomTopographies', 'LogTopographies', 'PeriodicTopographies', ...
     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies', 'Bands')
 

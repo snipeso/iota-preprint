@@ -12,6 +12,7 @@ Parameters = LSMParameters();
 Paths = Parameters.Paths;
 CriteriaSet = Parameters.CriteriaSet;
 Participants = Parameters.Participants;
+Bands = Parameters.Bands;
 
 Channels = Parameters.Channels.NotEdge;
 Task = Parameters.Task;
@@ -40,6 +41,7 @@ CacheName = ['PeriodicParameters_', Task, '_', Format, '.mat'];
 
 %% Figure 3: periodic peaks
 
+
 Settings = oscip.default_settings();
 Settings.PeakBandwidthMax = 4;
 Settings.DistributionBandwidthMax = 4; % how much jitter there can be across periodic peaks
@@ -47,21 +49,22 @@ Settings.DistributionBandwidthMax = 4; % how much jitter there can be across per
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Figure.Padding = 30;
 
+
 IotaBand = [25 40];
 IotaTextColor = [73 63 11]/255;
 
-Grid = [5 9];
+Grid = [8 9];
 
 %%% A: periodic peaks individuas
 
-load(fullfile(CacheDir, CacheName), 'CenterFrequencies')
+load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'StageLabels', 'StageIndexes')
 
 
 % Main participant
 load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
     'PeriodicPeaks', 'Scoring', 'Chanlocs')
 
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/1.5])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Height*.8])
 
 chART.sub_plot([], Grid, [3 1], [3 3], false, 'A', PlotProps);
 plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
@@ -103,7 +106,6 @@ for ParticipantIdx = 1:numel(Participants)
 
     % find REM iota, and display
     ParticipantDataIdx = find(strcmp(Parameters.Participants, Participant));
-    disp([Participant, ', ', num2str(ParticipantDataIdx)])
     add_peak_text(squeeze(CenterFrequencies(ParticipantDataIdx, end, end-1)), IotaTextColor, PlotProps)
     add_peak_text(squeeze(CenterFrequencies(ParticipantDataIdx, end, end)), IotaTextColor, PlotProps)
 end
@@ -111,6 +113,21 @@ end
 % TODO: add spectral power of wake alpha, NREM slow/fast spindles, REM iota
 % and theta
 
+
+%%% B: table of all peaks
+MeanCenterFrequency = round(squeeze(mean(CenterFrequencies, 1, 'omitnan')),1);
+nParticipants = squeeze(sum(~isnan(CenterFrequencies), 1));
+Grid = [7 9];
+chART.sub_plot([], Grid, [5, 1], [2, 9], false, 'B', PlotProps);
+
+[AxesGrid, WhiteAxes] = colorscale_grid(MeanCenterFrequency, nParticipants,  Bands, StageLabels, PlotProps);
+ set(AxesGrid, 'Units', 'centimeters')
+  set(WhiteAxes, 'Units', 'centimeters')
+ CurrentPosition = AxesGrid.Position(2);
+AxesGrid.Position(2) = CurrentPosition-.3;
+WhiteAxes.Position(2) = CurrentPosition-.3;
+
+%%% C: topography
 load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
 BandLabels = fieldnames(Bands);
 nStages = numel(StageLabels);
@@ -118,9 +135,10 @@ nBands = numel(BandLabels);
 PlotProps.Colorbar.Location = 'North';
 
 PlotIndexes = {[4 2], [4 4], [1 2], [2 3], [5 1], [5 5]}; % [stage, band]
-Titles = {'W — alpha', 'W — beta', 'N3 — slow sigma', 'N2 — fast sigma', 'R — theta', 'R — iota'};
+Titles = {'W — alpha', 'W — beta', 'N3 — alpha', 'N2 — sigma', 'R — theta', 'R — iota'};
 
-Grid = [6, numel(PlotIndexes)];
+GridRws = 8;
+Grid = [GridRws, numel(PlotIndexes)];
 for PlotIdx = 1:numel(PlotIndexes)
     Indexes = PlotIndexes{PlotIdx};
     Data = squeeze(mean(PeriodicTopographies(:, Indexes(1), Indexes(2), :), 1, 'omitnan'));
@@ -131,7 +149,7 @@ for PlotIdx = 1:numel(PlotIndexes)
     end
 
     if PlotIdx ==1
-        chART.sub_plot([], Grid, [6, PlotIdx], [2, 1], false, 'B', PlotProps);
+        chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, 'C', PlotProps);
         axis off
         Legend = 'Log power';
     else
@@ -140,18 +158,24 @@ for PlotIdx = 1:numel(PlotIndexes)
 
     CLims = quantile(Data, [0 1]);
 
-    chART.sub_plot([], Grid, [6, PlotIdx], [2, 1], false, '', PlotProps);
+      Axes = chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, '', PlotProps);
     chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps);
+        set(gca, 'Units', 'centimeters')
+    Axes.Position(2) = 2;
     % title([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}])
     title(Titles{PlotIdx})
 
-    Axes = chART.sub_plot([], [6, numel(PlotIndexes)], [6, PlotIdx], [2, 1], false, ' ', PlotProps);
+    Axes = chART.sub_plot([], [GridRws, numel(PlotIndexes)], [GridRws, PlotIdx], [2, 1], false, ' ', PlotProps);
     set(gca, 'Units', 'centimeters')
-    Axes.Position(2) = Axes.Position(2)-3.2;
+    Axes.Position(2) = Axes.Position(2)-3;
 
     chART.plot.pretty_colorbar('Linear', CLims, Legend, PlotProps);
     axis off
 end
+
+AxesGrid.CLim = [0 20];
+
+AxesGrid.Colormap = flip(PlotProps.Color.Maps.Linear(160:end, :));
 
 
 chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
