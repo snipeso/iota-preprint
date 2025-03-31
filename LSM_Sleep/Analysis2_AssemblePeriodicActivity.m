@@ -1,6 +1,7 @@
-% runs fooof on all sleep recordings, and gets basic numbers that allow
-% comparisons. updates metadata table, and creates big table of all
-% detected peaks.
+% Assembles data from power and specparam of each individual.
+%
+% from iota-neurophys, Snipes, 2024.
+
 
 clear
 clc
