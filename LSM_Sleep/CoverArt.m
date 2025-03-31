@@ -51,7 +51,7 @@ PlotProps.Axes.xPadding = 5;
 PlotProps.Figure.Padding = 5;
 PlotProps.Text.AxisSize = 15;
 PlotProps.Text.FontName = 'Noto Sans';
-PlotProps.Patch.Alpha = .35;
+PlotProps.Patch.Alpha = .4;
 
 Baseline = zeros(numel(Participants), numel(Frequencies));
 
