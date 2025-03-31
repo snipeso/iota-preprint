@@ -17,12 +17,7 @@ Task = Parameters.Task;
 Session = Parameters.Session;
 Participants = Parameters.Participants;
 
-Bands = struct();
-Bands.Theta = [4 8];
-Bands.Alpha = [8 12];
-Bands.Sigma = [12 17];
-Bands.Beta = [17 25];
-Bands.Iota = [25 35];
+Bands = Parameters.Bands;
 BandLabels = fieldnames(Bands);
 nBands = numel(BandLabels);
 
@@ -55,7 +50,7 @@ end
 
 nParticipants = numel(Participants);
 
-PeriodicPeaks = table();
+PeriodicPeaksTable = table();
 
 AllSpectra = nan(nParticipants, nStages, 1);
 AllPeriodicSpectra = nan(nParticipants, nStages, 1);
@@ -82,7 +77,7 @@ for ParticipantIdx = 1:nParticipants
     end
 
     % load in data
-    load(Filepath,  'SmoothPower', 'Frequencies', 'Chanlocs', 'PeriodicPower', 'FooofFrequencies', 'Slopes', 'Intercepts', 'Scoring')
+    load(Filepath,  'SmoothPower', 'Frequencies', 'Chanlocs', 'PeriodicPower', 'FooofFrequencies', 'Slopes', 'Intercepts', 'Scoring', 'PeriodicPeaks')
 
     SmoothPowerNoEdge = SmoothPower;
     PeriodicPowerNoEdge = PeriodicPower;
@@ -113,7 +108,7 @@ for ParticipantIdx = 1:nParticipants
         % find all peaks in average power spectrum
         MetadataRow = table(string(Participant), StageLabels(StageIdx), 'VariableNames', {'Participants', 'Stages'}');
         Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, MetadataRow, StageIdx, MinRSquared, MaxError);
-        PeriodicPeaks = cat(1, PeriodicPeaks, Table);
+        PeriodicPeaksTable = cat(1, PeriodicPeaksTable, Table);
 
         %%% get topographies & custom peaks
         for BandIdx = 1:nBands
@@ -129,7 +124,7 @@ for ParticipantIdx = 1:nParticipants
                 squeeze(mean(mean(PeriodicPower(:, StageEpochs, Range(1):Range(2)), 3, 'omitnan'), 2, 'omitnan'));
 
             % custom topography
-            [isPeak, Peak] = oscip.check_peak_in_band(PeriodicPeaks, Band, 1, CustomPeakSettings);
+            [isPeak, Peak] = oscip.check_peak_in_band(PeriodicPeaks(:, StageEpochs, :), Band, 1, CustomPeakSettings);
 
             if isPeak
                 CustomRange = dsearchn(FooofFrequencies', [Peak(1)-Peak(3)/2; Peak(1)+Peak(3)/2]);
@@ -145,7 +140,7 @@ for ParticipantIdx = 1:nParticipants
     disp([num2str(ParticipantIdx), '/', num2str(nParticipants)])
 end
 
-save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaks', 'StageLabels',  ...
+save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaksTable', 'StageLabels',  ...
     'Chanlocs', 'CustomTopographies', 'LogTopographies', 'PeriodicTopographies', ...
     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies', 'Bands')
 
