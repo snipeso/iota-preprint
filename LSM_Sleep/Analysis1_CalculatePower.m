@@ -100,6 +100,7 @@ for FileIdx = 1:numel(Files)
     chART.save_figure(replace(File, '.mat', '.png'), Destination)
 
     close all
+    clear EEG Power SmoothPower PeriodicPeaks PeriodicPower
     disp(['Finished ', File])
 end
 

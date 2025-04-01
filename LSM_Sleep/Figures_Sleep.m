@@ -221,6 +221,7 @@ CLims = [-.1 1.1];
 clim(CLims)
 set(gca, 'YDir', 'normal')
 ylabel('Frequency (Hz)')
+xlabel('Time (h)')
 set(gca, 'TickLength', [TickLength 0], 'YLim', FreqLims)
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.Text.LegendSize = PlotProps.Text.AxisSize;

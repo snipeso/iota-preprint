@@ -129,13 +129,24 @@ end
 PlotProps.Colorbar.Location = 'eastoutside';
 figure
 chART.plot.eeglab_topoplot(BurstDensity, Chanlocs, [], [], 'bursts/min', 'Linear', PlotProps)
+title('Bursts per minute')
 
 figure
 chART.plot.eeglab_topoplot(Amplitude, Chanlocs, [], [], '\muV', 'Linear', PlotProps)
+title('Burst amplitudes')
 
 figure
 scatter([Bursts.DurationPoints]/EEGBroadband.srate, [Bursts.MeanAmplitude], 'filled', 'MarkerFaceAlpha', .2)
 xlabel('Duration (s)')
 ylabel('Amplitude (\muV)')
+title('Burst duration vs amplitudes')
+set(gcf, 'color', 'w')
+
 figure;histogram([Bursts.BurstFrequency], 25:.5:34)
 xlabel('Frequency (Hz)')
+title('Burst frequencies (narrow band frequency of 27-31 Hz)')
+set(gcf, 'color', 'w')
+
+figure
+histogram([Bursts.CyclesCount], 1:30)
+title('Number of cycles in bursts')
