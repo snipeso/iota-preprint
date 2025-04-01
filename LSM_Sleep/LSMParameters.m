@@ -107,10 +107,12 @@ Parameters.FilterParameters = FilterParameters;
 %%% EEG info
 
 %%% bands
-Bands.Theta = [4 7]; % add little gaps toavoid capturing edges
+Bands.Theta = [4 8]; % add little gaps toavoid capturing edges
 Bands.Alpha = [8 12];
-Bands.Beta = [15 25];
+Bands.Sigma = [12 16];
+Bands.Beta = [16 25];
 Bands.Iota = [25 35];
+Bands.Gamma = [35 40];
 
 Parameters.Bands = Bands;
 

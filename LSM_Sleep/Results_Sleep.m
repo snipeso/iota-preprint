@@ -11,6 +11,8 @@ close all
 Parameters = LSMParameters();
 Paths = Parameters.Paths;
 CriteriaSet = Parameters.CriteriaSet;
+Participants = Parameters.Participants;
+Bands = Parameters.Bands;
 
 Channels = Parameters.Channels.NotEdge;
 Task = Parameters.Task;
@@ -18,7 +20,7 @@ Format = 'Minimal'; % chooses which filtering to do
 FreqLims = [3 45];
 
 ExampleParticipant = 'P09';
-
+ExampleParticipantIdx = find(strcmp(Participants, ExampleParticipant));
 
 % folders
 SourceSpecparam = fullfile(Paths.Final, 'EEG', 'Power',  '20sEpochs', Task, Format);
@@ -36,28 +38,9 @@ CacheName = ['PeriodicParameters_', Task, '_', Format, '.mat'];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Plot
 
-%% Table 1: peaks detected in sleep
 
-load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'Bands', 'StageLabels')
-BandLabels = fieldnames(Bands);
-nStages = numel(StageLabels);
-nBands = numel(BandLabels);
+%% Figure 3: periodic peaks
 
-
-AllCenterFrequencies = table();
-for BandIdx = 1:nBands
-    AllCenterFrequencies.Band{BandIdx} = [num2str(Bands.(BandLabels{BandIdx})(1)), '-', num2str(Bands.(BandLabels{BandIdx})(2)), ' Hz'];
-    for StageIdx = 1:nStages
-        AllCenterFrequencies.(StageLabels{StageIdx})(BandIdx) = nnz(~isnan(CenterFrequencies(:, StageIdx, BandIdx)));
-    end
-end
-
-AllCenterFrequencies = AllCenterFrequencies(:, [1 5 6 4 3 2]);
-disp(AllCenterFrequencies)
-writetable(AllCenterFrequencies, fullfile(ResultsFolder, 'DetectedPeaksByStage.csv'))
-
-
-%% Figure 7: periodic peaks
 
 Settings = oscip.default_settings();
 Settings.PeakBandwidthMax = 4;
@@ -66,25 +49,29 @@ Settings.DistributionBandwidthMax = 4; % how much jitter there can be across per
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Figure.Padding = 30;
 
+
 IotaBand = [25 40];
 IotaTextColor = [73 63 11]/255;
 
-Grid = [5 9];
+Grid = [8 9];
 
-%%%%% Main participant
+%%% A: periodic peaks individuas
 
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Width/1.5])
+load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'StageLabels', 'StageIndexes')
 
-chART.sub_plot([], Grid, [3 1], [3 3], false, 'A', PlotProps);
+
+% Main participant
 load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
     'PeriodicPeaks', 'Scoring', 'Chanlocs')
 
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Height*.8])
+
+chART.sub_plot([], Grid, [3 1], [3 3], false, 'A', PlotProps);
 plot_peaks_sleep(PeriodicPeaks(labels2indexes(Channels, Chanlocs), :, :), Scoring, PlotProps)
 xlim(FreqLims)
-add_peak_text(PeriodicPeaks(labels2indexes(Channels, Chanlocs), Scoring==1, :), ...
-    IotaBand, IotaTextColor, PlotProps)
+add_peak_text(squeeze(CenterFrequencies(ExampleParticipantIdx, end, end-1)), IotaTextColor, PlotProps)
 
-%%% All data
+% All other participants
 
 Participants = Parameters.Participants;
 Participants(strcmp(Participants, 'P09')) = [];
@@ -118,12 +105,26 @@ for ParticipantIdx = 1:numel(Participants)
     legend off
 
     % find REM iota, and display
-    add_peak_text(PeriodicPeaks(labels2indexes(Channels, Chanlocs), Scoring==1, :), ...
-        IotaBand, IotaTextColor, PlotProps)
+    ParticipantDataIdx = find(strcmp(Parameters.Participants, Participant));
+    add_peak_text(squeeze(CenterFrequencies(ParticipantDataIdx, end, end-1)), IotaTextColor, PlotProps)
+    add_peak_text(squeeze(CenterFrequencies(ParticipantDataIdx, end, end)), IotaTextColor, PlotProps)
 end
 
-% TODO: add spectral power of wake alpha, NREM slow/fast spindles, REM iota
-% and theta
+%%% B: table of all peaks
+MeanCenterFrequency = round(squeeze(mean(CenterFrequencies, 1, 'omitnan')),1);
+nParticipants = squeeze(sum(~isnan(CenterFrequencies), 1));
+Grid = [7 9];
+chART.sub_plot([], Grid, [5, 1], [2, 9], false, 'B', PlotProps);
+
+[AxesGrid, WhiteAxes] = colorscale_grid(MeanCenterFrequency, nParticipants,  Bands, StageLabels, PlotProps);
+ set(AxesGrid, 'Units', 'centimeters')
+  set(WhiteAxes, 'Units', 'centimeters')
+ CurrentPosition = AxesGrid.Position(2);
+AxesGrid.Position(2) = CurrentPosition-.3;
+WhiteAxes.Position(2) = CurrentPosition-.3;
+
+
+%%% C: topography
 
 load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
 BandLabels = fieldnames(Bands);
@@ -132,59 +133,56 @@ nBands = numel(BandLabels);
 PlotProps.Colorbar.Location = 'North';
 
 PlotIndexes = {[4 2], [4 4], [1 2], [2 3], [5 1], [5 5]}; % [stage, band]
-Titles = {'W — alpha', 'W — beta', 'N3 — slow sigma', 'N2 — fast sigma', 'R — theta', 'R — iota'};
+Titles = {'W — alpha', 'W — beta', 'N3 — alpha', 'N2 — sigma', 'R — theta', 'R — iota'};
 
-Grid = [6, numel(PlotIndexes)];
+GridRws = 8;
+Grid = [GridRws, numel(PlotIndexes)];
 for PlotIdx = 1:numel(PlotIndexes)
     Indexes = PlotIndexes{PlotIdx};
-        Data = squeeze(mean(PeriodicTopographies(:, Indexes(1), Indexes(2), :), 1, 'omitnan'));
-        disp([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}, ' ' num2str(nnz(~isnan(PeriodicTopographies(:, Indexes(1), Indexes(2), 1))))])
-        % Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
-        if all(isnan(Data)|Data==0)
-            continue
-        end
-
-        if PlotIdx ==1
-         chART.sub_plot([], Grid, [6, PlotIdx], [2, 1], false, 'B', PlotProps);
-         axis off
-         Legend = 'Log power';
-        else
-            Legend = '';
-        end
-
-          CLims = quantile(Data, [0 1]);
-
-        chART.sub_plot([], Grid, [6, PlotIdx], [2, 1], false, '', PlotProps);
-        chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps);
-        % title([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}])
-        title(Titles{PlotIdx})
-
-        Axes = chART.sub_plot([], [6, numel(PlotIndexes)], [6, PlotIdx], [2, 1], false, ' ', PlotProps);
-        set(gca, 'Units', 'centimeters')
-        Axes.Position(2) = Axes.Position(2)-3.2;
-
-        chART.plot.pretty_colorbar('Linear', CLims, Legend, PlotProps);
-        axis off
+    Data = squeeze(mean(PeriodicTopographies(:, Indexes(1), Indexes(2), :), 1, 'omitnan'));
+    disp([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}, ' ' num2str(nnz(~isnan(PeriodicTopographies(:, Indexes(1), Indexes(2), 1))))])
+    % Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
+    if all(isnan(Data)|Data==0)
+        continue
     end
+
+    if PlotIdx ==1
+        chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, 'C', PlotProps);
+        axis off
+        Legend = 'Log power';
+    else
+        Legend = '';
+    end
+
+    CLims = quantile(Data, [0 1]);
+
+      Axes = chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, '', PlotProps);
+    chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps);
+        set(gca, 'Units', 'centimeters')
+    Axes.Position(2) = 2;
+    % title([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}])
+    title(Titles{PlotIdx})
+
+    Axes = chART.sub_plot([], [GridRws, numel(PlotIndexes)], [GridRws, PlotIdx], [2, 1], false, ' ', PlotProps);
+    set(gca, 'Units', 'centimeters')
+    Axes.Position(2) = Axes.Position(2)-3;
+
+    chART.plot.pretty_colorbar('Linear', CLims, Legend, PlotProps);
+    axis off
+end
+
+AxesGrid.CLim = [0 20];
+
+AxesGrid.Colormap = flip(PlotProps.Color.Maps.Linear(160:end, :));
 
 
 chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
-%% poster iota
-
-PlotProps.External.EEGLAB.TopoRes = 500;
- PlotProps.Text.AxisSize = 12;
- Data = squeeze(mean(PeriodicTopographies(:, 5, 5, :), 1, 'omitnan'));
- CLims = quantile(Data, [0 1]);
-
-figure('Units','centimeters', 'Position',[0 0 PlotProps.Figure.Width/2 PlotProps.Figure.Width/3.5])
-  chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, 'Log power', 'Linear', PlotProps);
-Results = 'D:\Dropbox\Research\Publications and Presentations\Sleep\Conferences\25-04 inTrace Parma';
-chART.save_figure('sleeptopo', Results, PlotProps)
-
-%% 
 
 
+%%
+
+Data = squeeze(mean(PeriodicTopographies(:, 5, 5, :), 1, 'omitnan'));
 MeanTopo = Data;
 
 Topography = table();
@@ -354,7 +352,7 @@ end
 chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
 
 
-% TODO: average all bands!! 
+% TODO: average all bands!!
 % REM, Wake, NREM x bands in table
 
 %% plot all iota topographies
