@@ -31,7 +31,8 @@ BandwidthRange = [.5 4];
 FittingFrequencyRange = [3 45];
 MaxError = .1;
 MinRSquared = .98;
-MinCleanChannels = 80;
+MinCleanChannels = 128-numel(Channels.notEEG)-Parameters.MinChannels; % comes out to 97, to match wake analysis
+MinMinutes = Parameters.MinTime/60;
 
 RangeSlopes = [0 5];
 RangeIntercepts = [0 5]; % reeeeally generous
@@ -81,31 +82,32 @@ for ParticipantIdx = 1:nParticipants
     % load in data
     load(Filepath,  'SmoothPower', 'Frequencies', 'Chanlocs', 'PeriodicPower', 'FooofFrequencies', 'Slopes', 'Intercepts', 'Scoring', 'PeriodicPeaks')
 
-    SmoothPowerNoEdge = SmoothPower;
-    PeriodicPowerNoEdge = PeriodicPower;
-
-
     %%% Get periodic peaks
 
-    % remove edge channels
-    SmoothPowerNoEdge(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
-    PeriodicPowerNoEdge(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
+    % % remove edge channels
+    % SmoothPower(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
+    % PeriodicPower(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
 
     % remove data based on aperiodic activity
-    SmoothPowerNoEdge = remove_bad_aperiodic(SmoothPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
-    PeriodicPowerNoEdge = remove_bad_aperiodic(PeriodicPowerNoEdge, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
+    SmoothPower = remove_bad_aperiodic(SmoothPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
+    PeriodicPower = remove_bad_aperiodic(PeriodicPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
 
 
     for StageIdx = 1:nStages
 
         StageEpochs = Scoring==StageIndexes(StageIdx);
-        StageMinutes(ParticipantIdx, StageIdx) = nnz(any(~isnan(PeriodicPowerNoEdge(:, StageEpochs, 1)), 1))*EpochLength/60;
+        Minutes = nnz(any(~isnan(PeriodicPower(:, StageEpochs, 1)), 1))*EpochLength/60;
+        StageMinutes(ParticipantIdx, StageIdx) = Minutes;
+        if Minutes < MinMinutes
+            disp(['not enough minutes in ', num2str(StageIdx), ' ', Participant])
+            continue
+        end
 
         %%% average power
-        MeanPower = squeeze(mean(mean(SmoothPowerNoEdge(:, StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
+        MeanPower = squeeze(mean(mean(SmoothPower(labels2indexes(Channels.NotEdge, Chanlocs), StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
 
         AllSpectra(ParticipantIdx, StageIdx, 1:numel(MeanPower)) = MeanPower;
-        AllPeriodicSpectra(ParticipantIdx, StageIdx, 1:size(PeriodicPowerNoEdge, 3)) = squeeze(mean(mean(PeriodicPowerNoEdge(:, StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))';
+        AllPeriodicSpectra(ParticipantIdx, StageIdx, 1:size(PeriodicPower, 3)) = squeeze(mean(mean(PeriodicPower(labels2indexes(Channels.Edge, Chanlocs), StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))';
 
 
         % find all peaks in average power spectrum
