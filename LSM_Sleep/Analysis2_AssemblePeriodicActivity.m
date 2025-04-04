@@ -99,7 +99,7 @@ for ParticipantIdx = 1:nParticipants
     for StageIdx = 1:nStages
 
         StageEpochs = Scoring==StageIndexes(StageIdx);
-        StageMinutes(ParticipantIdx, StageIdx) = nnz(StageEpochs)*EpochLength/60;
+        StageMinutes(ParticipantIdx, StageIdx) = nnz(any(~isnan(PeriodicPowerNoEdge(:, StageEpochs, 1)), 1))*EpochLength/60;
 
         %%% average power
         MeanPower = squeeze(mean(mean(SmoothPowerNoEdge(:, StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!

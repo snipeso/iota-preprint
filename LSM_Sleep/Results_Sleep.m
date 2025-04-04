@@ -58,7 +58,7 @@ Grid = [8 9];
 
 %%% A: periodic peaks individuas
 
-load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'StageLabels', 'StageIndexes')
+load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'StageLabels', 'StageIndexes', 'StageMinutes')
 
 
 % Main participant
