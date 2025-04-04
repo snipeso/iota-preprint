@@ -36,7 +36,7 @@ MinCleanChannels = 80;
 RangeSlopes = [0 5];
 RangeIntercepts = [0 5]; % reeeeally generous
 
-Format = 'Minimal';
+Format = 'Minimal_New';
 SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', Task, Format);
 
 CacheDir = Paths.Cache;

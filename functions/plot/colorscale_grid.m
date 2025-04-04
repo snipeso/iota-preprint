@@ -1,12 +1,16 @@
-function [Axes, Axes2] = colorscale_grid(CenterFrequency, nParticipants, Bands, yLabels, PlotProps)
+function [Axes, Axes2] = colorscale_grid(CenterFrequency, nParticipants, Bands, yLabels, StageMinutes, PlotProps)
 
+nParticipants = cat(2, zeros(size(nParticipants, 1), 1), nParticipants); % add empty row for minutes
 [nRows, nCols] = size(nParticipants);
 
 % === Plot Heatmap ===
 imagesc(nParticipants)
 chART.set_axis_properties(PlotProps)
-colormap(flip(PlotProps.Color.Maps.Divergent))
-clim([-max(abs(nParticipants(:))), max(abs(nParticipants(:)))] * 2)
+
+Colors = chART.utils.custom_gradient([1 1 1], PlotProps.Color.Maps.Linear(1, :));
+
+colormap(Colors)
+clim([0, max(abs(nParticipants(:)))] * 2)
 
 % === Axis Setup ===
 xticks(1:nCols)
@@ -15,14 +19,13 @@ yticks(1:nRows)
 yticklabels(yLabels)
 
 ax = gca;
-ax.TickLength = [0 0]; 
-ax.XAxisLocation = 'top'; 
-ax.FontWeight = 'bold';  
+ax.TickLength = [0 0];
+ax.XAxisLocation = 'top';
+ax.FontWeight = 'bold';
 ax.TickLabelInterpreter = 'tex';
 ax.FontSize = PlotProps.Text.TitleSize;
 
 % === Position X-Axis Labels Above the Plot ===
-BandNames = fieldnames(Bands);
 
 % Get y-axis limits to position labels just above top
 ylims = [.1 nRows+.5];
@@ -33,12 +36,17 @@ labelY = .1;  % anchor baseline
 lineSpacing = 0.4;  % vertical spacing between label lines
 
 BandNames = fieldnames(Bands);
+BandNames = ['Duration'; BandNames];
 
 for i = 1:nCols
     BandName = BandNames{i};
-    BandRange = Bands.(BandName);
 
-    rangeStr = sprintf('(%d–%d Hz)', round(BandRange(1)), round(BandRange(2)));
+    if i==1
+        rangeStr = '(min)';
+    else
+        BandRange = Bands.(BandName);
+        rangeStr = sprintf('(%d–%d Hz)', round(BandRange(1)), round(BandRange(2)));
+    end
 
     % Top line: band name
     text(i, labelY, BandName, ...
@@ -62,12 +70,16 @@ end
 % === Overlay Center Text in Each Cell ===
 for row = 1:nRows
     for col = 1:nCols
-        value = nParticipants(row, col);
-
-        if value == 0
-            Text = '(0)';
+        if col==1
+            Text = [num2str(round(mean(StageMinutes(:, row), 1))), ' ± ', num2str(round(std(StageMinutes(:, row), 0, 1)))];
         else
-            Text = sprintf('%g Hz (%d)', CenterFrequency(row, col), value);
+            value = nParticipants(row, col);
+
+            if value == 0
+                Text = '(0)';
+            else
+                Text = sprintf('%g Hz (%d)', CenterFrequency(row, col-1), value);
+            end
         end
 
         text(col, row, Text, ...
@@ -75,6 +87,7 @@ for row = 1:nRows
             'VerticalAlignment', 'middle', ...
             'Color', 'k', ...
             'FontSize', PlotProps.Text.AxisSize);
+
     end
 end
 box off                    % Removes top and right borders
@@ -84,12 +97,12 @@ Axes=gca;
 set(gcf, 'color', 'w')
 
 Axes2 = axes('Position', Axes.Position, ...
-  'Color', 'none', ...
-  'XColor', [1 1 1], ...
-  'YColor', [1 1 1], ...
-  'XTick', [], ...
-  'YTick', [], ...
-  'XAxisLocation', 'top', ...
-  'YAxisLocation', 'left');  % Optional if needed
+    'Color', 'none', ...
+    'XColor', [1 1 1], ...
+    'YColor', [1 1 1], ...
+    'XTick', [], ...
+    'YTick', [], ...
+    'XAxisLocation', 'top', ...
+    'YAxisLocation', 'left');  % Optional if needed
 end
 

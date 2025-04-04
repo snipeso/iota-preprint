@@ -118,23 +118,26 @@ MeanCenterFrequency = round(squeeze(mean(CenterFrequencies, 1, 'omitnan')),1);
 nParticipants = squeeze(sum(~isnan(CenterFrequencies), 1));
 
 % add minutes to stage labels
-StageLabelsWithMinutes = StageLabels;
-for StageIdx  = 1:numel(StageLabels)
-    StageLabelsWithMinutes{StageIdx} = [StageLabels{StageIdx}, ' (', num2str(round(mean(StageMinutes(:, StageIdx), 1))), '±', num2str(round(std(StageMinutes(:, StageIdx), 0, 1))), ' min)'];
-end
+% StageLabelsWithMinutes = StageLabels;
+% for StageIdx  = 1:numel(StageLabels)
+%     StageLabelsWithMinutes{StageIdx} = [StageLabels{StageIdx}, ' (', num2str(round(mean(StageMinutes(:, StageIdx), 1))), '±', num2str(round(std(StageMinutes(:, StageIdx), 0, 1))), ' min)'];
+% end
 
 Grid = [7 9];
 chART.sub_plot([], Grid, [5, 1], [2, 9], false, 'B', PlotProps);
 
-[AxesGrid, WhiteAxes] = colorscale_grid(MeanCenterFrequency, nParticipants,  Bands, StageLabelsWithMinutes, PlotProps);
+[AxesGrid, WhiteAxes] = colorscale_grid(MeanCenterFrequency, nParticipants,  Bands, StageLabels, StageMinutes, PlotProps);
  set(AxesGrid, 'Units', 'centimeters')
   set(WhiteAxes, 'Units', 'centimeters')
  CurrentPosition = AxesGrid.Position;
- CurrentPosition = [3.5, CurrentPosition(2)-.3, LastLittleAxes.Position(3)+LastLittleAxes.Position(1)-3.5, CurrentPosition(4)];
-AxesGrid.Position = CurrentPosition;
-WhiteAxes.Position = CurrentPosition;
+%  CurrentPosition = [3.5, CurrentPosition(2)-.3, LastLittleAxes.Position(3)+LastLittleAxes.Position(1)-3.5, CurrentPosition(4)];
+% AxesGrid.Position = CurrentPosition;
+% WhiteAxes.Position = CurrentPosition;
 
 LastLittleAxes.Units = 'normalized';
+
+disp('N per stage:')
+[StageLabels', string(sum(StageMinutes>=1)')]
 
 %%% C: topography
 
@@ -183,10 +186,7 @@ for PlotIdx = 1:numel(PlotIndexes)
     axis off
 end
 
-AxesGrid.CLim = [0 20];
-
-AxesGrid.Colormap = flip(PlotProps.Color.Maps.Linear(160:end, :));
-
+AxesGrid.Colormap = chART.utils.custom_gradient([1 1 1], PlotProps.Color.Maps.Linear(1, :));
 
 % chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
