@@ -110,20 +110,31 @@ for ParticipantIdx = 1:numel(Participants)
     add_peak_text(squeeze(CenterFrequencies(ParticipantDataIdx, end, end-1)), IotaTextColor, PlotProps)
     add_peak_text(squeeze(CenterFrequencies(ParticipantDataIdx, end, end)), IotaTextColor, PlotProps)
 end
+LastLittleAxes = gca;
+LastLittleAxes.Units = 'centimeters';
 
 %%% B: table of all peaks
 MeanCenterFrequency = round(squeeze(mean(CenterFrequencies, 1, 'omitnan')),1);
 nParticipants = squeeze(sum(~isnan(CenterFrequencies), 1));
+
+% add minutes to stage labels
+StageLabelsWithMinutes = StageLabels;
+for StageIdx  = 1:numel(StageLabels)
+    StageLabelsWithMinutes{StageIdx} = [StageLabels{StageIdx}, ' (', num2str(round(mean(StageMinutes(:, StageIdx), 1))), '±', num2str(round(std(StageMinutes(:, StageIdx), 0, 1))), ' min)'];
+end
+
 Grid = [7 9];
 chART.sub_plot([], Grid, [5, 1], [2, 9], false, 'B', PlotProps);
 
-[AxesGrid, WhiteAxes] = colorscale_grid(MeanCenterFrequency, nParticipants,  Bands, StageLabels, PlotProps);
+[AxesGrid, WhiteAxes] = colorscale_grid(MeanCenterFrequency, nParticipants,  Bands, StageLabelsWithMinutes, PlotProps);
  set(AxesGrid, 'Units', 'centimeters')
   set(WhiteAxes, 'Units', 'centimeters')
- CurrentPosition = AxesGrid.Position(2);
-AxesGrid.Position(2) = CurrentPosition-.3;
-WhiteAxes.Position(2) = CurrentPosition-.3;
+ CurrentPosition = AxesGrid.Position;
+ CurrentPosition = [3.5, CurrentPosition(2)-.3, LastLittleAxes.Position(3)+LastLittleAxes.Position(1)-3.5, CurrentPosition(4)];
+AxesGrid.Position = CurrentPosition;
+WhiteAxes.Position = CurrentPosition;
 
+LastLittleAxes.Units = 'normalized';
 
 %%% C: topography
 
@@ -177,7 +188,7 @@ AxesGrid.CLim = [0 20];
 AxesGrid.Colormap = flip(PlotProps.Color.Maps.Linear(160:end, :));
 
 
-chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
+% chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
 
 
