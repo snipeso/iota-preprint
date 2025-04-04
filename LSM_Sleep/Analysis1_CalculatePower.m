@@ -89,9 +89,14 @@ for FileIdx = 1:numel(Files)
     [Slopes, Intercepts, FooofFrequencies, PeriodicPeaks, PeriodicPower, Errors, RSquared] ...
         = oscip.fit_fooof_multidimentional(SmoothPower, Frequencies, FittingFrequencyRange, MaxError, MinRSquared);
 
+
     save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'BadSegments',  'Artefacts', 'Time', 'Chanlocs', ...
         'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...
         'Intercepts', 'Slopes', 'Errors', 'RSquared', 'ScoringLabels', 'ScoringIndexes')
+    % delete(gcp('nocreate'));
+    % myCluster = parcluster;
+    % disp(myCluster.JobStorageLocation)
+    % rmdir(myCluster.JobStorageLocation, 's')
 
     % plot to check all is ok
     oscip.plot.frequency_overview(PeriodicPower, FooofFrequencies, PeriodicPeaks, ...
