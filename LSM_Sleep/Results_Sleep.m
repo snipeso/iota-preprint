@@ -16,6 +16,7 @@ Bands = Parameters.Bands;
 
 Channels = Parameters.Channels.NotEdge;
 Task = Parameters.Task;
+% Format = 'Minimal'; % chooses which filtering to do
 Format = 'Minimal'; % chooses which filtering to do
 FreqLims = [3 45];
 

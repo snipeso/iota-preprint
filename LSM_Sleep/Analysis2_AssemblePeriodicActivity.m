@@ -16,6 +16,7 @@ Channels = Parameters.Channels;
 Task = Parameters.Task;
 Session = Parameters.Session;
 Participants = Parameters.Participants;
+EpochLength = 20; % move to parameters TODO
 
 Bands = Parameters.Bands;
 BandLabels = fieldnames(Bands);
@@ -60,6 +61,7 @@ LogTopographies = CustomTopographies;
 PeriodicTopographies = CustomTopographies;
 
 CenterFrequencies = nan(nParticipants, nStages, nBands);
+StageMinutes = nan(nParticipants, nStages);
 CustomPeakSettings = oscip.default_settings();
 CustomPeakSettings.PeakBandwidthMin = .5;
 CustomPeakSettings.PeakBandwidthMax = 12;
@@ -97,6 +99,7 @@ for ParticipantIdx = 1:nParticipants
     for StageIdx = 1:nStages
 
         StageEpochs = Scoring==StageIndexes(StageIdx);
+        StageMinutes(ParticipantIdx, StageIdx) = nnz(StageEpochs)*EpochLength/60;
 
         %%% average power
         MeanPower = squeeze(mean(mean(SmoothPowerNoEdge(:, StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
@@ -141,7 +144,7 @@ for ParticipantIdx = 1:nParticipants
     disp([num2str(ParticipantIdx), '/', num2str(nParticipants)])
 end
 
-save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaksTable', 'StageLabels', 'StageIndexes',  ...
+save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaksTable', 'StageLabels', 'StageIndexes', 'StageMinutes',  ...
     'Chanlocs', 'CustomTopographies', 'LogTopographies', 'PeriodicTopographies', ...
     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies', 'Bands')
 
