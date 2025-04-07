@@ -48,7 +48,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% run
 
-for FileIdx = 2 %1:numel(Files)
+for FileIdx = 1:numel(Files)
 
     File = Files{FileIdx};
     if ~Refresh && exist(fullfile(Destination, File), 'file')
