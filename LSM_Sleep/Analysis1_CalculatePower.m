@@ -32,7 +32,7 @@ MinRSquared = .98;
 ScatterSizeScaling = 10;
 Alpha = .05;
 
-Refresh = false;
+Refresh = true;
 
 % locations
 SourcePath = fullfile(Paths.Preprocessed, Format, 'Clean', Task);
@@ -48,7 +48,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% run
 
-for FileIdx = 1:numel(Files)
+for FileIdx = 2 %1:numel(Files)
 
     File = Files{FileIdx};
     if ~Refresh && exist(fullfile(Destination, File), 'file')

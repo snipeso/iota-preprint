@@ -71,7 +71,8 @@ end
 for row = 1:nRows
     for col = 1:nCols
         if col==1
-            Text = [num2str(round(mean(StageMinutes(:, row), 1))), ' ± ', num2str(round(std(StageMinutes(:, row), 0, 1)))];
+            Text = [num2str(round(mean(StageMinutes(:, row), 1, 'omitnan'))), ' ± ', num2str(round(std(StageMinutes(:, row), 0, 1, 'omitnan'))), ...
+                ' (' , num2str(nnz(~isnan(StageMinutes(:, row)))), ')'];
         else
             value = nParticipants(row, col);
 

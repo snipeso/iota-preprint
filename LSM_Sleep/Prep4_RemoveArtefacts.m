@@ -12,7 +12,7 @@ close all
 P = LSMParameters();
 
 Paths  = P.Paths;
-Refresh = false;
+Refresh = true;
 Task = P.Task;
 EEG_Channels = P.Channels;
 Format = 'Minimal'; % chooses which filtering to do
@@ -44,7 +44,7 @@ FinalChanlocs = StandardChanlocs;
 FinalChanlocs(ismember({StandardChanlocs.labels}, string(EEG_Channels.notEEG))) = [];
 FinalChanlocs(end+1) = CZ;
 
-for FileIdx = 1:numel(Files)
+for FileIdx = 4 %1:numel(Files)
 
     % check if destination file already exists
     File = Files{FileIdx};

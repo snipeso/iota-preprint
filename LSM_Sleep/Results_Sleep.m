@@ -17,7 +17,7 @@ Bands = Parameters.Bands;
 Channels = Parameters.Channels.NotEdge;
 Task = Parameters.Task;
 % Format = 'Minimal'; % chooses which filtering to do
-Format = 'Minimal'; % chooses which filtering to do
+Format = 'Minimal_New'; % chooses which filtering to do
 FreqLims = [3 45];
 
 ExampleParticipant = 'P09';
@@ -50,8 +50,6 @@ Settings.DistributionBandwidthMax = 4; % how much jitter there can be across per
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Figure.Padding = 30;
 
-
-IotaBand = [25 40];
 IotaTextColor = [73 63 11]/255;
 
 Grid = [8 9];
@@ -77,7 +75,7 @@ add_peak_text(squeeze(CenterFrequencies(ExampleParticipantIdx, end, end-1)), Iot
 Participants = Parameters.Participants;
 Participants(strcmp(Participants, 'P09')) = [];
 
-for ParticipantIdx = 1:numel(Participants)
+for ParticipantIdx = 1:14 %numel(Participants)
 
     % load data
     Participant = Participants{ParticipantIdx};
@@ -102,6 +100,7 @@ for ParticipantIdx = 1:numel(Participants)
     xlim(FreqLims)
     xlabel('')
     ylabel('')
+    xlim(FreqLims)
     xticks(10:20:50)
     legend off
 
@@ -127,9 +126,9 @@ Grid = [7 9];
 chART.sub_plot([], Grid, [5, 1], [2, 9], false, 'B', PlotProps);
 
 [AxesGrid, WhiteAxes] = colorscale_grid(MeanCenterFrequency, nParticipants,  Bands, StageLabels, StageMinutes, PlotProps);
- set(AxesGrid, 'Units', 'centimeters')
-  set(WhiteAxes, 'Units', 'centimeters')
- CurrentPosition = AxesGrid.Position;
+set(AxesGrid, 'Units', 'centimeters')
+set(WhiteAxes, 'Units', 'centimeters')
+CurrentPosition = AxesGrid.Position;
 %  CurrentPosition = [3.5, CurrentPosition(2)-.3, LastLittleAxes.Position(3)+LastLittleAxes.Position(1)-3.5, CurrentPosition(4)];
 % AxesGrid.Position = CurrentPosition;
 % WhiteAxes.Position = CurrentPosition;
@@ -140,11 +139,10 @@ disp('N per stage:')
 [StageLabels', string(sum(StageMinutes>=1)')]
 
 %%% C: topography
-
+% load(fullfile(CacheDir, CacheName), 'LogTopographies', 'Chanlocs', 'Bands', 'StageLabels')
+% PeriodicTopographies = LogTopographies;
 load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
 BandLabels = fieldnames(Bands);
-nStages = numel(StageLabels);
-nBands = numel(BandLabels);
 PlotProps.Colorbar.Location = 'North';
 
 PlotIndexes = {[4 2], [4 4], [1 2], [2 3], [5 1], [5 5]}; % [stage, band]
@@ -171,9 +169,9 @@ for PlotIdx = 1:numel(PlotIndexes)
 
     CLims = quantile(Data, [0 1]);
 
-      Axes = chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, '', PlotProps);
+    Axes = chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, '', PlotProps);
     chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps);
-        set(gca, 'Units', 'centimeters')
+    set(gca, 'Units', 'centimeters')
     Axes.Position(2) = 2;
     % title([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}])
     title(Titles{PlotIdx})
@@ -326,7 +324,7 @@ chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% not included: topography of all stages/bands
 
-load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
+load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels', 'CustomTopographies')
 BandLabels = fieldnames(Bands);
 nStages = numel(StageLabels);
 nBands = numel(BandLabels);
@@ -349,13 +347,15 @@ CLims = [
 figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width PlotProps.Figure.Width])
 for BandIdx = 1:nBands
     for StageIdx = 1:nStages
-        Data = squeeze(mean(PeriodicTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
-        % Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
+        % Data = squeeze(mean(PeriodicTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
+        Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
         if all(isnan(Data)|Data==0)
             continue
         end
         chART.sub_plot([], Grid, [BandIdx, StageIdx], [], false, '', PlotProps);
-        chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims(BandIdx, :), '', 'Linear', PlotProps);
+        % chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims(BandIdx, :), '', 'Linear', PlotProps);
+        chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps);
+
         colorbar
         title([BandLabels{BandIdx}, ' ', StageLabels{StageIdx}])
     end

@@ -2,10 +2,9 @@
 %
 % from iota-neurophys, Snipes, 2024.
 
-
 clear
 clc
-close all
+% close all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Parameters
@@ -37,7 +36,7 @@ MinMinutes = Parameters.MinTime/60;
 RangeSlopes = [0 5];
 RangeIntercepts = [0 5]; % reeeeally generous
 
-Format = 'Minimal_New';
+Format = 'Minimal';
 SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', Task, Format);
 
 CacheDir = Paths.Cache;
@@ -70,7 +69,7 @@ CustomPeakSettings.PeakBandwidthMax = 12;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run
 
-for ParticipantIdx = 1:nParticipants
+for ParticipantIdx = 2 %1:nParticipants
 
     Participant = Participants{ParticipantIdx};
     Filepath = fullfile(SourcePower, [Participant, '_', Task, '_' Session, '.mat']);
@@ -84,10 +83,6 @@ for ParticipantIdx = 1:nParticipants
 
     %%% Get periodic peaks
 
-    % % remove edge channels
-    % SmoothPower(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
-    % PeriodicPower(labels2indexes(Channels.Edge, Chanlocs), :, :) = nan;
-
     % remove data based on aperiodic activity
     SmoothPower = remove_bad_aperiodic(SmoothPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
     PeriodicPower = remove_bad_aperiodic(PeriodicPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
@@ -97,10 +92,13 @@ for ParticipantIdx = 1:nParticipants
 
         StageEpochs = Scoring==StageIndexes(StageIdx);
         Minutes = nnz(any(~isnan(PeriodicPower(:, StageEpochs, 1)), 1))*EpochLength/60;
-        StageMinutes(ParticipantIdx, StageIdx) = Minutes;
+
         if Minutes < MinMinutes
+            StageMinutes(ParticipantIdx, StageIdx) = nan;
             disp(['not enough minutes in ', num2str(StageIdx), ' ', Participant])
             continue
+        else
+            StageMinutes(ParticipantIdx, StageIdx) = Minutes;
         end
 
         %%% average power
@@ -130,7 +128,7 @@ for ParticipantIdx = 1:nParticipants
 
             % identify individual peak within each canonical band
             [isPeak, Peak] = oscip.check_peak_in_band(PeriodicPeaks(:, StageEpochs, :), Band, 1, CustomPeakSettings);
-            
+
             % custom topography (not used)
             if isPeak
                 CustomRange = dsearchn(FooofFrequencies', [Peak(1)-Peak(3)/2; Peak(1)+Peak(3)/2]);
