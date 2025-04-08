@@ -69,7 +69,7 @@ CustomPeakSettings.PeakBandwidthMax = 12;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run
 
-for ParticipantIdx = 2 %1:nParticipants
+for ParticipantIdx = 1:nParticipants
 
     Participant = Participants{ParticipantIdx};
     Filepath = fullfile(SourcePower, [Participant, '_', Task, '_' Session, '.mat']);

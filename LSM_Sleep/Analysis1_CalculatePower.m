@@ -32,7 +32,7 @@ MinRSquared = .98;
 ScatterSizeScaling = 10;
 Alpha = .05;
 
-Refresh = true;
+Refresh = false;
 
 % locations
 SourcePath = fullfile(Paths.Preprocessed, Format, 'Clean', Task);
