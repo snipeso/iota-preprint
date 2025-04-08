@@ -15,6 +15,8 @@ Paths = P.Paths;
 Task = P.Task;
 Format = 'Minimal';
 
+Refresh = false;
+
 % locations
 Source = fullfile(Paths.Final, 'EEG', 'Power',  '20sEpochs', Task, Format);
 Files = list_filenames(Source);
@@ -35,6 +37,11 @@ for FileIdx = 1:numel(Files)
 
     %%% load in data
 
+    if exist(fullfile(Destination, File), 'file') && ~Refresh
+        disp(['Already did ', File])
+        continue
+    end
+
     load(fullfile(Source, File), 'Power', 'Frequencies', 'Scoring',  'BadSegments',  'Artefacts', 'Time', 'Chanlocs', ...
         'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...
         'Intercepts', 'Slopes', 'Errors', 'RSquared', 'ScoringLabels', 'ScoringIndexes')
@@ -54,6 +61,7 @@ for FileIdx = 1:numel(Files)
     save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'BadSegments',  'Artefacts', 'Time', 'Chanlocs', ...
         'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...
         'Intercepts', 'Slopes', 'Errors', 'RSquared', 'ScoringLabels', 'ScoringIndexes')
+    disp(['Finished ', File])
 end
 
 
