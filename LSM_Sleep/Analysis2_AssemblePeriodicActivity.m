@@ -4,7 +4,7 @@
 
 clear
 clc
-% close all
+close all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Parameters
@@ -36,7 +36,7 @@ MinMinutes = Parameters.MinTime/60;
 RangeSlopes = [0 5];
 RangeIntercepts = [0 5]; % reeeeally generous
 
-Format = 'Minimal_noCz';
+Format = 'Minimal';
 SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', Task, Format);
 
 CacheDir = Paths.Cache;
@@ -56,7 +56,7 @@ PeriodicPeaksTable = table();
 AllSpectra = nan(nParticipants, nStages, 1);
 AllPeriodicSpectra = nan(nParticipants, nStages, 1);
 
-CustomTopographies = nan(nParticipants, nStages, nBands, 123);
+CustomTopographies = nan(nParticipants, nStages, nBands, numel(Channels.TopoPlot));
 LogTopographies = CustomTopographies;
 PeriodicTopographies = CustomTopographies;
 
@@ -69,6 +69,7 @@ CustomPeakSettings.PeakBandwidthMax = 12;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run
 
+
 for ParticipantIdx = 1:nParticipants
 
     Participant = Participants{ParticipantIdx};
@@ -80,6 +81,9 @@ for ParticipantIdx = 1:nParticipants
 
     % load in data
     load(Filepath,  'SmoothPower', 'Frequencies', 'Chanlocs', 'PeriodicPower', 'FooofFrequencies', 'Slopes', 'Intercepts', 'Scoring', 'PeriodicPeaks')
+
+    MainEEGChannels = labels2indexes(Channels.NotEdge, Chanlocs);
+    TopoChannels = labels2indexes(Channels.TopoPlot, Chanlocs);
 
     %%% Get periodic peaks
 
@@ -102,10 +106,10 @@ for ParticipantIdx = 1:nParticipants
         end
 
         %%% average power
-        MeanPower = squeeze(mean(mean(SmoothPower(labels2indexes(Channels.NotEdge, Chanlocs), StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
+        MeanPower = squeeze(mean(mean(SmoothPower(MainEEGChannels, StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))'; % its important that the channels are averaged first!
 
         AllSpectra(ParticipantIdx, StageIdx, 1:numel(MeanPower)) = MeanPower;
-        AllPeriodicSpectra(ParticipantIdx, StageIdx, 1:size(PeriodicPower, 3)) = squeeze(mean(mean(PeriodicPower(labels2indexes(Channels.Edge, Chanlocs), StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))';
+        AllPeriodicSpectra(ParticipantIdx, StageIdx, 1:size(PeriodicPower, 3)) = squeeze(mean(mean(PeriodicPower(MainEEGChannels, StageEpochs, :), 1, 'omitnan'), 2, 'omitnan'))';
 
 
         % find all peaks in average power spectrum
@@ -119,21 +123,21 @@ for ParticipantIdx = 1:nParticipants
             % standard range
             Band = Bands.(BandLabels{BandIdx});
             Range = dsearchn(Frequencies', Band');
-            LogTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
-                squeeze(mean(mean(log10(SmoothPower(:, StageEpochs, Range(1):Range(2))), 3, 'omitnan'), 2, 'omitnan'));
+            LogTopographies(ParticipantIdx, StageIdx, BandIdx, :) = ...
+                squeeze(mean(mean(log10(SmoothPower(TopoChannels, StageEpochs, Range(1):Range(2))), 3, 'omitnan'), 2, 'omitnan'));
 
             Range = dsearchn(FooofFrequencies', Band');
-            PeriodicTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
-                squeeze(mean(mean(PeriodicPower(:, StageEpochs, Range(1):Range(2)), 3, 'omitnan'), 2, 'omitnan'));
+            PeriodicTopographies(ParticipantIdx, StageIdx, BandIdx, :) = ...
+                squeeze(mean(mean(PeriodicPower(TopoChannels, StageEpochs, Range(1):Range(2)), 3, 'omitnan'), 2, 'omitnan'));
 
             % identify individual peak within each canonical band
-            [isPeak, Peak] = oscip.check_peak_in_band(PeriodicPeaks(:, StageEpochs, :), Band, 1, CustomPeakSettings);
+            [isPeak, Peak] = oscip.check_peak_in_band(PeriodicPeaks(MainEEGChannels, StageEpochs, :), Band, 1, CustomPeakSettings);
 
             % custom topography (not used)
             if isPeak
                 CustomRange = dsearchn(FooofFrequencies', [Peak(1)-Peak(3)/2; Peak(1)+Peak(3)/2]);
-                CustomTopographies(ParticipantIdx, StageIdx, BandIdx, 1:numel(Chanlocs)) = ...
-                    squeeze(mean(mean(PeriodicPower(:, StageEpochs, CustomRange(1):CustomRange(2)), 3, 'omitnan'), 2, 'omitnan'));
+                CustomTopographies(ParticipantIdx, StageIdx, BandIdx, :) = ...
+                    squeeze(mean(mean(PeriodicPower(TopoChannels, StageEpochs, CustomRange(1):CustomRange(2)), 3, 'omitnan'), 2, 'omitnan'));
 
                 % save peak information to metadata
                 CenterFrequencies(ParticipantIdx, StageIdx, BandIdx) = Peak(1);
@@ -144,6 +148,8 @@ for ParticipantIdx = 1:nParticipants
     disp([num2str(ParticipantIdx), '/', num2str(nParticipants)])
 end
 
+
+Chanlocs = Chanlocs(TopoChannels);
 save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaksTable', 'StageLabels', 'StageIndexes', 'StageMinutes',  ...
     'Chanlocs', 'CustomTopographies', 'LogTopographies', 'PeriodicTopographies', ...
     'AllSpectra', 'AllPeriodicSpectra', 'Frequencies', 'FooofFrequencies', 'Bands')

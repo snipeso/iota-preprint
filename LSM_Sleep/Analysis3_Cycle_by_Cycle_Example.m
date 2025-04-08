@@ -32,7 +32,6 @@ load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
 
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
 
-
 PeriodicPeaksREM = PeriodicPeaks(labels2indexes(Channels, Chanlocs), Scoring==1, :);
 
 %%
@@ -42,10 +41,13 @@ PeriodicPeaksREM = PeriodicPeaks(labels2indexes(Channels, Chanlocs), Scoring==1,
 BandRange = MaxPeak(1) + [-2 2];
 
 % select only REM sleep
-[Starts, Ends] = data2windows(Scoring==1 & ~all(Artefacts));
+REMBout = 3;
+[Starts, Ends] = data2windows(Scoring==1);
 REMWindows = [Starts', Ends']*20;
-REMWindows = REMWindows(4, :);
+REMWindows = REMWindows(REMBout, :);
 EEGSnippet = pop_select(EEG, 'time', REMWindows);
+
+KeepPoints = artifacts2array(Artefacts(1:end-1, Starts(REMBout):Ends(REMBout)), EEGSnippet, 20);
 
 % filter to remove drifts
 EEGSnippet = eeg_checkset(EEGSnippet);
@@ -53,7 +55,7 @@ EEGSnippet = pop_eegfiltnew(EEGSnippet, .5);
 EEGSnippet = pop_eegfiltnew(EEGSnippet, [], 45);
 
 % detect bursts
-Bursts = burst_detection(EEGSnippet, BandRange, CriteriaSet);
+Bursts = burst_detection(EEGSnippet, BandRange, CriteriaSet, KeepPoints);
 Bursts = cycy.average_cycles(Bursts, {'Amplitude'});
 BurstClusters = cycy.aggregate_bursts_into_clusters(Bursts, EEGSnippet, 1);
 CacheDir = Paths.Cache;

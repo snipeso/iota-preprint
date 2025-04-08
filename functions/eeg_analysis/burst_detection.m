@@ -1,4 +1,4 @@
-function Bursts = burst_detection(EEG, BandRange, CriteriaSet)
+function Bursts = burst_detection(EEG, BandRange, CriteriaSet, KeepPoints)
 
 SampleRate = EEG.srate;
 
@@ -10,5 +10,11 @@ EEGNarrowband.data = DataNarrowband;
 Band1 = struct();
 Band1.Iota = BandRange;
 
-Bursts = cycy.detect_bursts_all_channels(EEG, EEGNarrowband, Band1, ...
-    CriteriaSet, false);
+
+if exist("KeepPoints", 'var')
+    Bursts = cycy.detect_bursts_all_channels(EEG, EEGNarrowband, Band1, ...
+        CriteriaSet, false, KeepPoints);
+else
+    Bursts = cycy.detect_bursts_all_channels(EEG, EEGNarrowband, Band1, ...
+        CriteriaSet, false);
+end

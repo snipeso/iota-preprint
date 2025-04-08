@@ -17,7 +17,7 @@ Bands = Parameters.Bands;
 Channels = Parameters.Channels.NotEdge;
 Task = Parameters.Task;
 % Format = 'Minimal'; % chooses which filtering to do
-Format = 'Minimal_noCz'; % chooses which filtering to do
+Format = 'Minimal'; % chooses which filtering to do
 FreqLims = [3 45];
 
 ExampleParticipant = 'P09';
@@ -75,7 +75,7 @@ add_peak_text(squeeze(CenterFrequencies(ExampleParticipantIdx, end, end-1)), Iot
 Participants = Parameters.Participants;
 Participants(strcmp(Participants, 'P09')) = [];
 
-for ParticipantIdx = 1:14 %numel(Participants)
+for ParticipantIdx = 1:numel(Participants)
 
     % load data
     Participant = Participants{ParticipantIdx};
@@ -116,40 +116,38 @@ LastLittleAxes.Units = 'centimeters';
 MeanCenterFrequency = round(squeeze(mean(CenterFrequencies, 1, 'omitnan')),1);
 nParticipants = squeeze(sum(~isnan(CenterFrequencies), 1));
 
-% add minutes to stage labels
-% StageLabelsWithMinutes = StageLabels;
-% for StageIdx  = 1:numel(StageLabels)
-%     StageLabelsWithMinutes{StageIdx} = [StageLabels{StageIdx}, ' (', num2str(round(mean(StageMinutes(:, StageIdx), 1))), '±', num2str(round(std(StageMinutes(:, StageIdx), 0, 1))), ' min)'];
-% end
 
 Grid = [7 9];
 chART.sub_plot([], Grid, [5, 1], [2, 9], false, 'B', PlotProps);
 
-[AxesGrid, WhiteAxes] = colorscale_grid(MeanCenterFrequency, nParticipants,  Bands, StageLabels, StageMinutes, PlotProps);
+[AxesGrid, WhiteAxes] = colorscale_grid(flip(MeanCenterFrequency), flip(nParticipants),  Bands, flip(StageLabels), flip(StageMinutes, 2), PlotProps);
 set(AxesGrid, 'Units', 'centimeters')
 set(WhiteAxes, 'Units', 'centimeters')
 CurrentPosition = AxesGrid.Position;
-%  CurrentPosition = [3.5, CurrentPosition(2)-.3, LastLittleAxes.Position(3)+LastLittleAxes.Position(1)-3.5, CurrentPosition(4)];
-% AxesGrid.Position = CurrentPosition;
-% WhiteAxes.Position = CurrentPosition;
 
+AxesGrid.Position = [CurrentPosition(1), CurrentPosition(2)-.2, CurrentPosition(3), CurrentPosition(4)-.2];
+WhiteAxes.Position= [CurrentPosition(1), CurrentPosition(2)-.2, CurrentPosition(3), CurrentPosition(4)-.2];
 LastLittleAxes.Units = 'normalized';
 
 disp('N per stage:')
 [StageLabels', string(sum(StageMinutes>=1)')]
 
 %%% C: topography
-% load(fullfile(CacheDir, CacheName), 'LogTopographies', 'Chanlocs', 'Bands', 'StageLabels')
-% PeriodicTopographies = LogTopographies;
 load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
 BandLabels = fieldnames(Bands);
 PlotProps.Colorbar.Location = 'North';
 
-PlotIndexes = {[4 2], [4 4], [1 2], [2 3], [5 1], [5 5]}; % [stage, band]
-Titles = {'W — alpha', 'W — beta', 'N3 — alpha', 'N2 — sigma', 'R — theta', 'R — iota'};
+PlotIndexes = {[5 5], [5 1], [4 2], [4 4],  [2 3], [1 2]}; % [stage, band]
+Titles = {'R — iota', 'R — theta', 'W — alpha', 'W — beta', 'N2 — sigma', 'N3 — alpha',};
 
 GridRws = 8;
 Grid = [GridRws, numel(PlotIndexes)];
+
+% remove outermost channels
+RM = labels2indexes([48 119], Chanlocs);
+Chanlocs(RM) = [];
+PeriodicTopographies(:, :, :, RM) = [];
+
 for PlotIdx = 1:numel(PlotIndexes)
     Indexes = PlotIndexes{PlotIdx};
     Data = squeeze(mean(PeriodicTopographies(:, Indexes(1), Indexes(2), :), 1, 'omitnan'));
@@ -227,10 +225,11 @@ imagesc(Time, FooofFrequencies, SmoothMeanPower)
 chART.set_axis_properties(PlotProps)
 CLims = [-.1 1.1];
 clim(CLims)
-set(gca, 'YDir', 'normal')
+set(gca, 'YDir', 'normal',   'TickLength', [TickLength 0])
+% set(gca, 'YDir', 'normal', 'TickLength', [0.0100    0.0250])
 ylabel('Frequency (Hz)')
 xlabel('Time (h)')
-set(gca, 'TickLength', [TickLength 0], 'YLim', FreqLims)
+set(gca, 'YLim', FreqLims)
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.Text.LegendSize = PlotProps.Text.AxisSize;
 box off
@@ -240,10 +239,11 @@ Width = B1Axis.Position(3);
 Bar.Position(3) = 0.014647239581274;
 B1Axis.Position(3) = Width;
 
-%%%  B: plot hypnogram
-chART.sub_plot([], Grid, [3, 1], [1 1], true, 'B', PlotProps);
+% plot hypnogram
+chART.sub_plot([], Grid, [3, 1], [1 1], true, '', PlotProps);
 yyaxis left
-Red = chART.color_picker(1, '', 'red');
+% Red = chART.color_picker(1, '', 'red');
+Red = PlotProps.Color.Maps.Linear(30, :);
 plot(Time, Scoring, 'LineWidth', PlotProps.Line.Width*2/3, 'Color', [Red, .8])
 chART.set_axis_properties(PlotProps)
 axis tight
@@ -265,22 +265,28 @@ B2Axes.Units = B1Axis.Units;
 B2Axes.Position(3) = Width;
 
 
-%%% C: REM bout
+%%% B: REM bout
 CacheName = [ExampleParticipant, '_BurstsOneREM.mat'];
 load(fullfile(CacheDir, CacheName), 'Bursts', 'EEGSnippet', 'BurstClusters')
-EOG2 =  EEGSnippet.data(32, :)-EEGSnippet.data(125, :);
+EOG2 =  EEGSnippet.data(labels2indexes(32, EEGSnippet.chanlocs), :)-EEGSnippet.data(labels2indexes(125, EEGSnippet.chanlocs), :);
 
 rms_per_channel = sqrt(EOG2.^2);
 t = linspace(0, size(EEGSnippet.data, 2)/EEGSnippet.srate, size(EEGSnippet.data, 2));
-chART.sub_plot([], Grid, [4, 1], [1 1], true, 'C', PlotProps);
+chART.sub_plot([], Grid, [4, 1], [1 1], true, 'B', PlotProps);
 
-scatter([Bursts.Start]/EEGSnippet.srate/60, [Bursts.ChannelIndex], [Bursts.MeanAmplitude]*5, 'filled', 'MarkerFaceAlpha', .1, 'MarkerFaceColor', PlotProps.Color.Maps.Linear(128, :))
+scatter([Bursts.Start]/EEGSnippet.srate/60, [Bursts.ChannelIndex], [Bursts.MeanAmplitude], 'filled', 'MarkerFaceAlpha', .1, 'MarkerFaceColor', PlotProps.Color.Maps.Linear(128, :))
 hold on
-plot(t/60, mat2gray(smooth(rms_per_channel, 1000))*129, 'LineWidth', 2, 'color', [0 0 0])
+plot(t/60, mat2gray(smooth(rms_per_channel, 1000))*123, 'LineWidth', 2, 'color', [0 0 0])
+chART.set_axis_properties(PlotProps)
+set(gca, 'YColor', 'none', 'TickLength', [TickLength 0])
 axis tight
+xlabel('Time (min)')
+B3Axes = gca;
+B3Axes.Units = B1Axis.Units;
+B3Axes.Position(3) = Width;
 
 
-%%% D: example REM time
+%%% C: example REM time
 
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
 load(fullfile(CacheDir, CacheName), 'Bands')
@@ -304,7 +310,6 @@ EEGSnippet = pop_eegfiltnew(EEGSnippet, .5);
 PlotProps.Line.Width = 1.5;
 YGap = 20;
 
-
 % basic EEG
 chART.sub_plot([], Grid, [7, 1], [3 1], true, 'C', PlotProps);
 plot_eeg(EEGSnippet.data, EEG.srate, YGap, PlotProps)
@@ -313,10 +318,10 @@ plot_eeg(EEGSnippet.data, EEG.srate, YGap, PlotProps)
 % bursts
 FrequencyRange = Bands.Iota; % TODO: make custom
 plot_burst_mask(EEGSnippet, FrequencyRange, CriteriaSet, YGap, PlotProps)
-B3Axes = gca;
-B3Axes.Units = B1Axis.Units;
-B3Axes.Position(3) = Width;
-
+B4Axes = gca;
+B4Axes.Units = B1Axis.Units;
+B4Axes.Position(3) = Width;
+set(gca,  'TickLength', [TickLength 0])
 
 chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)
 

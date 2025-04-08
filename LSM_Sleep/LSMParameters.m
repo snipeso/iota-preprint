@@ -124,9 +124,11 @@ Centerspot = [129 7 106 80 55 31 30 37 54 79 87 105 36 42 53 61 62 78 86 93 104 
 Channels.PreROI.Front = Frontspot;
 Channels.PreROI.Center = Centerspot;
 Channels.PreROI.Back = Backspot;
-Channels.NotEdge = 1:129;
+Channels.NotEdge = 1:128;
 Channels.Edge =   [1 8 14 17 21 25 32 128 38 44 43 48 63 68 73 81 88 94 99 120 119 114 121 125];
 Channels.notEEG = [49, 56, 107, 113, 126, 127];
+Channels.TopoPlot = 1:128;
+Channels.TopoPlot([Channels.notEEG, 48 119]) = []; % remove the two little tippy channels because they make topographies look more central than they are
 Channels.NotEdge([Channels.Edge, Channels.notEEG]) = [];
 Channels.Standard_10_20 = [11 22 9 24 124 33 122 129 36 104 45 108 62 52 92 58 96 75 70 83];
 
