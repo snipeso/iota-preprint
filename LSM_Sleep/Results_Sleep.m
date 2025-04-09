@@ -184,7 +184,7 @@ end
 
 AxesGrid.Colormap = chART.utils.custom_gradient([1 1 1], PlotProps.Color.Maps.Linear(1, :));
 
-% chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
+chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
 
 
