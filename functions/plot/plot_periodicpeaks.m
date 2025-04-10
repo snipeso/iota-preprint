@@ -4,7 +4,7 @@ function Axes = plot_periodicpeaks(PeriodicPeaks, XLims, YLims, CLims, plotColor
 
 
 % main  scatterplot
-scatter(PeriodicPeaks.Frequency, PeriodicPeaks.BandWidth,  PlotProps.Scatter.Size, PeriodicPeaks.Age, ...
+scatter(PeriodicPeaks.Frequency, PeriodicPeaks.BandWidth,  PeriodicPeaks.Power*PlotProps.Scatter.Size, PeriodicPeaks.Age, ...
     'filled', 'MarkerFaceAlpha', PlotProps.Scatter.Alpha)
 
 chART.set_axis_properties(PlotProps)

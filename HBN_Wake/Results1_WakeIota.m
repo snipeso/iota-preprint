@@ -13,6 +13,7 @@ close all
 Parameters = HBNParameters();
 Paths = Parameters.Paths;
 CacheDir = Paths.Cache;
+Channels = Parameters.Channels;
 Iota = [25 35];
 
 %%% paths
@@ -92,6 +93,8 @@ PeriodicPeaks = sortrows(PeriodicPeaks, 'Age', 'ascend'); % sort by age so that 
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Axes.yPadding = 5;
+PlotProps.Scatter.Size = 30;
+
 Grid = [1, 4];
 XLim = [3 50];
 Red = chART.color_picker(1, '', 'red');
@@ -110,7 +113,6 @@ ylim([-2.1 2])
 xlabel('Frequency (Hz)')
 ylabel('Log power')
 box off
-title('Wake spectral power')
 
 
 %%% B: Scatter plot of all periodic peaks
@@ -123,7 +125,6 @@ Axes = plot_periodicpeaks(PeriodicPeaks, XLim, YLims, CLims, true, PlotProps);
 Axes.Units = 'normalized';
 Axes.Position(1) = Axes.Position(1)-.015; % move it a little bit
 Axes.Position(3) = Axes.Position(3)+0.0629;
-title('Periodic peaks', 'FontSize', PlotProps.Text.TitleSize)
 
 
 %%% C: Proportion of iota in population by age
@@ -166,7 +167,6 @@ StringLabels(end) = "+18";
 xticklabels(StringLabels)
 box off
 chART.set_axis_properties(PlotProps)
-title('Iota', 'FontSize', PlotProps.Text.TitleSize)
 
 % shift a bit
 Axes2.Units = 'normalized';
@@ -178,6 +178,10 @@ Axes2.Position(3) = Axes2.Position(3) - .045;
 PlotProps.Colorbar.Location = 'eastoutside';
 load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs')
 
+Keep = labels2indexes(Channels.TopoPlot, Chanlocs);
+Chanlocs = Chanlocs(Keep);
+CustomTopographies = CustomTopographies(:, :, Keep);
+
 BandLabels = fieldnames(Parameters.Bands);
 IotaIdx = find(strcmp(BandLabels, 'Iota'));
 
@@ -185,7 +189,7 @@ IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
 
 chART.sub_plot([], Grid, [1, 4], [], 3.5, 'D', PlotProps);
 chART.plot.eeglab_topoplot(mean(IotaTopo, 1, 'omitnan'), Chanlocs, [], [.15 .38], ...
-    'Log power', 'Linear', PlotProps)
+    'Periodic power', 'Linear', PlotProps)
 colormap(PlotProps.Color.Maps.Rainbow) % needed to reset colormaps; eeglab's topoplot changes the colormap for the whole figure
 set(gca, 'colormap', PlotProps.Color.Maps.Linear)
 
