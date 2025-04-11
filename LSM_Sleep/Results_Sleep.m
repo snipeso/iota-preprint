@@ -55,7 +55,7 @@ Grid = [8 9];
 
 %%% A: periodic peaks individuas
 
-load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'StageLabels', 'StageIndexes', 'StageMinutes')
+load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'StageLabels',  'StageMinutes')
 
 
 % Main participant
@@ -159,7 +159,7 @@ for PlotIdx = 1:numel(PlotIndexes)
     if PlotIdx ==1
         chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, 'C', PlotProps);
         axis off
-        Legend = 'Log power';
+        Legend = 'Periodic power';
     else
         Legend = '';
     end
@@ -209,7 +209,7 @@ load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
     'PeriodicPower', 'Slopes', 'FooofFrequencies',  'Scoring', 'Chanlocs', 'Time', 'ScoringIndexes', 'ScoringLabels')
 Time = Time/60/60; % convert time to hours
 
-figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width*1.1 PlotProps.Figure.Height])
+figure('Units','centimeters', 'Position', [0 0 PlotProps.Figure.Width PlotProps.Figure.Height*1.1])
 
 Grid = [7 1];
 MeanPower = squeeze(mean(PeriodicPower(labels2indexes(Channels, Chanlocs), :, :), 1, 'omitnan'));
@@ -227,16 +227,16 @@ clim(CLims)
 set(gca, 'YDir', 'normal',   'TickLength', [TickLength 0])
 % set(gca, 'YDir', 'normal', 'TickLength', [0.0100    0.0250])
 ylabel('Frequency (Hz)')
-xlabel('Time (h)')
 set(gca, 'YLim', FreqLims)
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.Text.LegendSize = PlotProps.Text.AxisSize;
 box off
-Bar = chART.plot.pretty_colorbar('Linear', CLims, 'Log power', PlotProps);
+Bar = chART.plot.pretty_colorbar('Linear', CLims, 'Periodic power', PlotProps);
 B1Axis = gca;
 Width = B1Axis.Position(3);
 Bar.Position(3) = 0.014647239581274;
 B1Axis.Position(3) = Width;
+% B1Axis.Position(2) = B1Axis.Position(2) + .01;
 
 % plot hypnogram
 chART.sub_plot([], Grid, [3, 1], [1 1], true, '', PlotProps);
@@ -262,6 +262,8 @@ box off
 B2Axes = gca;
 B2Axes.Units = B1Axis.Units;
 B2Axes.Position(3) = Width;
+B2Axes.Position(2) = B2Axes.Position(2)+.025;
+B2Axes.Position(4) =B2Axes.Position(4)-.01;
 
 
 %%% B: REM bout
@@ -275,7 +277,7 @@ chART.sub_plot([], Grid, [4, 1], [1 1], true, 'B', PlotProps);
 
 scatter([Bursts.Start]/EEGSnippet.srate/60, [Bursts.ChannelIndex], [Bursts.MeanAmplitude], 'filled', 'MarkerFaceAlpha', .1, 'MarkerFaceColor', PlotProps.Color.Maps.Linear(128, :))
 hold on
-plot(t/60, mat2gray(smooth(rms_per_channel, 1000))*123, 'LineWidth', 2, 'color', [0 0 0])
+plot(t/60, mat2gray(smooth(rms_per_channel, 1000))*123, 'LineWidth', 1.5, 'color', [0 0 0])
 chART.set_axis_properties(PlotProps)
 set(gca, 'YColor', 'none', 'TickLength', [TickLength 0])
 axis tight
@@ -283,6 +285,7 @@ xlabel('Time (min)')
 B3Axes = gca;
 B3Axes.Units = B1Axis.Units;
 B3Axes.Position(3) = Width;
+B3Axes.Position = [B3Axes.Position(1), B3Axes.Position(2)-.01, Width, B3Axes.Position(4)+.01];
 
 
 %%% C: example REM time
@@ -320,6 +323,7 @@ plot_burst_mask(EEGSnippet, FrequencyRange, CriteriaSet, YGap, PlotProps)
 B4Axes = gca;
 B4Axes.Units = B1Axis.Units;
 B4Axes.Position(3) = Width;
+% B4Axes.Position(2) = B4Axes.Position(2) + .01; 
 set(gca,  'TickLength', [TickLength 0])
 
 chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)
