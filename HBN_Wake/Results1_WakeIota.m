@@ -240,9 +240,8 @@ n2 = numel(~isnan(Metadata.IotaFrequency(Metadata.Age>=14)));
 z_test(n1, x1, n2, x2)
 
 [Rho, p] = corr(Metadata.IotaFrequency, Metadata.Age, 'rows', 'complete');
-disp(['Iota frequency x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
+disp(['Iota frequency x age: r=', num2str(round(Rho, 3)), ', p=', num2str(round(p, 3))])
 
 [Rho, p] = corr(Metadata.IotaPower, Metadata.Age, 'rows', 'complete');
-disp(['Iota power x age: r=', num2str(round(Rho, 2)), ', p=', num2str(round(p, 3))])
-
+disp(['Iota power x age: r=', num2str(round(Rho, 3)), ', p=', num2str(round(p, 3))])
 
