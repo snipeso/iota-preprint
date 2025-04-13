@@ -26,7 +26,7 @@ NoiseSmoothSpan = 5;
 NoiseFittingFrequencyRange = [20 100];
 MaxError = .1;
 MinRSquared = .98;
-MinCleanChannels = 80;
+MinCleanChannels = 128-numel(Channels.notEEG)-Parameters.MinChannels;
 
 RangeSlopes = [0 3.5];
 RangeIntercepts = [0 4];
