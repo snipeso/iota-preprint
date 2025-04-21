@@ -10,23 +10,23 @@ close all
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Parameters
 
-P = LSMParameters();
-Paths = P.Paths;
-Task = P.Task;
+Parameters = LSMParameters();
+Paths = Parameters.Paths;
+Task = Parameters.Task;
 Format = 'Minimal';
-Session = P.Session;
-Channels = P.Channels;
+Session = Parameters.Session;
+Channels = Parameters.Channels;
 
 % power of epochs
-WelchWindowLength = 4;
-WelchWindowOverlap = .5;
-EpochLength = 20;
+WelchWindowLength = Parameters.Power.WelchWindowLength;
+WelchWindowOverlap = Parameters.Power.WelchWindowOverlap;
+EpochLength = Parameters.EpochLength;
 
 % fooof
-SmoothSpan = 2; % Hz
-FittingFrequencyRange = [3 45];
-MaxError = .1;
-MinRSquared = .98;
+SmoothSpan = Parameters.FOOOF.SmoothSpan; % Hz
+FittingFrequencyRange = Parameters.FOOOF.FittingFrequencyRange;
+MaxError = Parameters.FOOOF.MaxError;
+MinRSquared = Parameters.FOOOF.MinRSquared;
 
 % plotting
 ScatterSizeScaling = 10;

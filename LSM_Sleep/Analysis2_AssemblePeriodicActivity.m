@@ -15,7 +15,7 @@ Channels = Parameters.Channels;
 Task = Parameters.Task;
 Session = Parameters.Session;
 Participants = Parameters.Participants;
-EpochLength = 20; % move to parameters TODO
+EpochLength = Parameters.EpochLength;
 
 Bands = Parameters.Bands;
 BandLabels = fieldnames(Bands);
@@ -25,11 +25,9 @@ StageIndexes = -3:1:1;
 StageLabels = {'N3', 'N2', 'N1', 'W', 'R'};
 nStages = numel(StageIndexes);
 
-BandwidthRange = [.5 4];
-
-FittingFrequencyRange = [3 45];
-MaxError = .1;
-MinRSquared = .98;
+FittingFrequencyRange = Parameters.FOOOF.FittingFrequencyRange;
+MaxError = Parameters.FOOOF.MaxError;
+MinRSquared = Parameters.FOOOF.MinRSquared;
 MinCleanChannels = 128-numel(Channels.notEEG)-Parameters.MinChannels; % comes out to 97, to match wake analysis
 MinMinutes = Parameters.MinTime/60;
 
@@ -65,6 +63,8 @@ StageMinutes = nan(nParticipants, nStages);
 CustomPeakSettings = oscip.default_settings();
 CustomPeakSettings.PeakBandwidthMin = .5;
 CustomPeakSettings.PeakBandwidthMax = 12;
+CustomPeakSettings.DistributionBandwidthMax = 12;
+Settings.MinPeaksInPeak = 100;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Run
@@ -91,7 +91,6 @@ for ParticipantIdx = 1:nParticipants
     SmoothPower = remove_bad_aperiodic(SmoothPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
     PeriodicPower = remove_bad_aperiodic(PeriodicPower, Slopes, Intercepts, RangeSlopes, RangeIntercepts, MinCleanChannels);
 
-
     for StageIdx = 1:nStages
 
         StageEpochs = Scoring==StageIndexes(StageIdx);
@@ -116,6 +115,7 @@ for ParticipantIdx = 1:nParticipants
         MetadataRow = table(string(Participant), StageLabels(StageIdx), 'VariableNames', {'Participants', 'Stages'}');
         Table = all_peak_parameters(Frequencies, MeanPower, FittingFrequencyRange, MetadataRow, StageIdx, MinRSquared, MaxError);
         PeriodicPeaksTable = cat(1, PeriodicPeaksTable, Table);
+        figure;histogram(PeriodicPeaks(MainEEGChannels, StageEpochs, 1), 1:CustomPeakSettings.DistributionFrequencyResolution:45)
 
         %%% get topographies & custom peaks
         for BandIdx = 1:nBands
@@ -147,7 +147,6 @@ for ParticipantIdx = 1:nParticipants
 
     disp([num2str(ParticipantIdx), '/', num2str(nParticipants)])
 end
-
 
 Chanlocs = Chanlocs(TopoChannels);
 save(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'PeriodicPeaksTable', 'StageLabels', 'StageIndexes', 'StageMinutes',  ...

@@ -10,6 +10,7 @@ function Parameters = LSMParameters()
 Parameters.Participants = {'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08', 'P09', 'P10', 'P11', 'P12', 'P13', 'P14', 'P15', 'P16', 'P17', 'P18', 'P19'};
 Parameters.Task = 'Sleep'; 
 Parameters.Session = 'Baseline';
+Parameters.EpochLength = 20;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Paths
@@ -164,6 +165,15 @@ Parameters.PlotProps.Poster = chART.load_plot_properties({'Poster', 'Iota'});
 
 Parameters.MinTime = 60; % minimum file duration in seconds required after preprocessing
 Parameters.MinChannels = 25; % minimum number of channels after preprocessing
+
+% fooof 
+Parameters.FOOOF.FittingFrequencyRange = [3 45];
+Parameters.FOOOF.SmoothSpan = 2;
+Parameters.FOOOF.MaxError = .1;
+Parameters.FOOOF.MinRSquared = .98;
+
+Parameters.Power.WelchWindowLength = 4;
+Parameters.Power.WelchWindowOverlap = 0.5;
 
 
 
