@@ -53,7 +53,7 @@ IotaTextColor = [73 63 11]/255;
 
 Grid = [8 9];
 
-%%% A: periodic peaks individuas
+%%% A: periodic peaks individuals
 
 load(fullfile(CacheDir, CacheName), 'CenterFrequencies', 'StageLabels',  'StageMinutes')
 
@@ -134,13 +134,17 @@ disp('N per stage:')
 %%% C: topography
 load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
 BandLabels = fieldnames(Bands);
-PlotProps.Colorbar.Location = 'North';
+PlotProps.Colorbar.Location = 'eastoutside';
+PlotProps.Axes.xPadding = 5;
+% PlotIndexes = {[5 5], [5 1], [4 2], [4 4],  [2 3], [1 2]}; % [stage, band]
+% Titles = {'R — iota', 'R — theta', 'W — alpha', 'W — beta', 'N2 — sigma', 'N3 — alpha',};
 
-PlotIndexes = {[5 5], [5 1], [4 2], [4 4],  [2 3], [1 2]}; % [stage, band]
-Titles = {'R — iota', 'R — theta', 'W — alpha', 'W — beta', 'N2 — sigma', 'N3 — alpha',};
+PlotIndexes = {[5 5], [4 5], [3 5], [2 5], [1 5]}; % [stage, band]
+Titles = {'R', 'W', 'N1', 'N2', 'N3'};
+
 
 GridRws = 8;
-Grid = [GridRws, numel(PlotIndexes)];
+Grid = [GridRws, numel(PlotIndexes)+1];
 
 % remove outermost channels
 RM = labels2indexes([48 119], Chanlocs);
@@ -165,22 +169,28 @@ for PlotIdx = 1:numel(PlotIndexes)
     end
 
     CLims = quantile(Data, [0 1]);
+    CLims = [.05 .2];
 
-    Axes = chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, '', PlotProps);
+    AxesTopo = chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, '', PlotProps);
     chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps);
     set(gca, 'Units', 'centimeters')
-    Axes.Position(2) = 2;
+    % Axes.Position(2) = 2;
     % title([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}])
     title(Titles{PlotIdx})
 
-    Axes = chART.sub_plot([], [GridRws, numel(PlotIndexes)], [GridRws, PlotIdx], [2, 1], false, ' ', PlotProps);
-    set(gca, 'Units', 'centimeters')
-    Axes.Position(2) = Axes.Position(2)-3;
+    % Axes = chART.sub_plot([], [GridRws, numel(PlotIndexes)], [GridRws, PlotIdx], [2, 1], false, ' ', PlotProps);
+    % set(gca, 'Units', 'centimeters')
+    % Axes.Position(2) = Axes.Position(2)-3;
 
-    chART.plot.pretty_colorbar('Linear', CLims, Legend, PlotProps);
     axis off
 end
 
+Axes = chART.sub_plot([], Grid, [GridRws, PlotIdx+1], [2, 1], false, '', PlotProps);
+chART.plot.pretty_colorbar('Linear', CLims, 'Periodic power', PlotProps);
+Axes.Units = 'centimeters';
+Axes.Position = [Axes.Position(1)-3, AxesTopo.Position(2)+1, 3, Axes.Position(4)-2];
+% Axes.Position = [Axes.Position(1), AxesTopo.Position(2), Axes.Position(3), Axes.Position(4)];
+set(Axes, 'visible', 'off')
 AxesGrid.Colormap = chART.utils.custom_gradient([1 1 1], PlotProps.Color.Maps.Linear(1, :));
 
 chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
