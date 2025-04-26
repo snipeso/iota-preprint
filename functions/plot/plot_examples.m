@@ -72,11 +72,9 @@ title(Title)
 
 colorbar off
 box off
-Colorbar = chART.plot.pretty_colorbar('Linear', CLim, 'Log power', PlotProps);
-
 
 %%% B: EEG
-Channels = labels2indexes(Channels, Chanlocs);
+Channels = labels2indexes(Channels, EEG.chanlocs);
 TimeRangeEEG = round(TimeRange*EEG.srate);
 Snippet = EEG.data(Channels, TimeRangeEEG(1):TimeRangeEEG(2)); % TODO: select 10:20 system
 

@@ -12,6 +12,7 @@ close all
 Parameters = HBNParameters();
 Paths = Parameters.Paths;
 CriteriaSet = Parameters.CriteriaSet;
+Channels = Parameters.Channels;
 
 ResultsFolder = fullfile(Paths.Results, 'WakeExamples');
 if ~exist(ResultsFolder,'dir')
@@ -39,7 +40,11 @@ PlotTopos = {
 CacheDir = Paths.Cache;
 CacheName = 'PeriodicParameters_Clean.mat';
 
-load(fullfile(CacheDir, CacheName),  'Metadata', 'CustomTopographies')
+load(fullfile(CacheDir, CacheName),  'Metadata', 'CustomTopographies', 'Chanlocs')
+
+Keep = labels2indexes(Channels.TopoPlot, Chanlocs);
+Chanlocs = Chanlocs(Keep);
+CustomTopographies = CustomTopographies(:, :, Keep);
 
 [idx, loc] = ismember(PlotTopos, Metadata.EID);
 indexes = loc(idx); % Get only the valid indexes
@@ -47,7 +52,6 @@ indexes = loc(idx); % Get only the valid indexes
 BandLabels = fieldnames(Parameters.Bands);
 IotaIdx = find(strcmp(BandLabels, 'Iota'));
 IotaTopo = squeeze(CustomTopographies(:, IotaIdx, :));
-
 
 
 Topographies = IotaTopo(indexes, :);
@@ -58,9 +62,8 @@ Participant = 'NDARMH180XE5'; TimeRange = [39 49]; % the bestest
 File = [Participant, '_RestingState.mat'];
 load(fullfile(Paths.Preprocessed, 'Power\Clean\RestingState\', File), 'EEG')
 
-
 % load fooof data
-load(fullfile( Paths.Final, 'EEG', 'Power', '20sEpochs', 'Clean', File), 'Power', 'Frequencies', 'Chanlocs', 'PeriodicPeaks')
+load(fullfile( Paths.Final, 'EEG', 'Power', '20sEpochs', 'Clean', File), 'Power', 'Frequencies', 'PeriodicPeaks')
 
 Info = Metadata(find(strcmp(Metadata.EID, Participant), 1, 'first'), :);
 
