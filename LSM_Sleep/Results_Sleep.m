@@ -1,4 +1,4 @@
-% This script plots all the sleep related figures
+% This script plots all the sleep related figures. It's all a bit ugly...
 % iota-neurophys, Snipes 2024
 
 clear
@@ -115,7 +115,6 @@ LastLittleAxes.Units = 'centimeters';
 MeanCenterFrequency = round(squeeze(mean(CenterFrequencies, 1, 'omitnan')),1);
 nParticipants = squeeze(sum(~isnan(CenterFrequencies), 1));
 
-
 Grid = [7 9];
 chART.sub_plot([], Grid, [5, 1], [2, 9], false, 'B', PlotProps);
 
@@ -128,20 +127,15 @@ AxesGrid.Position = [CurrentPosition(1), CurrentPosition(2)-.2, CurrentPosition(
 WhiteAxes.Position= [CurrentPosition(1), CurrentPosition(2)-.2, CurrentPosition(3), CurrentPosition(4)-.2];
 LastLittleAxes.Units = 'normalized';
 
-disp('N per stage:')
-[StageLabels', string(sum(StageMinutes>=1)')]
 
 %%% C: topography
 load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels')
 BandLabels = fieldnames(Bands);
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.Axes.xPadding = 5;
-% PlotIndexes = {[5 5], [5 1], [4 2], [4 4],  [2 3], [1 2]}; % [stage, band]
-% Titles = {'R — iota', 'R — theta', 'W — alpha', 'W — beta', 'N2 — sigma', 'N3 — alpha',};
 
 PlotIndexes = {[5 5], [4 5], [3 5], [2 5], [1 5]}; % [stage, band]
 Titles = {'R', 'W', 'N1', 'N2', 'N3'};
-
 
 GridRws = 8;
 Grid = [GridRws, numel(PlotIndexes)+1];
@@ -155,7 +149,6 @@ for PlotIdx = 1:numel(PlotIndexes)
     Indexes = PlotIndexes{PlotIdx};
     Data = squeeze(mean(PeriodicTopographies(:, Indexes(1), Indexes(2), :), 1, 'omitnan'));
     disp([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}, ' ' num2str(nnz(~isnan(PeriodicTopographies(:, Indexes(1), Indexes(2), 1))))])
-    % Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
     if all(isnan(Data)|Data==0)
         continue
     end
@@ -168,20 +161,12 @@ for PlotIdx = 1:numel(PlotIndexes)
         Legend = '';
     end
 
-    CLims = quantile(Data, [0 1]);
     CLims = [.05 .2];
 
     AxesTopo = chART.sub_plot([], Grid, [GridRws, PlotIdx], [2, 1], false, '', PlotProps);
     chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims, '', 'Linear', PlotProps);
     set(gca, 'Units', 'centimeters')
-    % Axes.Position(2) = 2;
-    % title([BandLabels{Indexes(2)}, ' ', StageLabels{Indexes(1)}])
     title(Titles{PlotIdx})
-
-    % Axes = chART.sub_plot([], [GridRws, numel(PlotIndexes)], [GridRws, PlotIdx], [2, 1], false, ' ', PlotProps);
-    % set(gca, 'Units', 'centimeters')
-    % Axes.Position(2) = Axes.Position(2)-3;
-
     axis off
 end
 
@@ -189,7 +174,6 @@ Axes = chART.sub_plot([], Grid, [GridRws, PlotIdx+1], [2, 1], false, '', PlotPro
 chART.plot.pretty_colorbar('Linear', CLims, 'Periodic power', PlotProps);
 Axes.Units = 'centimeters';
 Axes.Position = [Axes.Position(1)-3, AxesTopo.Position(2)+1, 3, Axes.Position(4)-2];
-% Axes.Position = [Axes.Position(1), AxesTopo.Position(2), Axes.Position(3), Axes.Position(4)];
 set(Axes, 'visible', 'off')
 AxesGrid.Colormap = chART.utils.custom_gradient([1 1 1], PlotProps.Color.Maps.Linear(1, :));
 
@@ -213,7 +197,6 @@ disp(sortrows(Topography, 'Iota', 'descend'))
 %% Figure 4 example sleep
 
 PlotProps = Parameters.PlotProps.Manuscript;
-% PlotProps.Axes.yPadding = 5;
 
 load(fullfile(SourceSpecparam, [ExampleParticipant, '_Sleep_Baseline.mat']), ...
     'PeriodicPower', 'Slopes', 'FooofFrequencies',  'Scoring', 'Chanlocs', 'Time', 'ScoringIndexes', 'ScoringLabels')
@@ -235,7 +218,6 @@ chART.set_axis_properties(PlotProps)
 CLims = [-.1 1.1];
 clim(CLims)
 set(gca, 'YDir', 'normal',   'TickLength', [TickLength 0])
-% set(gca, 'YDir', 'normal', 'TickLength', [0.0100    0.0250])
 ylabel('Frequency (Hz)')
 set(gca, 'YLim', FreqLims)
 PlotProps.Colorbar.Location = 'eastoutside';
@@ -246,12 +228,10 @@ B1Axis = gca;
 Width = B1Axis.Position(3);
 Bar.Position(3) = 0.014647239581274;
 B1Axis.Position(3) = Width;
-% B1Axis.Position(2) = B1Axis.Position(2) + .01;
 
 % plot hypnogram
 chART.sub_plot([], Grid, [3, 1], [1 1], true, '', PlotProps);
 yyaxis left
-% Red = chART.color_picker(1, '', 'red');
 Red = PlotProps.Color.Maps.Linear(30, :);
 plot(Time, Scoring, 'LineWidth', PlotProps.Line.Width*2/3, 'Color', [Red, .8])
 chART.set_axis_properties(PlotProps)
@@ -298,7 +278,7 @@ B3Axes.Position(3) = Width;
 B3Axes.Position = [B3Axes.Position(1), B3Axes.Position(2)-.01, Width, B3Axes.Position(4)+.01];
 
 
-%%% C: example REM time
+%%% C: example REM in time
 
 load(fullfile(SourceEEG, [ExampleParticipant, '_Sleep_Baseline.mat']), 'EEG')
 load(fullfile(CacheDir, CacheName), 'Bands')
@@ -333,7 +313,6 @@ plot_burst_mask(EEGSnippet, FrequencyRange, CriteriaSet, YGap, PlotProps)
 B4Axes = gca;
 B4Axes.Units = B1Axis.Units;
 B4Axes.Position(3) = Width;
-% B4Axes.Position(2) = B4Axes.Position(2) + .01; 
 set(gca,  'TickLength', [TickLength 0])
 
 chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)

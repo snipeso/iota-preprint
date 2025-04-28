@@ -13,7 +13,7 @@ close all
 Parameters = LSMParameters();
 Paths = Parameters.Paths;
 Task = Parameters.Task;
-Format = 'Minimal';
+Format = Parameters.Format;
 Session = Parameters.Session;
 Channels = Parameters.Channels;
 
@@ -82,6 +82,8 @@ for FileIdx = 1:numel(Files)
         Power(ChannelIdx, Artefacts(ChannelIdx, :)==1, :) = nan;
     end
 
+    % smoothing spectrum identifies fewer spurious peaks, and makes fooof
+    % run faster
     SmoothPower = oscip.smooth_spectrum(Power, Frequencies, SmoothSpan); % better for fooof if the spectra are smooth
 
 
@@ -93,10 +95,7 @@ for FileIdx = 1:numel(Files)
     save(fullfile(Destination, File), 'Power', 'Frequencies', 'Scoring',  'BadSegments',  'Artefacts', 'Time', 'Chanlocs', ...
         'SmoothPower', 'PeriodicPower', 'FooofFrequencies', 'PeriodicPeaks', ...
         'Intercepts', 'Slopes', 'Errors', 'RSquared', 'ScoringLabels', 'ScoringIndexes')
-    % delete(gcp('nocreate'));
-    % myCluster = parcluster;
-    % disp(myCluster.JobStorageLocation)
-    % rmdir(myCluster.JobStorageLocation, 's')
+
 
     % plot to check all is ok
     oscip.plot.frequency_overview(PeriodicPower, FooofFrequencies, PeriodicPeaks, ...

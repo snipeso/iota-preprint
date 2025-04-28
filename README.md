@@ -91,4 +91,4 @@ Here are some short cuts to important functions used in the code:
 - Analysis:
     - [oscip.fit_fooof()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof.m), this is where the fooof/specparam function gets run and all the parameters extracted, and [oscip.fit_fooof_multidimentional()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof_multidimentional.m) is what runs it on every channel/epoch
     - [cycy.detect_bursts_all_channels()](https://github.com/HuberSleepLab/Matcycle/blob/main/%2Bcycy/detect_bursts_all_channels.m) detection of bursts with cycle-by-cycle analysis
-
+    - [oscip.check_peak_in_band()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/check_peak_in_band.m) checks whether there is a peak among the periodic peaks in a given frequency band, and indicates what the peak frequency is.

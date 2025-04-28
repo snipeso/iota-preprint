@@ -16,6 +16,7 @@ Task = Parameters.Task;
 Session = Parameters.Session;
 Participants = Parameters.Participants;
 EpochLength = Parameters.EpochLength;
+Format = Parameters.Format;
 
 Bands = Parameters.Bands;
 BandLabels = fieldnames(Bands);
@@ -34,7 +35,6 @@ MinMinutes = Parameters.MinTime/60;
 RangeSlopes = [0 5];
 RangeIntercepts = [0 5]; % reeeeally generous
 
-Format = 'Minimal';
 SourcePower = fullfile(Paths.Final, 'EEG', 'Power', '20sEpochs', Task, Format);
 
 CacheDir = Paths.Cache;

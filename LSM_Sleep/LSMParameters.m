@@ -11,6 +11,7 @@ Parameters.Participants = {'P01', 'P02', 'P03', 'P04', 'P05', 'P06', 'P07', 'P08
 Parameters.Task = 'Sleep'; 
 Parameters.Session = 'Baseline';
 Parameters.EpochLength = 20;
+Parameters.Format = 'Minimal'; % could also be "Power", but at some point I switched to using data without much filtering
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Paths
@@ -22,7 +23,6 @@ RawCore = 'E:\LSM\Data';
 Paths.Datasets = fullfile(RawCore, 'Raw');
 
 % where to put preprocessed data (much smaller hard disk)
-% PrepCore = 'F:\Data';
 PrepCore = 'E:\Data';
 
 Paths.Preprocessed = fullfile(PrepCore, 'Preprocessed');
@@ -118,13 +118,6 @@ Bands.Gamma = [35 40];
 Parameters.Bands = Bands;
 
 %%% channels
-Frontspot = [22 15 9 23 18 16 10 3 24 19 11 4 124 20 12 5 118 13 6 112];
-Backspot = [66 71 76 84 65 70 75 83 90 69 74 82 89];
-Centerspot = [129 7 106 80 55 31 30 37 54 79 87 105 36 42 53 61 62 78 86 93 104 35 41 47  52 92 98 103 110, 60 85 51 97];
-
-Channels.PreROI.Front = Frontspot;
-Channels.PreROI.Center = Centerspot;
-Channels.PreROI.Back = Backspot;
 Channels.NotEdge = 1:128;
 Channels.Edge =   [1 8 14 17 21 25 32 128 38 44 43 48 63 68 73 81 88 94 99 120 119 114 121 125];
 Channels.notEEG = [49, 56, 107, 113, 126, 127];
