@@ -18,7 +18,6 @@ Tasks = P.Tasks(1);
 
 % Filetype to clean
 CleanType = 'Power';
-% CleanType = 'Unfiltered';
 
 Refresh = false;
 

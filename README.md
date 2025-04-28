@@ -2,20 +2,7 @@
 
 The code in this repository was used to generate the data from the Snipes (2025) short report *Iota oscillations (25-35 Hz) during wake and REM sleep in children and young adults* in the Journal of Neurophysiology.
 
-## Key functions
-If you're here because you think I may have messed up, I explained something poorly, or you want to try it for yourself, here are the key functions in the pipeline that produced the paper:
-
-- Preprocessing: 
-    - [filter_and_downsample_eeg()](./functions/eeg_preprocessing/filter_and_downsample_eeg.m)
-    - [find_bad_segments()](./functions/eeg_preprocessing/find_bad_segments.m), the script to identify major artefacts
-    - [remove_channel_or_window()](./functions/eeg_preprocessing/remove_channel_or_window.m), the function that choses whether to remove a channel or an epoch, based on which was worse.
-    - [eeglab_ica()](./functions/eeg_preprocessing/eeglab_ica.m), gets ICA components
-
-- Analysis:
-    - [oscip.fit_fooof()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof.m), this is where the fooof/specparam function gets run and all the parameters extracted, and [oscip.fit_fooof_multidimentional()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof_multidimentional.m) is what runs it on every channel/epoch
-    - [cycy.detect_bursts_all_channels()](https://github.com/HuberSleepLab/Matcycle/blob/main/%2Bcycy/detect_bursts_all_channels.m) detection of bursts with cycle-by-cycle analysis
-
-The scripts that actually run this code are described below in "How to run", and most of that code is dedicated to just looping, loading and saving files. The juicy stuff is in the functions above.
+Note: especially the preprocessing is only lightly described in the paper compared to everything that is actually done to automatically detect artefacts. Another preprint describes the preprocessing in detail, but it's more direct to just see what is implemented in the code.
 
 ## Setup
 
@@ -91,3 +78,17 @@ Sleep scripts are in [LSM_Sleep/](./LSM_Sleep/)
 4. Using [Hd-SleepCleaner](https://github.com/snipeso/Hd-SleepCleaner/), identify artefact epochs. This saves a file with artndx (ch x epochs) and visnum (1 x epochs) with the artefacts and scoring respectively. 
 5. Run Analysis1-2
 6. Run Results_Sleep
+
+## Key functions
+Here are some short cuts to important functions used in the code:
+
+- Preprocessing: 
+    - [filter_and_downsample_eeg()](./functions/eeg_preprocessing/filter_and_downsample_eeg.m)
+    - [find_bad_segments()](./functions/eeg_preprocessing/find_bad_segments.m), the script to identify major artefacts
+    - [remove_channel_or_window()](./functions/eeg_preprocessing/remove_channel_or_window.m), the function that choses whether to remove a channel or an epoch, based on which was worse.
+    - [eeglab_ica()](./functions/eeg_preprocessing/eeglab_ica.m), gets ICA components
+
+- Analysis:
+    - [oscip.fit_fooof()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof.m), this is where the fooof/specparam function gets run and all the parameters extracted, and [oscip.fit_fooof_multidimentional()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof_multidimentional.m) is what runs it on every channel/epoch
+    - [cycy.detect_bursts_all_channels()](https://github.com/HuberSleepLab/Matcycle/blob/main/%2Bcycy/detect_bursts_all_channels.m) detection of bursts with cycle-by-cycle analysis
+

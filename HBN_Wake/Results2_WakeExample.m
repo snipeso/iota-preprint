@@ -26,16 +26,12 @@ SourcePower = fullfile(Paths.Core, 'Final_Old', 'EEG','Specparam/');
 %%% Run
 
 
-
 %% Figure 2
 
 PlotProps = Parameters.PlotProps.Manuscript;
 PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.External.EEGLAB.TopoRes = 300;
 PlotProps.Axes.xPadding = 20;
-
-% PlotTopos = {
-%     'NDARLZ986JLL', 'NDARKM635UY0', 'NDARXH140YZ0',  'NDARVK847ZRT', 'NDARAE710YWG', 'NDARPD977VX2'}; % IDs of participants
 
 PlotTopos = {
     'NDARTH506TRG', 'NDARKM635UY0', 'NDARXH140YZ0',  'NDARVK847ZRT', 'NDARAE710YWG', 'NDARPD977VX2'}; % IDs of participants
@@ -87,6 +83,8 @@ plot_examples(EEG, Power, Topographies, IotaFrequencies, Participants, Frequenci
 chART.save_figure(['Example_', Participant], ResultsFolder, PlotProps)
 
 
+%%%%%%%%%%%%%%%%%%%%%%
+%%% sanity check to see if link between iota and eye movements persists in wake
 
 %% get cycle-by-cycle on whole recording
 
@@ -98,11 +96,10 @@ BandRange = MaxPeak(1) + [-2 2];
 
 Bursts = burst_detection(EEGBroadband, BandRange, CriteriaSet);
 Bursts = cycy.average_cycles(Bursts, {'Amplitude'});
-BurstClusters = cycy.aggregate_bursts_into_clusters(Bursts, EEGBroadband, 1);
 
 
-%% sanity check
-% to see if link between iota and eye movements persists in wake
+
+%% plot bursts and eyes
 
 figure('Units','centimeters','Position',[0 0 25 8])
 
@@ -118,8 +115,9 @@ plot(t/60, mat2gray(smooth(rms_per_channel, 1000))*129, 'LineWidth', 2, 'color',
 axis tight
  
 
-%%
+%%% Figures for reviewers
 
+%%
 BurstDensity = nan(1, numel(Chanlocs));
 Amplitude = BurstDensity;
 Duration = size(EEGBroadband.data, 2)/EEG.srate/60;
