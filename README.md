@@ -1,6 +1,6 @@
-# Iota preprint
+# Iota Oscillations (short report)
 
-The code in this repository was used to generate the data from the Snipes 2025 short report *Iota oscillations (25-35 Hz) during wake and REM sleep in children and young adults*.
+The code in this repository was used to generate the data from the Snipes (2025) short report *Iota oscillations (25-35 Hz) during wake and REM sleep in children and young adults* in the Journal of Neurophysiology.
 
 ## Key functions
 If you're here because you think I may have messed up, I explained something poorly, or you want to try it for yourself, here are the key functions in the pipeline that produced the paper:
@@ -8,7 +8,7 @@ If you're here because you think I may have messed up, I explained something poo
 - Preprocessing: 
     - [filter_and_downsample_eeg()](./functions/eeg_preprocessing/filter_and_downsample_eeg.m)
     - [find_bad_segments()](./functions/eeg_preprocessing/find_bad_segments.m), the script to identify major artefacts
-    - [remove_channel_or_window()](./functions/eeg_preprocessing/remove_channel_or_window.m), the function that choses whether to remove a channel or an epoch, based on which was worse. I think this is nifty.
+    - [remove_channel_or_window()](./functions/eeg_preprocessing/remove_channel_or_window.m), the function that choses whether to remove a channel or an epoch, based on which was worse.
 
 - Analysis:
     - [oscip.fit_fooof()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof.m), this is where the fooof/specparam function gets run and all the parameters extracted, and [oscip.fit_fooof_multidimentional()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof_multidimentional.m) is what runs it on every channel/epoch
@@ -18,16 +18,21 @@ If you're here because you think I may have messed up, I explained something poo
 ## Setup
 
 ### Requirements
-This code was writen for MATLAB 2023b.
+This code was writen for MATLAB 2023b which in turn runs python 3.10. It may or may not work with other versions.
 
-- the [FOOOF](https://github.com/fooof-tools/fooof_mat) MATLAB wrapper (can be difficult to set up). N.B. This is only a requirement to exactly reproduce the results in this paper. Since then, eeg-oscillations toolbox has been updated to no longer require running the original python code.
+External toolboxes:
+- the [FOOOF/specparam](https://github.com/fooof-tools/fooof_mat) MATLAB wrapper (warning: can be difficult to set up). N.B. This is only a requirement to exactly reproduce the results in this paper. Since then, the eeg-oscillations toolbox has been updated to no longer require running python code.
+- the [EEGLAB](https://sccn.ucsd.edu/eeglab/download.php) toolbox, with the "bva-io" plugin to import raw brainvision data  
+    - can be easily installed through the EEGLAB gui. File>import data > From Brain. Vis. rec...
+- The semi-automatic sleep data cleaning was done with the [SleepCleaner toolbox](https://github.com/HuberSleepLab/Hd-SleepCleaner), seperately from this repository
+
+My toolboxes:
 - the [eeg-oscillations](https://github.com/snipeso/eeg-oscillations) toolbox for calculating power, running FOOOF, etc. There is a specific version associated with the paper.
 - the [chART](https://github.com/snipeso/chart) toolbox for plotting
 - the [Matcycle](https://github.com/hubersleeplab/matcycle) toolbox, for the burst detection. There is a specific version for the iota paper.
-- the [EEGLAB](https://sccn.ucsd.edu/eeglab/download.php) toolbox, with the "bva-io" plugin to import raw brainvision data  
-    - can be easily installed through the EEGLAB gui. File>import data > From Brain. Vis. rec...
 
-The Parallel Processing MATLAB toolbox is a good idea, although in theory it works without it.
+
+The Parallel Processing MATLAB toolbox is a really good idea, although in theory the code works without it.
 
 ### Data
 EEG data is saved with EEGLAB's standarard structure:
@@ -61,19 +66,19 @@ Artefacts were marked in a channel x epoch matrix called `artndxn` (also saved i
 ### Output data
 #### Power & specparam
 - Power is saved as a Channel x Epoch x Frequency matrix.
-- Periodic peaks are saved as a Channel x Epoch x 3 matrix, with the three layers representing center frequency, peak amplitude, and bandwidth (2 x standard deviation of the gaussian).
-- Metadata is a large table with "EID" the participant ID, "Sex" (1=female), "EHQ" for handedness (<0 is left)
+- Periodic peaks are saved as a Channel x Epoch x 3 matrix, with the three layers representing center frequency, peak amplitude, and bandwidth.
+- Wake metadata is a large table with "EID" the participant ID, "Sex" (1=female), "EHQ" for handedness (<0 is left)
 
-## Run 
+## How to run 
 
 ### Wake
 
 Wake scripts are in [HBN_Wake/](./HBN_Wake/)
 
 1. Adjust paths in HBNParameters.m. Add toolbox paths to MATLAB if you haven't already.
-2. Run preprocessing scripts Prep1 to Prep4. "parfor" loop lines are currently commented out; undo if you want to run it fast
-3. Run the analysis scripts Analysis1 to Analysis2
-4. Run the results scripts
+2. Run preprocessing scripts Prep1 to Prep4.
+3. Run the Analysis scripts
+4. Run the Results scripts
 
 ### Sleep
 Sleep scripts are in [LSM_Sleep/](./LSM_Sleep/)
@@ -83,4 +88,4 @@ Sleep scripts are in [LSM_Sleep/](./LSM_Sleep/)
 3. Conduct sleep scoring (manually)
 4. Using [Hd-SleepCleaner](https://github.com/snipeso/Hd-SleepCleaner/), identify artefact epochs. This saves a file with artndx (ch x epochs) and visnum (1 x epochs) with the artefacts and scoring respectively. 
 5. Run Analysis1-2
-6. Run Figures
+6. Run Results_Sleep
