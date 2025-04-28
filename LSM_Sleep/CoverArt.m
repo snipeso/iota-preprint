@@ -86,17 +86,17 @@ segment2 = [linspace(color2(1), color3(1), n2)', ...
 
 % Combine full colormap
 % Colors = [segment1; segment2];
-% Colors = Colors(round(linspace(1, 256, numel(Participants))), :);
-% ParticipantOrder = [9 18 4 7 2 19 3 15 13 14 17 5 11 16 1 6,  12, 8, 10];
-ParticipantOrder = 1:19;
+Colors = Colors(round(linspace(1, 256, numel(Participants))), :);
+ParticipantOrder = [9 18 4 7 2 19 3 15 13 14 17 5 11 16 1 6,  12, 8, 10];
+% ParticipantOrder = 1:19;
 
 % Colormap = chART.external.colorcet('L9');
-Colormap = PlotProps.Color.Maps.Linear;
-Colors = Colormap(round(linspace(1, 250, 19)), :);
+% Colormap = PlotProps.Color.Maps.Linear;
+% Colors = Colormap(round(linspace(1, 250, 19)), :);
 
 
-% figure('Units','centimeters','Position',[0 0 21, 29.7])
-figure('Units','normalized','OuterPosition',[0 0 1 1])
+figure('Units','centimeters','Position',[0 0 21, 29.7])
+% figure('Units','normalized','OuterPosition',[0 0 1 1])
 chART.sub_plot([], [1 1], [1, 1], [], false, '', PlotProps);
 
 targetRGB = [24, 55, 85] / 255;  % Normalize to [0,1]
@@ -112,12 +112,12 @@ XLim = [4 38];
 YLim = [0 .5];
 % YLim = [0 .27];
 
-% imagesc(XLim, YLim, gradientImage);
+imagesc(XLim, YLim, gradientImage);
 % colormap(cmap);
 axis off;
 axis xy;  % So it goes top-down
 
-% colormap(flip(cmap));
+colormap(flip(cmap));
 
 chART.plot.increases_from_baseline(Baseline, squeeze(AllDistributions(ParticipantOrder, 1, :)),  Frequencies, 'pos', false, PlotProps, Colors);
 
