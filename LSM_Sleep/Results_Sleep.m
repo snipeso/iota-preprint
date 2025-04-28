@@ -197,7 +197,7 @@ chART.save_figure('PeriodicPeaks', ResultsFolder, PlotProps)
 
 
 
-%%
+%% top channels
 
 Data = squeeze(mean(PeriodicTopographies(:, 5, 5, :), 1, 'omitnan'));
 MeanTopo = Data;
@@ -210,7 +210,7 @@ disp(sortrows(Topography, 'Iota', 'descend'))
 
 
 
-%% Figure 8 hypnogram
+%% Figure 4 example sleep
 
 PlotProps = Parameters.PlotProps.Manuscript;
 % PlotProps.Axes.yPadding = 5;
@@ -281,13 +281,13 @@ CacheName = [ExampleParticipant, '_BurstsOneREM.mat'];
 load(fullfile(CacheDir, CacheName), 'Bursts', 'EEGSnippet', 'BurstClusters')
 EOG2 =  EEGSnippet.data(labels2indexes(32, EEGSnippet.chanlocs), :)-EEGSnippet.data(labels2indexes(125, EEGSnippet.chanlocs), :);
 
-rms_per_channel = sqrt(EOG2.^2);
+amp_eog = abs(EOG2);
 t = linspace(0, size(EEGSnippet.data, 2)/EEGSnippet.srate, size(EEGSnippet.data, 2));
 chART.sub_plot([], Grid, [4, 1], [1 1], true, 'B', PlotProps);
 
 scatter([Bursts.Start]/EEGSnippet.srate/60, [Bursts.ChannelIndex], [Bursts.MeanAmplitude], 'filled', 'MarkerFaceAlpha', .1, 'MarkerFaceColor', PlotProps.Color.Maps.Linear(128, :))
 hold on
-plot(t/60, mat2gray(smooth(rms_per_channel, 1000))*123, 'LineWidth', 1.5, 'color', [0 0 0])
+plot(t/60, mat2gray(smooth(amp_eog, 1000))*123, 'LineWidth', 1.5, 'color', [0 0 0])
 chART.set_axis_properties(PlotProps)
 set(gca, 'YColor', 'none', 'TickLength', [TickLength 0])
 axis tight
@@ -337,81 +337,6 @@ B4Axes.Position(3) = Width;
 set(gca,  'TickLength', [TickLength 0])
 
 chART.save_figure('ExampleHypnogram', ResultsFolder, PlotProps)
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% not included: topography of all stages/bands
-
-load(fullfile(CacheDir, CacheName), 'PeriodicTopographies', 'Chanlocs', 'Bands', 'StageLabels', 'CustomTopographies')
-BandLabels = fieldnames(Bands);
-nStages = numel(StageLabels);
-nBands = numel(BandLabels);
-
-PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.Axes.xPadding = 5;
-PlotProps.Axes.yPadding = 5;
-Grid = [nBands, nStages];
-
-PeriodicTopographies(:, :, :, end) = nan; %
-
-CLims = [
-    .1 .25; % theta
-    .15 .7; % alpha
-    .1 .55; % sigma
-    .1 .37; % beta
-    .05 .2; % iota
-    ];
-
-figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width PlotProps.Figure.Width])
-for BandIdx = 1:nBands
-    for StageIdx = 1:nStages
-        % Data = squeeze(mean(PeriodicTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
-        Data = squeeze(mean(CustomTopographies(:, StageIdx, BandIdx, :), 1, 'omitnan'));
-        if all(isnan(Data)|Data==0)
-            continue
-        end
-        chART.sub_plot([], Grid, [BandIdx, StageIdx], [], false, '', PlotProps);
-        % chART.plot.eeglab_topoplot(Data, Chanlocs, [], CLims(BandIdx, :), '', 'Linear', PlotProps);
-        chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps);
-
-        colorbar
-        title([BandLabels{BandIdx}, ' ', StageLabels{StageIdx}])
-    end
-end
-
-chART.save_figure('AllTopographies', ResultsFolder, PlotProps)
-
-
-% TODO: average all bands!!
-% REM, Wake, NREM x bands in table
-
-%% plot all iota topographies
-
-PlotProps = Parameters.PlotProps.Manuscript;
-PlotProps.External.EEGLAB.TopoRes = 50;
-PlotProps.Debug = true;
-Participants = Parameters.Participants;
-
-load(fullfile(CacheDir, CacheName), 'CustomTopographies', 'Chanlocs', 'Bands', 'StageLabels', 'CenterFrequencies')
-nStages = numel(StageLabels);
-BandLabels = fieldnames(Bands);
-nBands = numel(BandLabels);
-figure('Units','centimeters', 'OuterPosition',[0 0 PlotProps.Figure.Width*2 PlotProps.Figure.Width])
-Grid = [nStages, numel(Participants)];
-
-
-for ParticipantIdx = 1:numel(Participants)
-    for StageIdx = 1:nStages
-        Data = squeeze(CustomTopographies(ParticipantIdx, StageIdx, end, :));
-        if all(isnan(Data)|Data==0)
-            continue
-        end
-        chART.sub_plot([], Grid, [StageIdx, ParticipantIdx], [], false, '', PlotProps);
-        chART.plot.eeglab_topoplot(Data, Chanlocs, [], [], '', 'Linear', PlotProps);
-        title([Participants{ParticipantIdx}, ' ', StageLabels{StageIdx}])
-    end
-end
-
 
 
 
