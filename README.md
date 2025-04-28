@@ -9,11 +9,13 @@ If you're here because you think I may have messed up, I explained something poo
     - [filter_and_downsample_eeg()](./functions/eeg_preprocessing/filter_and_downsample_eeg.m)
     - [find_bad_segments()](./functions/eeg_preprocessing/find_bad_segments.m), the script to identify major artefacts
     - [remove_channel_or_window()](./functions/eeg_preprocessing/remove_channel_or_window.m), the function that choses whether to remove a channel or an epoch, based on which was worse.
+    - [eeglab_ica()](./functions/eeg_preprocessing/eeglab_ica.m), gets ICA components
 
 - Analysis:
     - [oscip.fit_fooof()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof.m), this is where the fooof/specparam function gets run and all the parameters extracted, and [oscip.fit_fooof_multidimentional()](https://github.com/snipeso/eeg-oscillations/blob/main/%2Boscip/fit_fooof_multidimentional.m) is what runs it on every channel/epoch
     - [cycy.detect_bursts_all_channels()](https://github.com/HuberSleepLab/Matcycle/blob/main/%2Bcycy/detect_bursts_all_channels.m) detection of bursts with cycle-by-cycle analysis
 
+The scripts that actually run this code are described below in "How to run", and most of that code is dedicated to just looping, loading and saving files. The juicy stuff is in the functions above.
 
 ## Setup
 

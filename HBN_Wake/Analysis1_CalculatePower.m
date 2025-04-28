@@ -1,6 +1,8 @@
 % calculate power over 20 s epochs for every channel, basically like whats
 % done for sleep data.
 
+% from iota-neurophys, Snipes 2024.
+
 clear
 close all
 clc

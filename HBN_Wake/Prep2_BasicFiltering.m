@@ -1,4 +1,4 @@
-% saves and filters EEG data
+% saves as mat file and filters EEG data
 %
 % From iota-neurophys by Sophia Snipes, 2024
 
@@ -33,8 +33,8 @@ Participants(contains(Participants, '.')) = []; % exclude any files
 
 load('StandardChanlocs128.mat', 'StandardChanlocs')
 
-% parfor ParticipantIdx = 1:numel(Participants) % loop through participants 
-    for ParticipantIdx = 1:numel(Participants) % doesn't seem to need parfor if theres no filtering happening
+parfor ParticipantIdx = 1:numel(Participants) % loop through participants
+    % for ParticipantIdx = 1:numel(Participants) % doesn't seem to need parfor if theres no filtering happening
 
     AllParams = PrepParameters; % in here to reduce overhead when running parallel loop
     AllParticipants = Participants;
@@ -56,11 +56,11 @@ load('StandardChanlocs128.mat', 'StandardChanlocs')
             continue
         end
 
-        EEG.data(129, :) = []; % its nice that they put CZ in there, but I add it in later
+        EEG.data(129, :) = []; % its nice that they put CZ in there, but I add it in later (and then remove it again because of the sleep data; sorry for all this)
         EEG.chanlocs = StandardChanlocs; % 128 channel locations
         EEG.nbchan = 128;
         EEG.ref = 'Cz';
-        
+
         % check if data is ok
         if size(EEG.data, 2) < 100 % seperate from below, because it's hypothetically possible that there's something wrong with srate
             warning([Participant 'doesnt have enough data'])

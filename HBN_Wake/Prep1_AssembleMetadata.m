@@ -1,5 +1,8 @@
-%%% This code is very rough, and is just what was needed to automatically
-%%% merge the CSV files provided with the datasets all together.
+% This code is very rough, and is just what was needed to automatically
+% merge the CSV files provided with the datasets all together into a single
+% "Metadata" table.
+
+% from iota-neurophys, Snipes 2024.
 
 
 %%% merge CSV files indicating participant basic info (age, sex, handedeness)
@@ -26,7 +29,6 @@ save(fullfile(Destination, 'MetadataHBN.mat'), 'Metadata')
 Destination = 'E:\Metadata';
 load(fullfile(Destination, 'MetadataHBN.mat'), 'Metadata')
 T = readtable(fullfile(Destination, 'Phenotypes.csv')); % You can download this csv using the LORIS platform, and renaming it accordingly
-
 
 ColumnNames = T.Properties.VariableNames;
 
