@@ -34,8 +34,11 @@ PlotProps.Colorbar.Location = 'eastoutside';
 PlotProps.External.EEGLAB.TopoRes = 300;
 PlotProps.Axes.xPadding = 20;
 
+% PlotTopos = {
+%     'NDARLZ986JLL', 'NDARKM635UY0', 'NDARXH140YZ0',  'NDARVK847ZRT', 'NDARAE710YWG', 'NDARPD977VX2'}; % IDs of participants
+
 PlotTopos = {
-    'NDARLZ986JLL', 'NDARKM635UY0', 'NDARXH140YZ0',  'NDARVK847ZRT', 'NDARAE710YWG', 'NDARPD977VX2'}; % IDs of participants
+    'NDARTH506TRG', 'NDARKM635UY0', 'NDARXH140YZ0',  'NDARVK847ZRT', 'NDARAE710YWG', 'NDARPD977VX2'}; % IDs of participants
 
 CacheDir = Paths.Cache;
 CacheName = 'PeriodicParameters_Clean.mat';
